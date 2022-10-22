@@ -1,3 +1,3 @@
-# Haystack
+# Swift Haystack
 
-A description of this package.
+An implementation of Project Haystack in Swift.
