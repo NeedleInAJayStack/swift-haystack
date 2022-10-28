@@ -2,35 +2,20 @@ import XCTest
 @testable import Haystack
 
 final class BoolTests: XCTestCase {
-    func testJsonEncode() throws {
-        let encoder = JSONEncoder()
+    func testJsonCoding() throws {
+        let value = true
+        let jsonString = #"true"#
         
-        let trueData = try encoder.encode(true)
+        let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
-            String(data: trueData, encoding: .utf8),
-            "true"
+            String(data: encodedData, encoding: .utf8),
+            jsonString
         )
         
-        let falseData = try encoder.encode(false)
+        let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))
         XCTAssertEqual(
-            String(data: falseData, encoding: .utf8),
-            "false"
-        )
-    }
-    
-    func testJsonDecode() throws {
-        let decoder = JSONDecoder()
-        
-        let trueData = try XCTUnwrap("true".data(using: .utf8))
-        XCTAssertEqual(
-            try decoder.decode(Bool.self, from: trueData),
-            true
-        )
-        
-        let falseData = try XCTUnwrap("false".data(using: .utf8))
-        XCTAssertEqual(
-            try decoder.decode(Bool.self, from: falseData),
-            false
+            try JSONDecoder().decode(Bool.self, from: decodedData),
+            value
         )
     }
     
