@@ -3,10 +3,12 @@ import Foundation
 /// Singleton `Marker` instance
 let marker = Marker()
 
-struct Marker: Equatable {}
+struct Marker: Val {
+    public var valType: ValType { .Marker }
+}
 
 /// See https://project-haystack.org/doc/docHaystack/Json#marker
-extension Marker: Codable {
+extension Marker {
     static let kindValue = "marker"
     
     enum CodingKeys: CodingKey {

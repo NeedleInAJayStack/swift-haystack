@@ -3,10 +3,12 @@ import Foundation
 /// Singleton `remove` instance
 let remove = Remove()
 
-struct Remove: Equatable {}
+struct Remove: Val {
+    public var valType: ValType { .Remove }
+}
 
 /// See https://project-haystack.org/doc/docHaystack/Json#remove
-extension Remove: Codable {
+extension Remove {
     static let kindValue = "remove"
     
     enum CodingKeys: CodingKey {

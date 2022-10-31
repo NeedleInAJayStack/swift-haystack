@@ -1,11 +1,13 @@
 import Foundation
 
-public struct Symbol: Equatable {
+public struct Symbol: Val {
+    public var valType: ValType { .Symbol }
+    
     let val: String
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#symbol
-extension Symbol: Codable {
+extension Symbol {
     static let kindValue = "symbol"
     
     enum CodingKeys: CodingKey {

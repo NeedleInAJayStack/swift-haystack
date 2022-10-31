@@ -1,12 +1,14 @@
 import Foundation
 
-public struct Ref: Equatable {
+public struct Ref: Val {
+    public var valType: ValType { .Ref }
+    
     let val: String
     let dis: String?
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#ref
-extension Ref: Codable {
+extension Ref {
     static let kindValue = "ref"
     
     enum CodingKeys: CodingKey {

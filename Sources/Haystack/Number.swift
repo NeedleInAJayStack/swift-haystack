@@ -1,6 +1,8 @@
 import Foundation
 
-public struct Number: Equatable {
+public struct Number: Val {
+    public var valType: ValType { .Number }
+    
     let val: Double
     let unit: String?
     
@@ -11,7 +13,7 @@ public struct Number: Equatable {
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#number
-extension Number: Codable {
+extension Number {
     static let kindValue = "number"
     
     enum CodingKeys: CodingKey {

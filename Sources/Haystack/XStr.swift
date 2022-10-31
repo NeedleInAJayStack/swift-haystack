@@ -1,12 +1,14 @@
 import Foundation
 
-public struct XStr: Equatable {
+public struct XStr: Val {
+    public var valType: ValType { .XStr }
+    
     let type: String
     let val: String
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#xstr
-extension XStr: Codable {
+extension XStr {
     static let kindValue = "xstr"
     
     enum CodingKeys: CodingKey {

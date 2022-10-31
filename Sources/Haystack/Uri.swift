@@ -1,11 +1,13 @@
 import Foundation
 
-public struct Uri: Equatable {
+public struct Uri: Val {
+    public var valType: ValType { .Uri }
+    
     let val: String
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#uri
-extension Uri: Codable {
+extension Uri {
     static let kindValue = "uri"
     
     enum CodingKeys: CodingKey {

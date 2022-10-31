@@ -1,6 +1,8 @@
 import Foundation
 
-extension String: HVal {
+extension String: Val {
+    public var valType: ValType { .Str }
+    
     public func toZinc() -> String {
         var string = ""
         for c in self.unicodeScalars {

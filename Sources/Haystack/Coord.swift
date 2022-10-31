@@ -1,6 +1,8 @@
 import Foundation
 
-public struct Coord: Equatable {
+public struct Coord: Val {
+    public var valType: ValType { .Coord }
+    
     let lat: Double
     let lng: Double
 }

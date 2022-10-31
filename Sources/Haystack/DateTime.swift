@@ -1,6 +1,8 @@
 import Foundation
 
-public struct DateTime: Equatable {
+public struct DateTime: Val {
+    public var valType: ValType { .DateTime }
+    
     let date: Foundation.Date
     let timezone: String // TODO: Align with Foundation.TimeZone
     
@@ -22,7 +24,7 @@ var dateTimeWithMillisFormatter: ISO8601DateFormatter {
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#dateTime
-extension DateTime: Codable {
+extension DateTime {
     static let kindValue = "dateTime"
     
     enum CodingKeys: CodingKey {

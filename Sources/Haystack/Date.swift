@@ -1,6 +1,8 @@
 import Foundation
 
-public struct Date: Equatable {
+public struct Date: Val {
+    public var valType: ValType { .Date }
+    
     let date: Foundation.Date
 }
 
@@ -12,7 +14,7 @@ var dateFormatter: ISO8601DateFormatter {
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#date
-extension Date: Codable {
+extension Date {
     static let kindValue = "date"
     
     enum CodingKeys: CodingKey {

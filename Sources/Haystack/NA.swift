@@ -3,10 +3,12 @@ import Foundation
 /// Singleton `NA` instance
 let na = NA()
 
-struct NA: Equatable {}
+struct NA: Val {
+    public var valType: ValType { .NA }
+}
 
 /// See https://project-haystack.org/doc/docHaystack/Json#na
-extension NA: Codable {
+extension NA {
     static let kindValue = "na"
     
     enum CodingKeys: CodingKey {

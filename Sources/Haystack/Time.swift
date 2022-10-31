@@ -1,6 +1,8 @@
 import Foundation
 
-public struct Time: Equatable {
+public struct Time: Val {
+    public var valType: ValType { .Time }
+    
     let hour: UInt8
     let minute: UInt8
     let second: UInt8
@@ -8,7 +10,7 @@ public struct Time: Equatable {
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#date
-extension Time: Codable {
+extension Time {
     static let kindValue = "time"
     
     enum CodingKeys: CodingKey {

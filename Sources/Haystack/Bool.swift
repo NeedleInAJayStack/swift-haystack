@@ -1,6 +1,8 @@
 import Foundation
 
-extension Bool: HVal {
+extension Bool: Val {
+    public var valType: ValType { .Bool }
+    
     public func toZinc() -> String {
         return self ? "T" : "F"
     }
