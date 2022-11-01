@@ -25,6 +25,7 @@ public enum ValType: String, CaseIterable {
     case Coord
     case Date
     case DateTime
+    case Dict
     case List
     case Marker
     case NA
@@ -43,6 +44,7 @@ public enum ValType: String, CaseIterable {
         case .Coord: return Haystack.Coord.self
         case .Date: return Haystack.Date.self
         case .DateTime: return Haystack.DateTime.self
+        case .Dict: return Haystack.Dict.self
         case .List: return Haystack.List.self
         case .Marker: return Haystack.Marker.self
         case .NA: return Haystack.NA.self
