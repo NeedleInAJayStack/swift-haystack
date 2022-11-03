@@ -3,7 +3,11 @@ import Foundation
 public struct Date: Val {
     public static var valType: ValType { .Date }
     
-    let date: Foundation.Date
+    public let date: Foundation.Date
+    
+    public init(date: Foundation.Date) {
+        self.date = date
+    }
 }
 
 /// Singleton Haystack Date formatter

@@ -3,8 +3,13 @@ import Foundation
 public struct Coord: Val {
     public static var valType: ValType { .Coord }
     
-    let lat: Double
-    let lng: Double
+    public let lat: Double
+    public let lng: Double
+    
+    public init(lat: Double, lng: Double) {
+        self.lat = lat
+        self.lng = lng
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#coord

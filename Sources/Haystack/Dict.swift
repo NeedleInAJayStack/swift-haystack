@@ -1,9 +1,9 @@
 import Foundation
 
-struct Dict: Val {
+public struct Dict: Val {
     public static var valType: ValType { .Dict }
     
-    var elements: [String: any Val]
+    public let elements: [String: any Val]
     
     public init(_ elements: [String: any Val]) {
         self.elements = elements
@@ -25,7 +25,7 @@ extension Dict {
             )
         }
         
-        elements = [:]
+        var elements = [String: any Val]()
         containerLoop: for key in container.allKeys {
             if key.stringValue == "_kind" {
                 guard
@@ -49,6 +49,7 @@ extension Dict {
                 }
             }
         }
+        self.elements = elements
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -86,7 +87,7 @@ extension Dict {
 
 // Dict + Equatable
 extension Dict {
-    static func == (lhs: Dict, rhs: Dict) -> Bool {
+    public static func == (lhs: Dict, rhs: Dict) -> Bool {
         guard lhs.elements.count == rhs.elements.count else {
             return false
         }
@@ -114,7 +115,7 @@ extension Dict {
 
 // Dict + Hashable
 extension Dict {
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         for (key, value) in elements {
             hasher.combine(key)
             hasher.combine(value)
@@ -124,10 +125,11 @@ extension Dict {
 
 // Dict + ExpressibleByDictionaryLiteral
 extension Dict: ExpressibleByDictionaryLiteral {
-    init(dictionaryLiteral elements: (String, any Val)...) {
-        self.elements = [String: any Val](minimumCapacity: elements.count)
-        for (key, value) in elements {
-            self.elements[key] = value
+    public init(dictionaryLiteral elementLiterals: (String, any Val)...) {
+        var elements = [String: any Val](minimumCapacity: elementLiterals.count)
+        for (key, value) in elementLiterals {
+            elements[key] = value
         }
+        self.elements = elements
     }
 }

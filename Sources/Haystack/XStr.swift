@@ -3,8 +3,13 @@ import Foundation
 public struct XStr: Val {
     public static var valType: ValType { .XStr }
     
-    let type: String
-    let val: String
+    public let type: String
+    public let val: String
+    
+    public init(type: String, val: String) {
+        self.type = type
+        self.val = val
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#xstr

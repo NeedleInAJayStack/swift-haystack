@@ -1,9 +1,9 @@
 import Foundation
 
-struct List: Val {
+public struct List: Val {
     public static var valType: ValType { .List }
     
-    var elements: [any Val]
+    public let elements: [any Val]
     
     public init(_ elements: [any Val]) {
         self.elements = elements
@@ -23,7 +23,7 @@ extension List: Encodable {
             )
         }
         
-        elements = []
+        var elements = [any Val]()
         containerLoop: while !container.isAtEnd {
             typeLoop: for type in ValType.allCases {
                 if let val = try? container.decode(type.type) {
@@ -32,6 +32,7 @@ extension List: Encodable {
                 }
             }
         }
+        self.elements = elements
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -44,7 +45,7 @@ extension List: Encodable {
 
 // List + Equatable
 extension List {
-    static func == (lhs: List, rhs: List) -> Bool {
+    public static func == (lhs: List, rhs: List) -> Bool {
         guard lhs.elements.count == rhs.elements.count else {
             return false
         }
@@ -61,7 +62,7 @@ extension List {
 
 // List + Hashable
 extension List {
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         for element in elements {
             hasher.combine(element)
         }
@@ -70,7 +71,7 @@ extension List {
 
 // List + ExpressibleByDictionaryLiteral
 extension List: ExpressibleByArrayLiteral {
-    init(arrayLiteral: any Val...) {
+    public init(arrayLiteral: any Val...) {
         self.elements = arrayLiteral
     }
 }

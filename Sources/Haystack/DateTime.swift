@@ -2,11 +2,15 @@ import Foundation
 
 public struct DateTime: Val {
     public static var valType: ValType { .DateTime }
+    public static let gmtName = "GMT"
     
-    let date: Foundation.Date
-    let timezone: String // TODO: Align with Foundation.TimeZone
+    public let date: Foundation.Date
+    public let timezone: String // TODO: Align with Foundation.TimeZone
     
-    static var gmtName = "GMT"
+    public init(date: Foundation.Date, timezone: String) {
+        self.date = date
+        self.timezone = timezone
+    }
 }
 
 /// Singleton Haystack DateTime formatter

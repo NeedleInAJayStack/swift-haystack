@@ -3,8 +3,13 @@ import Foundation
 public struct Ref: Val {
     public static var valType: ValType { .Ref }
     
-    let val: String
-    let dis: String?
+    public let val: String
+    public let dis: String?
+    
+    public init(val: String, dis: String? = nil) {
+        self.val = val
+        self.dis = dis
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#ref

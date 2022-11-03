@@ -3,7 +3,11 @@ import Foundation
 public struct Uri: Val {
     public static var valType: ValType { .Uri }
     
-    let val: String
+    public let val: String
+    
+    public init(val: String) {
+        self.val = val
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#uri

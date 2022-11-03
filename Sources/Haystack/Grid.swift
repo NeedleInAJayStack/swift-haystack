@@ -1,11 +1,17 @@
 import Foundation
 
-struct Grid: Val {
+public struct Grid: Val {
     public static var valType: ValType { .Grid }
     
-    let meta: Dict
-    let cols: [Col]
-    let rows: [Dict]
+    public let meta: Dict
+    public let cols: [Col]
+    public let rows: [Dict]
+    
+    public init(meta: Dict, cols: [Col], rows: [Dict]) {
+        self.meta = meta
+        self.cols = cols
+        self.rows = rows
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#grid
@@ -56,7 +62,7 @@ extension Grid {
 
 // Dict + Equatable
 extension Grid {
-    static func == (lhs: Grid, rhs: Grid) -> Bool {
+    public static func == (lhs: Grid, rhs: Grid) -> Bool {
         guard lhs.meta == rhs.meta else {
             return false
         }
@@ -88,7 +94,7 @@ extension Grid {
 
 // Dict + Hashable
 extension Grid {
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(meta)
         for col in cols {
             hasher.combine(col.name)
@@ -98,11 +104,11 @@ extension Grid {
     }
 }
 
-struct Col: Codable {
+public struct Col: Codable {
     let name: String
     let meta: Dict?
     
-    init(name: String, meta: Dict? = nil) {
+    public init(name: String, meta: Dict? = nil) {
         self.name = name
         self.meta = meta
     }

@@ -3,10 +3,17 @@ import Foundation
 public struct Time: Val {
     public static var valType: ValType { .Time }
     
-    let hour: UInt8
-    let minute: UInt8
-    let second: UInt8
-    let millisecond: UInt16
+    public let hour: Int
+    public let minute: Int
+    public let second: Int
+    public let millisecond: Int
+    
+    public init(hour: Int, minute: Int, second: Int, millisecond: Int) {
+        self.hour = hour
+        self.minute = minute
+        self.second = second
+        self.millisecond = millisecond
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#date
@@ -38,9 +45,9 @@ extension Time {
             let secondStr = secondAndMilliStr.split(separator: ".")[0]
             
             guard
-                let hour = UInt8(hourStr),
-                let minute = UInt8(minuteStr),
-                let second = UInt8(secondStr)
+                let hour = Int(hourStr),
+                let minute = Int(minuteStr),
+                let second = Int(secondStr)
             else {
                 throw DecodingError.typeMismatch(
                     Self.self,
@@ -58,7 +65,7 @@ extension Time {
             if secondAndMilliStr.contains(".") {
                 let millisecondStr = secondAndMilliStr.split(separator: ".")[1]
                 guard
-                    let millisecond = UInt16(millisecondStr)
+                    let millisecond = Int(millisecondStr)
                 else {
                     throw DecodingError.typeMismatch(
                         Self.self,

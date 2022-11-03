@@ -1,5 +1,5 @@
 import XCTest
-@testable import Haystack
+import Haystack
 
 final class BoolTests: XCTestCase {
     func testJsonCoding() throws {

@@ -1,9 +1,9 @@
 import Foundation
 
 /// Singleton `Marker` instance
-let marker = Marker()
+public let marker = Marker()
 
-struct Marker: Val {
+public struct Marker: Val {
     public static var valType: ValType { .Marker }
 }
 

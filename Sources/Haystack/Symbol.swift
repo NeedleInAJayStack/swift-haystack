@@ -3,7 +3,11 @@ import Foundation
 public struct Symbol: Val {
     public static var valType: ValType { .Symbol }
     
-    let val: String
+    public let val: String
+    
+    public init(val: String) {
+        self.val = val
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#symbol

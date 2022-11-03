@@ -3,10 +3,10 @@ import Foundation
 public struct Number: Val {
     public static var valType: ValType { .Number }
     
-    let val: Double
-    let unit: String?
+    public let val: Double
+    public let unit: String?
     
-    init(val: Double, unit: String? = nil) {
+    public init(val: Double, unit: String? = nil) {
         self.val = val
         self.unit = unit
     }

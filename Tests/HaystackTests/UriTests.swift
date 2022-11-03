@@ -1,5 +1,5 @@
 import XCTest
-@testable import Haystack
+import Haystack
 
 final class UriTests: XCTestCase {
     func testJsonCoding() throws {

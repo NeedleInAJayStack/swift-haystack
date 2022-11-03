@@ -1,9 +1,9 @@
 import Foundation
 
 /// Singleton `remove` instance
-let remove = Remove()
+public let remove = Remove()
 
-struct Remove: Val {
+public struct Remove: Val {
     public static var valType: ValType { .Remove }
 }
 

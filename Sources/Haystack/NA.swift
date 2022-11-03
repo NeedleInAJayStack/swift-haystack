@@ -1,9 +1,9 @@
 import Foundation
 
 /// Singleton `NA` instance
-let na = NA()
+public let na = NA()
 
-struct NA: Val {
+public struct NA: Val {
     public static var valType: ValType { .NA }
 }
 
