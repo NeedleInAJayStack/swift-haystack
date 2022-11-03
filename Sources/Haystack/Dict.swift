@@ -1,7 +1,7 @@
 import Foundation
 
 struct Dict: Val {
-    public var valType: ValType { .Dict }
+    public static var valType: ValType { .Dict }
     
     var elements: [String: any Val]
     

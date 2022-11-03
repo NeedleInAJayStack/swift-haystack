@@ -1,7 +1,7 @@
 import Foundation
 
 struct List: Val {
-    public var valType: ValType { .List }
+    public static var valType: ValType { .List }
     
     var elements: [any Val]
     

@@ -1,7 +1,7 @@
 import Foundation
 
 public struct Coord: Val {
-    public var valType: ValType { .Coord }
+    public static var valType: ValType { .Coord }
     
     let lat: Double
     let lng: Double

@@ -1,7 +1,7 @@
 import Foundation
 
 struct Grid: Val {
-    public var valType: ValType { .Grid }
+    public static var valType: ValType { .Grid }
     
     let meta: Dict
     let cols: [Col]

@@ -1,7 +1,7 @@
 import Foundation
 
 public struct Symbol: Val {
-    public var valType: ValType { .Symbol }
+    public static var valType: ValType { .Symbol }
     
     let val: String
 }

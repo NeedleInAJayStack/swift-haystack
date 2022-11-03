@@ -1,7 +1,7 @@
 import Foundation
 
 public struct DateTime: Val {
-    public var valType: ValType { .DateTime }
+    public static var valType: ValType { .DateTime }
     
     let date: Foundation.Date
     let timezone: String // TODO: Align with Foundation.TimeZone

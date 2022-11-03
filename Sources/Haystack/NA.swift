@@ -4,7 +4,7 @@ import Foundation
 let na = NA()
 
 struct NA: Val {
-    public var valType: ValType { .NA }
+    public static var valType: ValType { .NA }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#na

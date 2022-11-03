@@ -1,7 +1,7 @@
 import Foundation
 
 public struct XStr: Val {
-    public var valType: ValType { .XStr }
+    public static var valType: ValType { .XStr }
     
     let type: String
     let val: String

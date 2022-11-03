@@ -1,7 +1,7 @@
 import Foundation
 
 extension Bool: Val {
-    public var valType: ValType { .Bool }
+    public static var valType: ValType { .Bool }
     
     public func toZinc() -> String {
         return self ? "T" : "F"

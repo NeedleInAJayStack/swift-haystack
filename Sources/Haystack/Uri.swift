@@ -1,7 +1,7 @@
 import Foundation
 
 public struct Uri: Val {
-    public var valType: ValType { .Uri }
+    public static var valType: ValType { .Uri }
     
     let val: String
 }

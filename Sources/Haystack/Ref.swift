@@ -1,7 +1,7 @@
 import Foundation
 
 public struct Ref: Val {
-    public var valType: ValType { .Ref }
+    public static var valType: ValType { .Ref }
     
     let val: String
     let dis: String?

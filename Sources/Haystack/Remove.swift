@@ -4,7 +4,7 @@ import Foundation
 let remove = Remove()
 
 struct Remove: Val {
-    public var valType: ValType { .Remove }
+    public static var valType: ValType { .Remove }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#remove

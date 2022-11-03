@@ -1,7 +1,7 @@
 import Foundation
 
 public struct Time: Val {
-    public var valType: ValType { .Time }
+    public static var valType: ValType { .Time }
     
     let hour: UInt8
     let minute: UInt8

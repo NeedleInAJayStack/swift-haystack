@@ -1,7 +1,7 @@
 import Foundation
 
 public struct Number: Val {
-    public var valType: ValType { .Number }
+    public static var valType: ValType { .Number }
     
     let val: Double
     let unit: String?

@@ -4,7 +4,7 @@ import Foundation
 let marker = Marker()
 
 struct Marker: Val {
-    public var valType: ValType { .Marker }
+    public static var valType: ValType { .Marker }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#marker

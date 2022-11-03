@@ -1,7 +1,7 @@
 import Foundation
 
 extension String: Val {
-    public var valType: ValType { .Str }
+    public static var valType: ValType { .Str }
     
     public func toZinc() -> String {
         var string = ""

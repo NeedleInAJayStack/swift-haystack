@@ -1,7 +1,7 @@
 import Foundation
 
 public struct Date: Val {
-    public var valType: ValType { .Date }
+    public static var valType: ValType { .Date }
     
     let date: Foundation.Date
 }
