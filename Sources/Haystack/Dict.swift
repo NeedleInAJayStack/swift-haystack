@@ -8,6 +8,10 @@ public struct Dict: Val {
     public init(_ elements: [String: any Val]) {
         self.elements = elements
     }
+    
+    public static func empty() -> Dict {
+        return Dict([:])
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#dict

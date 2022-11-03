@@ -7,7 +7,7 @@ public struct Grid: Val {
     public let cols: [Col]
     public let rows: [Dict]
     
-    public init(meta: Dict, cols: [Col], rows: [Dict]) {
+    init(meta: Dict, cols: [Col], rows: [Dict]) {
         self.meta = meta
         self.cols = cols
         self.rows = rows
