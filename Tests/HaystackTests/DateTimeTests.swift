@@ -41,4 +41,23 @@ final class DateTimeTests: XCTestCase {
             value
         )
     }
+    
+    func testToZinc() throws {
+        XCTAssertEqual(
+            DateTime(
+                date: Date(timeIntervalSince1970: 0),
+                timezone: DateTime.gmtName
+            ).toZinc(),
+            "1970-01-01T00:00:00Z"
+        )
+        
+        // TODO: Fix to 1970-01-01T00:00:00-05:00 New_York
+        XCTAssertEqual(
+            DateTime(
+                date: Date(timeIntervalSince1970: 0),
+                timezone: "New_York"
+            ).toZinc(),
+            "1970-01-01T00:00:00Z New_York"
+        )
+    }
 }

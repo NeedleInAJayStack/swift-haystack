@@ -18,4 +18,11 @@ final class XStrTests: XCTestCase {
             value
         )
     }
+    
+    func testToZinc() throws {
+        XCTAssertEqual(
+            XStr(type: "Span", val: "today").toZinc(),
+            #"Span("today")"#
+        )
+    }
 }

@@ -18,4 +18,11 @@ final class DateTests: XCTestCase {
             value
         )
     }
+    
+    func testToZinc() throws {
+        XCTAssertEqual(
+            Date(date: .init(timeIntervalSince1970: 0)).toZinc(),
+            "1970-01-01"
+        )
+    }
 }

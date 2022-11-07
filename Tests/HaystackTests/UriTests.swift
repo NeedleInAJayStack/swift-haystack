@@ -18,4 +18,11 @@ final class UriTests: XCTestCase {
             value
         )
     }
+    
+    func testToZinc() throws {
+        XCTAssertEqual(
+            Uri(val: "http://en.wikipedia.org/").toZinc(),
+            "`http://en.wikipedia.org/`"
+        )
+    }
 }

@@ -4,26 +4,26 @@ extension String: Val {
     public static var valType: ValType { .Str }
     
     public func toZinc() -> String {
-        var string = ""
+        var zinc = ""
         for c in self.unicodeScalars {
             if c < " " {
                 switch c {
-                case "\n": string.append(#"\n"#)
-                case "\r": string.append(#"\r"#)
-                case "\t": string.append(#"\t"#)
-                case "\"": string.append(#"""#)
-                case "\\": string.append(#"\\"#)
-                default: string.append(c.haystackUnicodeFormat())
+                case "\n": zinc.append(#"\n"#)
+                case "\r": zinc.append(#"\r"#)
+                case "\t": zinc.append(#"\t"#)
+                case "\"": zinc.append(#"""#)
+                case "\\": zinc.append(#"\\"#)
+                default: zinc.append(c.haystackUnicodeFormat())
                 }
             } else {
                 if c.isASCII {
-                    string.append(c.escaped(asASCII: true))
+                    zinc.append(c.escaped(asASCII: true))
                 } else {
-                    string.append(c.haystackUnicodeFormat())
+                    zinc.append(c.haystackUnicodeFormat())
                 }
             }
         }
-        return "\"\(string)\""
+        return "\"\(zinc)\""
     }
 }
 

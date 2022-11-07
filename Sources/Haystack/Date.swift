@@ -3,10 +3,15 @@ import Foundation
 public struct Date: Val {
     public static var valType: ValType { .Date }
     
+    // TODO: Ensure no sub-day components
     public let date: Foundation.Date
     
     public init(date: Foundation.Date) {
         self.date = date
+    }
+    
+    public func toZinc() -> String {
+        return dateFormatter.string(from: date)
     }
 }
 

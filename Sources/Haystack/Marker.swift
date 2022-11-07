@@ -5,6 +5,10 @@ public let marker = Marker()
 
 public struct Marker: Val {
     public static var valType: ValType { .Marker }
+    
+    public func toZinc() -> String {
+        return "M"
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#marker

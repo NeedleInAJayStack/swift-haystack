@@ -5,6 +5,10 @@ public let remove = Remove()
 
 public struct Remove: Val {
     public static var valType: ValType { .Remove }
+    
+    public func toZinc() -> String {
+        return "R"
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#remove

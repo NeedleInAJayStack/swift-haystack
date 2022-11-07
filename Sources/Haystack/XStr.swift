@@ -10,6 +10,10 @@ public struct XStr: Val {
         self.type = type
         self.val = val
     }
+    
+    public func toZinc() -> String {
+        return "\(type)(\"\(val)\")"
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#xstr

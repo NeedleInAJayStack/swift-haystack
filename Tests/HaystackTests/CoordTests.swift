@@ -18,4 +18,11 @@ final class CoordTests: XCTestCase {
             value
         )
     }
+    
+    func testToZinc() throws {
+        XCTAssertEqual(
+            Coord(lat: 40, lng: -111.84).toZinc(),
+            "C(40.0,-111.84)"
+        )
+    }
 }

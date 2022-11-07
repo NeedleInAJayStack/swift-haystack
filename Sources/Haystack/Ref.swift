@@ -10,6 +10,14 @@ public struct Ref: Val {
         self.val = val
         self.dis = dis
     }
+    
+    public func toZinc() -> String {
+        var zinc = "@\(val)"
+        if let dis = dis {
+            zinc += " \(dis)"
+        }
+        return zinc
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#ref

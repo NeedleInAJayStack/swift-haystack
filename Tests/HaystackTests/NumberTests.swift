@@ -53,4 +53,31 @@ final class NumberTests: XCTestCase {
 //            value
 //        )
 //    }
+    
+    func testToZinc() throws {
+        XCTAssertEqual(
+            Number(val: 12.199, unit: "kWh").toZinc(),
+            "12.199kWh"
+        )
+        XCTAssertEqual(
+            Number(val: 3.899).toZinc(),
+            "3.899"
+        )
+        XCTAssertEqual(
+            Number(val: 4).toZinc(),
+            "4"
+        )
+        XCTAssertEqual(
+            Number(val: .infinity).toZinc(),
+            "INF"
+        )
+        XCTAssertEqual(
+            Number(val: (-1.0 * .infinity)).toZinc(),
+            "-INF"
+        )
+        XCTAssertEqual(
+            Number(val: .nan).toZinc(),
+            "NaN"
+        )
+    }
 }

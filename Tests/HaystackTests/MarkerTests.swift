@@ -18,4 +18,11 @@ final class MarkerTests: XCTestCase {
             value
         )
     }
+    
+    func testToZinc() throws {
+        XCTAssertEqual(
+            marker.toZinc(),
+            "M"
+        )
+    }
 }

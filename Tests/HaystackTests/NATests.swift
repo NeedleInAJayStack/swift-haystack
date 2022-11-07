@@ -18,4 +18,11 @@ final class NATests: XCTestCase {
             value
         )
     }
+    
+    func testToZinc() throws {
+        XCTAssertEqual(
+            na.toZinc(),
+            "NA"
+        )
+    }
 }

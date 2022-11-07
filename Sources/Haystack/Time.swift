@@ -14,6 +14,23 @@ public struct Time: Val {
         self.second = second
         self.millisecond = millisecond
     }
+    
+    public func toZinc() -> String {
+        return isoString
+    }
+    
+    var isoString: String {
+        let hourStr = String(format: "%02d", arguments: [hour])
+        let minuteStr = String(format: "%02d", arguments: [minute])
+        let secondStr = String(format: "%02d", arguments: [second])
+        var isoString = "\(hourStr):\(minuteStr):\(secondStr)"
+        
+        if millisecond != 0 {
+            let millisecondStr = String(format: "%03d", arguments: [millisecond])
+            isoString += ".\(millisecondStr)"
+        }
+        return isoString
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#date
@@ -93,17 +110,6 @@ extension Time {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: Self.CodingKeys)
         try container.encode(Self.kindValue, forKey: ._kind)
-        
-        let hourStr = String(format: "%02d", arguments: [hour])
-        let minuteStr = String(format: "%02d", arguments: [minute])
-        let secondStr = String(format: "%02d", arguments: [second])
-        var isoString = "\(hourStr):\(minuteStr):\(secondStr)"
-        
-        if millisecond != 0 {
-            let millisecondStr = String(format: "%03d", arguments: [millisecond])
-            isoString += ".\(millisecondStr)"
-        }
-        
         try container.encode(isoString, forKey: .val)
     }
 }

@@ -35,4 +35,15 @@ final class TimeTests: XCTestCase {
             value
         )
     }
+    
+    func testToZinc() throws {
+        XCTAssertEqual(
+            Time(hour: 7, minute: 7, second: 7, millisecond: 0).toZinc(),
+            "07:07:07"
+        )
+        XCTAssertEqual(
+            Time(hour: 7, minute: 7, second: 7, millisecond: 7).toZinc(),
+            "07:07:07.007"
+        )
+    }
 }

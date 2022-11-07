@@ -18,4 +18,15 @@ final class RefTests: XCTestCase {
             value
         )
     }
+    
+    func testToZinc() throws {
+        XCTAssertEqual(
+            Ref(val: "123-abc", dis: "Name").toZinc(),
+            "@123-abc Name"
+        )
+        XCTAssertEqual(
+            Ref(val: "123-abc").toZinc(),
+            "@123-abc"
+        )
+    }
 }

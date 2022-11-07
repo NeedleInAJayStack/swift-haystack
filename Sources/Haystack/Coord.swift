@@ -10,6 +10,10 @@ public struct Coord: Val {
         self.lat = lat
         self.lng = lng
     }
+    
+    public func toZinc() -> String {
+        return "C(\(lat),\(lng))"
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#coord

@@ -11,6 +11,16 @@ public struct DateTime: Val {
         self.date = date
         self.timezone = timezone
     }
+    
+    public func toZinc() -> String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        var zinc = formatter.string(from: date)
+        if timezone != Self.gmtName {
+            zinc += " \(timezone)"
+        }
+        return zinc
+    }
 }
 
 /// Singleton Haystack DateTime formatter

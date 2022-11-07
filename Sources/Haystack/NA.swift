@@ -5,6 +5,10 @@ public let na = NA()
 
 public struct NA: Val {
     public static var valType: ValType { .NA }
+    
+    public func toZinc() -> String {
+        return "NA"
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#na

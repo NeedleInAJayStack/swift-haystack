@@ -8,6 +8,10 @@ public struct Symbol: Val {
     public init(val: String) {
         self.val = val
     }
+    
+    public func toZinc() -> String {
+        return "^\(val)"
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#symbol

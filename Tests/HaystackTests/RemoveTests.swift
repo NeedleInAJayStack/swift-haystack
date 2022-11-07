@@ -18,4 +18,11 @@ final class RemoveTests: XCTestCase {
             value
         )
     }
+    
+    func testToZinc() throws {
+        XCTAssertEqual(
+            remove.toZinc(),
+            "R"
+        )
+    }
 }

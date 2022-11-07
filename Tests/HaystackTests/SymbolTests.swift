@@ -18,4 +18,11 @@ final class SymbolTests: XCTestCase {
             value
         )
     }
+    
+    func testToZinc() throws {
+        XCTAssertEqual(
+            Symbol(val: "tagName").toZinc(),
+            "^tagName"
+        )
+    }
 }

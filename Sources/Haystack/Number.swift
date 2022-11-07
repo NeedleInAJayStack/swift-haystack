@@ -10,6 +10,31 @@ public struct Number: Val {
         self.val = val
         self.unit = unit
     }
+    
+    public func toZinc() -> String {
+        guard !val.isNaN else {
+            return "NaN"
+        }
+        guard val.isFinite else {
+            if val == Double.infinity {
+                return "INF"
+            } else {
+                return "-INF"
+            }
+        }
+        
+        var zinc: String
+        if val.remainder(dividingBy: 1.0) == .zero {
+            zinc = "\(Int(val))"
+        } else {
+            zinc = "\(val)"
+        }
+        
+        if let unit = unit {
+            zinc += "\(unit)"
+        }
+        return zinc
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#number
