@@ -3,6 +3,18 @@ import Foundation
 public struct Ref: Val {
     public static var valType: ValType { .Ref }
     
+    static func isIdChar(_ char: Character) -> Bool {
+        return
+            "a" <= char && char <= "z" ||
+            "A" <= char && char <= "Z" ||
+            "0" <= char && char <= "9" ||
+            char == "_" ||
+            char == ":" ||
+            char == "-" ||
+            char == "." ||
+            char == "~"
+    }
+    
     public let val: String
     public let dis: String?
     
