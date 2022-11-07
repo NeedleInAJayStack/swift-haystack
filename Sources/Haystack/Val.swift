@@ -30,6 +30,7 @@ public enum ValType: String, CaseIterable {
     case List
     case Marker
     case NA
+    case Null
     case Number
     case Ref
     case Remove
@@ -50,6 +51,7 @@ public enum ValType: String, CaseIterable {
         case .List: return Haystack.List.self
         case .Marker: return Haystack.Marker.self
         case .NA: return Haystack.NA.self
+        case .Null: return Haystack.Null.self
         case .Number: return Haystack.Number.self
         case .Ref: return Haystack.Ref.self
         case .Remove: return Haystack.Remove.self

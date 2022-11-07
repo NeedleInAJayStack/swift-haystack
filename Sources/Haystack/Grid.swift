@@ -32,7 +32,7 @@ public struct Grid: Val {
         
         let zincRows = rows.map { row in
             let rowZincElements = cols.map { col in
-                let element = row.elements[col.name]! // TODO: Add Null
+                let element = row.elements[col.name] ?? null
                 return element.toZinc()
             }
             return rowZincElements.joined(separator: ", ")
