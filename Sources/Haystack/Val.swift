@@ -6,7 +6,7 @@ import Foundation
 /// See [Project Haystack](http://project-haystack.org/doc/TagModel#tagKinds)
 public protocol Val: Codable, Hashable {
     static var valType: ValType { get }
-//    func toZinc() -> String
+    func toZinc() -> String
 }
 
 extension Val {

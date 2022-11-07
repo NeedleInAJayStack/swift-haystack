@@ -12,6 +12,35 @@ public struct Grid: Val {
         self.cols = cols
         self.rows = rows
     }
+    
+    public func toZinc() -> String {
+        var zinc = #"ver:"3.0""#
+        if meta.elements.count > 0 {
+            zinc += " \(meta.toZinc(withBraces: false))"
+        }
+        zinc += "\n"
+        
+        let zincCols = cols.map { col in
+            var colZinc = col.name
+            if let colMeta = col.meta, colMeta.elements.count > 0 {
+                colZinc += " \(colMeta.toZinc(withBraces: false))"
+            }
+            return colZinc
+        }
+        zinc += zincCols.joined(separator: ", ")
+        zinc += "\n"
+        
+        let zincRows = rows.map { row in
+            let rowZincElements = cols.map { col in
+                let element = row.elements[col.name]! // TODO: Add Null
+                return element.toZinc()
+            }
+            return rowZincElements.joined(separator: ", ")
+        }
+        zinc += zincRows.joined(separator: "\n")
+        
+        return zinc
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#grid

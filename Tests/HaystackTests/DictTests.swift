@@ -30,6 +30,22 @@ final class DictTests: XCTestCase {
         )
     }
     
+    func testToZinc() throws {
+        XCTAssertEqual(
+            Dict([
+                "bool": true,
+                "str": "abc",
+                "number": Number(val: 42, unit: "furloghs"),
+                "dict": Dict([
+                    "bool": false,
+                    "str": "xyz"
+                ])
+            ]).toZinc(),
+            // Keys are sorted alphabetically.
+            #"{bool:T dict:{bool:F str:"xyz"} number:42furloghs str:"abc"}"#
+        )
+    }
+    
     func testEquatable() {
         // Test basic
         XCTAssertEqual (

@@ -3,14 +3,31 @@ import Foundation
 public struct Dict: Val {
     public static var valType: ValType { .Dict }
     
+    public static func empty() -> Dict {
+        return Dict([:])
+    }
+    
     public let elements: [String: any Val]
     
     public init(_ elements: [String: any Val]) {
         self.elements = elements
     }
     
-    public static func empty() -> Dict {
-        return Dict([:])
+    public func toZinc() -> String {
+        return toZinc(withBraces: true)
+    }
+    
+    func toZinc(withBraces: Bool) -> String {
+        let zincElements = elements.keys.sorted().map { key in
+            "\(key):\(elements[key]!.toZinc())" // unwrap is safe due to immutability
+        }
+        let zinc = zincElements.joined(separator: " ")
+        
+        if withBraces {
+            return "{\(zinc)}"
+        } else {
+            return zinc
+        }
     }
 }
 

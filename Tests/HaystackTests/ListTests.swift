@@ -27,6 +27,21 @@ final class ListTests: XCTestCase {
         )
     }
     
+    func testToZinc() throws {
+        XCTAssertEqual(
+            List([
+                true,
+                "abc",
+                Number(val: 42, unit: "furloghs"),
+                List([
+                    false,
+                    "xyz"
+                ])
+            ]).toZinc(),
+            #"[T, "abc", 42furloghs, [F, "xyz"]]"#
+        )
+    }
+    
     func testEquatable() {
         // Test basic
         XCTAssertEqual (

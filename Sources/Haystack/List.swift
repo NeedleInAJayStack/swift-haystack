@@ -8,6 +8,11 @@ public struct List: Val {
     public init(_ elements: [any Val]) {
         self.elements = elements
     }
+    
+    public func toZinc() -> String {
+        let zincElements = elements.map { $0.toZinc() }
+        return "[\(zincElements.joined(separator:", "))]"
+    }
 }
 
 /// See https://project-haystack.org/doc/docHaystack/Json#list
