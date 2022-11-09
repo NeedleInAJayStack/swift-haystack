@@ -17,8 +17,42 @@ public struct Date: Val {
         self.init(date: date)
     }
     
+    public init(
+        year: Int,
+        month: Int,
+        day: Int
+    ) throws {
+        let components = DateComponents(
+            calendar: calendar,
+            timeZone: .init(secondsFromGMT: 0),
+            year: year,
+            month: month,
+            day: day,
+            hour: 0,
+            minute: 0,
+            second: 0,
+            nanosecond: 0
+        )
+        guard let date = components.date else {
+            throw ValError.invalidDateDefinition
+        }
+        self.date = date
+    }
+    
     public func toZinc() -> String {
         return dateFormatter.string(from: date)
+    }
+    
+    var year: Int {
+        calendar.component(.year, from: date)
+    }
+    
+    var month: Int {
+        calendar.component(.month, from: date)
+    }
+    
+    var day: Int {
+        calendar.component(.day, from: date)
     }
 }
 
