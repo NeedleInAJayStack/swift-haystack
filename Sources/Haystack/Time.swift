@@ -8,11 +8,47 @@ public struct Time: Val {
     public let second: Int
     public let millisecond: Int
     
-    public init(hour: Int, minute: Int, second: Int, millisecond: Int) {
+    public init(hour: Int, minute: Int, second: Int, millisecond: Int = 0) {
         self.hour = hour
         self.minute = minute
         self.second = second
         self.millisecond = millisecond
+    }
+    
+    public init(_ isoString: String) throws {
+        let hourStr = isoString.split(separator: ":")[0]
+        let minuteStr = isoString.split(separator: ":")[1]
+        let secondAndMilliStr = isoString.split(separator: ":")[2]
+        let secondStr = secondAndMilliStr.split(separator: ".")[0]
+        
+        guard
+            let hour = Int(hourStr),
+            let minute = Int(minuteStr),
+            let second = Int(secondStr)
+        else {
+            throw ValError.invalidTimeFormat(isoString)
+        }
+        
+        self.hour = hour
+        self.minute = minute
+        self.second = second
+        
+        if secondAndMilliStr.contains(".") {
+            var millisecondStr = secondAndMilliStr.split(separator: ".")[1]
+            guard millisecondStr.count <= 3 else {
+                throw ValError.invalidTimeFormat(isoString)
+            }
+            // Append 0's until it's 3 digits long
+            while millisecondStr.count < 3 {
+                millisecondStr.append("0")
+            }
+            guard let millisecond = Int(millisecondStr) else {
+                throw ValError.invalidTimeFormat(isoString)
+            }
+            self.millisecond = millisecond
+        } else {
+            self.millisecond = 0
+        }
     }
     
     public func toZinc() -> String {
@@ -55,17 +91,9 @@ extension Time {
             }
             
             let isoString = try container.decode(String.self, forKey: .val)
-            
-            let hourStr = isoString.split(separator: ":")[0]
-            let minuteStr = isoString.split(separator: ":")[1]
-            let secondAndMilliStr = isoString.split(separator: ":")[2]
-            let secondStr = secondAndMilliStr.split(separator: ".")[0]
-            
-            guard
-                let hour = Int(hourStr),
-                let minute = Int(minuteStr),
-                let second = Int(secondStr)
-            else {
+            do {
+                try self.init(isoString)
+            } catch {
                 throw DecodingError.typeMismatch(
                     Self.self,
                     .init(
@@ -73,28 +101,6 @@ extension Time {
                         debugDescription: "Time `val` did not match expected format."
                     )
                 )
-            }
-            
-            self.hour = hour
-            self.minute = minute
-            self.second = second
-            
-            if secondAndMilliStr.contains(".") {
-                let millisecondStr = secondAndMilliStr.split(separator: ".")[1]
-                guard
-                    let millisecond = Int(millisecondStr)
-                else {
-                    throw DecodingError.typeMismatch(
-                        Self.self,
-                        .init(
-                            codingPath: [Self.CodingKeys.val],
-                            debugDescription: "Time `val` did not match expected format."
-                        )
-                    )
-                }
-                self.millisecond = millisecond
-            } else {
-                self.millisecond = 0
             }
         } else {
             throw DecodingError.typeMismatch(

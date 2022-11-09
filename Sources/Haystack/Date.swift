@@ -10,6 +10,13 @@ public struct Date: Val {
         self.date = date
     }
     
+    public init(_ isoString: String) throws {
+        guard let date = dateFormatter.date(from: isoString) else {
+            throw ValError.invalidDateFormat(isoString)
+        }
+        self.init(date: date)
+    }
+    
     public func toZinc() -> String {
         return dateFormatter.string(from: date)
     }
@@ -44,7 +51,9 @@ extension Date {
             }
             
             let isoString = try container.decode(String.self, forKey: .val)
-            guard let date = dateFormatter.date(from: isoString) else {
+            do {
+                try self.init(isoString)
+            } catch {
                 throw DecodingError.typeMismatch(
                     Self.self,
                     .init(
@@ -53,7 +62,6 @@ extension Date {
                     )
                 )
             }
-            self.date = date
         } else {
             throw DecodingError.typeMismatch(
                 Self.self,
