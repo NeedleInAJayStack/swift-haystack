@@ -5,7 +5,7 @@ final class DateTimeTests: XCTestCase {
     func testJsonCoding() throws {
         let value = DateTime(
             date: Date(timeIntervalSince1970: 0.458),
-            timezone: DateTime.gmtName
+            timezone: DateTime.utcName
         )
         let jsonString = #"{"_kind":"dateTime","val":"1970-01-01T00:00:00.458Z"}"#
         
@@ -46,7 +46,7 @@ final class DateTimeTests: XCTestCase {
         XCTAssertEqual(
             DateTime(
                 date: Date(timeIntervalSince1970: 0),
-                timezone: DateTime.gmtName
+                timezone: DateTime.utcName
             ).toZinc(),
             "1970-01-01T00:00:00Z"
         )
