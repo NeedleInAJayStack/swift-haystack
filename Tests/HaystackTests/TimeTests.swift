@@ -3,7 +3,7 @@ import Haystack
 
 final class TimeTests: XCTestCase {
     func testJsonCoding() throws {
-        let value = Time(hour: 7, minute: 7, second: 7, millisecond: 7)
+        let value = try Time(hour: 7, minute: 7, second: 7, millisecond: 7)
         let jsonString = #"{"_kind":"time","val":"07:07:07.007"}"#
         
         let encodedData = try JSONEncoder().encode(value)
@@ -20,7 +20,7 @@ final class TimeTests: XCTestCase {
     }
     
     func testJsonCoding_zeroMillis() throws {
-        let value = Time(hour: 7, minute: 7, second: 7, millisecond: 0)
+        let value = try Time(hour: 7, minute: 7, second: 7, millisecond: 0)
         let jsonString = #"{"_kind":"time","val":"07:07:07"}"#
         
         let encodedData = try JSONEncoder().encode(value)
@@ -38,11 +38,11 @@ final class TimeTests: XCTestCase {
     
     func testToZinc() throws {
         XCTAssertEqual(
-            Time(hour: 7, minute: 7, second: 7, millisecond: 0).toZinc(),
+            try Time(hour: 7, minute: 7, second: 7, millisecond: 0).toZinc(),
             "07:07:07"
         )
         XCTAssertEqual(
-            Time(hour: 7, minute: 7, second: 7, millisecond: 7).toZinc(),
+            try Time(hour: 7, minute: 7, second: 7, millisecond: 7).toZinc(),
             "07:07:07.007"
         )
     }

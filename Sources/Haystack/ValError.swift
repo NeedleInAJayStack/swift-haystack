@@ -4,5 +4,6 @@ public enum ValError: Error {
     case invalidDateFormat(String)
     case invalidDateTimeDefinition
     case invalidDateTimeFormat(String)
+    case invalidTimeDefinition
     case invalidTimeFormat(String)
 }

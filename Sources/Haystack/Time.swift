@@ -8,7 +8,16 @@ public struct Time: Val {
     public let second: Int
     public let millisecond: Int
     
-    public init(hour: Int, minute: Int, second: Int, millisecond: Int = 0) {
+    public init(hour: Int, minute: Int, second: Int, millisecond: Int = 0) throws {
+        guard
+            0 <= hour, hour < 24,
+            0 <= minute, minute < 60,
+            0 <= second, second < 60,
+            0 <= millisecond, millisecond < 1000
+        else {
+            throw ValError.invalidTimeDefinition
+        }
+        
         self.hour = hour
         self.minute = minute
         self.second = second
@@ -16,10 +25,15 @@ public struct Time: Val {
     }
     
     public init(_ isoString: String) throws {
-        let hourStr = isoString.split(separator: ":")[0]
-        let minuteStr = isoString.split(separator: ":")[1]
-        let secondAndMilliStr = isoString.split(separator: ":")[2]
-        let secondStr = secondAndMilliStr.split(separator: ".")[0]
+        let colonSplit = isoString.split(separator: ":")
+        guard colonSplit.count == 3 else {
+            throw ValError.invalidTimeFormat(isoString)
+        }
+        let hourStr = colonSplit[0]
+        let minuteStr = colonSplit[1]
+        let secondAndMilliStr = colonSplit[2]
+        let secondAndMilliSplit = secondAndMilliStr.split(separator: ".")
+        let secondStr = secondAndMilliSplit[0]
         
         guard
             let hour = Int(hourStr),
@@ -34,7 +48,7 @@ public struct Time: Val {
         self.second = second
         
         if secondAndMilliStr.contains(".") {
-            var millisecondStr = secondAndMilliStr.split(separator: ".")[1]
+            var millisecondStr = secondAndMilliSplit[1]
             guard millisecondStr.count <= 3 else {
                 throw ValError.invalidTimeFormat(isoString)
             }

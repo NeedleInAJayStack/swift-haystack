@@ -3,11 +3,18 @@ import Haystack
 
 final class DateTimeTests: XCTestCase {
     func testJsonCoding() throws {
-        let value = DateTime(
-            date: Date(timeIntervalSince1970: 0.458),
-            timezone: DateTime.utcName
+        let value = try DateTime(
+            year: 1988,
+            month: 4,
+            day: 1,
+            hour: 10,
+            minute: 5,
+            second: 43,
+            millisecond: 458,
+            gmtOffset: -5*60*60,
+            timezone: "New_York"
         )
-        let jsonString = #"{"_kind":"dateTime","val":"1970-01-01T00:00:00.458Z"}"#
+        let jsonString = #"{"_kind":"dateTime","val":"1988-04-01T10:05:43.458-05:00","tz":"New_York"}"#
         
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
@@ -23,11 +30,17 @@ final class DateTimeTests: XCTestCase {
     }
     
     func testJsonCoding_noMilliseconds() throws {
-        let value = DateTime(
-            date: Date(timeIntervalSince1970: 0),
+        let value = try DateTime(
+            year: 1988,
+            month: 4,
+            day: 1,
+            hour: 10,
+            minute: 5,
+            second: 43,
+            gmtOffset: -5*60*60,
             timezone: "New_York"
         )
-        let jsonString = #"{"_kind":"dateTime","val":"1970-01-01T00:00:00Z","tz":"New_York"}"#
+        let jsonString = #"{"_kind":"dateTime","val":"1988-04-01T10:05:43-05:00","tz":"New_York"}"#
         
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
@@ -44,20 +57,31 @@ final class DateTimeTests: XCTestCase {
     
     func testToZinc() throws {
         XCTAssertEqual(
-            DateTime(
-                date: Date(timeIntervalSince1970: 0),
+            try DateTime(
+                year: 1988,
+                month: 4,
+                day: 1,
+                hour: 10,
+                minute: 5,
+                second: 43,
+                gmtOffset: 0,
                 timezone: DateTime.utcName
             ).toZinc(),
-            "1970-01-01T00:00:00Z"
+            "1988-04-01T10:05:43Z"
         )
         
-        // TODO: Fix to 1970-01-01T00:00:00-05:00 New_York
         XCTAssertEqual(
-            DateTime(
-                date: Date(timeIntervalSince1970: 0),
+            try DateTime(
+                year: 1988,
+                month: 4,
+                day: 1,
+                hour: 10,
+                minute: 5,
+                second: 43,
+                gmtOffset: -5*60*60,
                 timezone: "New_York"
             ).toZinc(),
-            "1970-01-01T00:00:00Z New_York"
+            "1988-04-01T10:05:43-05:00 New_York"
         )
     }
 }

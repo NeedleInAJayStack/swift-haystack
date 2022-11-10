@@ -3,17 +3,14 @@ import Haystack
 
 final class GridTests: XCTestCase {
     func testJsonCoding() throws {
-        let date1 = try XCTUnwrap(ISO8601DateFormatter().date(from:"2005-06-01T00:00:00Z"))
-        let date2 = try XCTUnwrap(ISO8601DateFormatter().date(from:"1997-07-12T00:00:00Z"))
-        
         let value = try GridBuilder()
             .setMeta(["foo": "bar"])
             .addCol(name: "dis", meta: ["dis": "Equip Name"])
             .addCol(name: "equip")
             .addCol(name: "siteRef")
             .addCol(name: "installed")
-            .addRow(["RTU-1", marker, Ref(val: "153c-699a", dis: "HQ"), Date(date: date1)])
-            .addRow(["RTU-2", marker, Ref(val: "153c-699b", dis: "Library"), Date(date: date2)])
+            .addRow(["RTU-1", marker, Ref(val: "153c-699a", dis: "HQ"), Date(year: 2005, month: 6, day: 1)])
+            .addRow(["RTU-2", marker, Ref(val: "153c-699b", dis: "Library"), Date(year: 1997, month: 7, day: 12)])
             .toGrid()
         let jsonString = #"{"_kind":"grid","meta":{"foo":"bar"},"cols":[{"name":"dis","meta":{"dis":"Equip Name"}},{"name":"equip"},{"name":"siteRef"},{"name":"installed"}],"rows":[{"dis":"RTU-1","equip":{"_kind":"marker"},"siteRef":{"_kind":"ref","val":"153c-699a","dis":"HQ"},"installed":{"_kind":"date","val":"2005-06-01"}},{"dis": "RTU-2","equip":{"_kind":"marker"},"siteRef":{"_kind":"ref","val":"153c-699b","dis":"Library"},"installed":{"_kind":"date","val":"1997-07-12"}}]}"#
         
@@ -33,9 +30,6 @@ final class GridTests: XCTestCase {
     }
     
     func testToZinc() throws {
-        let date1 = try XCTUnwrap(ISO8601DateFormatter().date(from:"2005-06-01T00:00:00Z"))
-        let date2 = try XCTUnwrap(ISO8601DateFormatter().date(from:"1997-07-12T00:00:00Z"))
-        
         XCTAssertEqual(
             try GridBuilder()
                 .setMeta(["foo": "bar"])
@@ -43,8 +37,8 @@ final class GridTests: XCTestCase {
                 .addCol(name: "equip")
                 .addCol(name: "siteRef")
                 .addCol(name: "installed")
-                .addRow(["RTU-1", marker, Ref(val: "153c-699a", dis: "HQ"), Date(date: date1)])
-                .addRow(["RTU-2", marker, Ref(val: "153c-699b", dis: "Library"), Date(date: date2)])
+                .addRow(["RTU-1", marker, Ref(val: "153c-699a", dis: "HQ"), Date(year: 2005, month: 6, day: 1)])
+                .addRow(["RTU-2", marker, Ref(val: "153c-699b", dis: "Library"), Date(year: 1997, month: 7, day: 12)])
                 .toGrid()
                 .toZinc(),
             """

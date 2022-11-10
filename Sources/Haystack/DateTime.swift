@@ -5,11 +5,13 @@ public struct DateTime: Val {
     public static let utcName = "UTC"
     
     public let date: Foundation.Date
+    public let gmtOffset: Int
     public let timezone: String
     
-    public init(date: Foundation.Date, gmtOffset: Int = 0, timezone: String = Self.utcName) {
+    public init(date: Foundation.Date) {
         self.date = date
-        self.timezone = timezone
+        self.gmtOffset = 0
+        self.timezone = Self.utcName
     }
     
     public init(
@@ -38,6 +40,7 @@ public struct DateTime: Val {
             throw ValError.invalidDateTimeDefinition
         }
         self.date = date
+        self.gmtOffset = gmtOffset
         self.timezone = timezone
     }
     
@@ -62,13 +65,16 @@ public struct DateTime: Val {
             throw ValError.invalidDateTimeDefinition
         }
         self.date = date
+        self.gmtOffset = gmtOffset
         self.timezone = timezone
     }
     
     public init(_ string: String) throws {
         let splits = string.split(separator: " ")
-        let dateTimeStr = String(splits[0])
-        self.date = try Self.dateFromString(dateTimeStr)
+        let isoString = String(splits[0])
+        let (date, gmtOffset) = try Self.dateFromString(isoString)
+        self.date = date
+        self.gmtOffset = gmtOffset
         if splits.count > 1 {
             self.timezone = String(splits[1])
         } else {
@@ -89,33 +95,99 @@ public struct DateTime: Val {
         return zinc
     }
     
-    static func dateFromString(_ isoString: String) throws -> Foundation.Date {
-        if let date = dateTimeFormatter.date(from: isoString) {
-            return date
-        } else if let date = dateTimeWithMillisFormatter.date(from: isoString) {
-            return date
-        } else {
+    static func dateFromString(_ isoString: String) throws -> (Foundation.Date, Int) {
+        // Must use Regex so we can preserve GMT offset details. dateFormatter doesn't give us this
+        let expr = try NSRegularExpression(pattern: #"(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2}\.?\d*)([+-]\d{2}:\d{2}|Z)"#)
+        guard let match = expr.firstMatch(
+            in: isoString,
+            range: NSRange(isoString.startIndex..<isoString.endIndex, in: isoString)
+        ) else {
             throw ValError.invalidDateTimeFormat(isoString)
         }
+        
+        guard
+            let dateRange = Range(match.range(at: 1), in: isoString),
+            let timeRange = Range(match.range(at: 2), in: isoString),
+            let offsetRange = Range(match.range(at: 3), in: isoString)
+        else {
+            throw ValError.invalidDateTimeFormat(isoString)
+        }
+        
+        let date = try Date(String(isoString[dateRange]))
+        let time = try Time(String(isoString[timeRange]))
+        let offsetStr = String(isoString[offsetRange])
+        
+        let gmtOffset: Int
+        if offsetStr == "Z" {
+            gmtOffset = 0
+        } else {
+            let offsetExpr = try NSRegularExpression(pattern: #"([+-])(\d{2}):(\d{2})"#)
+            guard let offsetMatch = offsetExpr.firstMatch(
+                in: offsetStr,
+                range: NSRange(offsetStr.startIndex..<offsetStr.endIndex, in: offsetStr)
+            ) else {
+                throw ValError.invalidDateTimeFormat(isoString)
+            }
+            
+            guard
+                let symbolRange = Range(offsetMatch.range(at: 1), in: offsetStr),
+                let hourRange = Range(offsetMatch.range(at: 2), in: offsetStr),
+                let minuteRange = Range(offsetMatch.range(at: 3), in: offsetStr),
+                let hour = Int(String(offsetStr[hourRange])),
+                let minute = Int(String(offsetStr[minuteRange]))
+            else {
+                throw ValError.invalidDateTimeFormat(isoString)
+            }
+            let sign = String(offsetStr[symbolRange]) == "+" ? 1 : -1
+            
+            gmtOffset = sign * ((hour * 60 * 60) + (minute * 60))
+        }
+        
+        let components = DateComponents(
+            calendar: calendar,
+            timeZone: .init(secondsFromGMT: gmtOffset),
+            year: date.year,
+            month: date.month,
+            day: date.day,
+            hour: time.hour,
+            minute: time.minute,
+            second: time.second,
+            nanosecond: time.millisecond * 1_000_000
+        )
+        guard let date = components.date else {
+            throw ValError.invalidDateTimeDefinition
+        }
+        
+        return (date, gmtOffset)
+        
+//        if let date = dateTimeFormatter.date(from: isoString) {
+//            return date
+//        } else if let date = dateTimeWithMillisFormatter.date(from: isoString) {
+//            return date
+//        } else {
+//            throw ValError.invalidDateTimeFormat(isoString)
+//        }
     }
     
     private var hasMilliseconds: Bool {
         return calendar.component(.nanosecond, from: date) != 0
     }
-}
+    
+    /// Singleton Haystack DateTime formatter
+    var dateTimeFormatter: ISO8601DateFormatter {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        formatter.timeZone = .init(secondsFromGMT: gmtOffset)
+        return formatter
+    }
 
-/// Singleton Haystack DateTime formatter
-var dateTimeFormatter: ISO8601DateFormatter {
-    let formatter = ISO8601DateFormatter()
-    formatter.formatOptions = [.withInternetDateTime]
-    return formatter
-}
-
-/// Singleton Haystack DateTime formatter with fractional second support
-var dateTimeWithMillisFormatter: ISO8601DateFormatter {
-    let formatter = ISO8601DateFormatter()
-    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-    return formatter
+    /// Singleton Haystack DateTime formatter with fractional second support
+    var dateTimeWithMillisFormatter: ISO8601DateFormatter {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        formatter.timeZone = .init(secondsFromGMT: gmtOffset)
+        return formatter
+    }
 }
 
 var calendar = Calendar(identifier: .gregorian)
@@ -153,7 +225,9 @@ extension DateTime {
         
         let isoString = try container.decode(String.self, forKey: .val)
         do {
-            self.date = try Self.dateFromString(isoString)
+            let (date, gmtOffset) = try Self.dateFromString(isoString)
+            self.date = date
+            self.gmtOffset = gmtOffset
         } catch {
             throw DecodingError.typeMismatch(
                 Self.self,

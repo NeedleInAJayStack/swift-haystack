@@ -3,8 +3,12 @@ import Haystack
 
 final class DateTests: XCTestCase {
     func testJsonCoding() throws {
-        let value = Date(date: .init(timeIntervalSince1970: 0))
-        let jsonString = #"{"_kind":"date","val":"1970-01-01"}"#
+        let value = try Date(
+            year: 1991,
+            month: 6,
+            day: 7
+        )
+        let jsonString = #"{"_kind":"date","val":"1991-06-07"}"#
         
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
@@ -21,8 +25,12 @@ final class DateTests: XCTestCase {
     
     func testToZinc() throws {
         XCTAssertEqual(
-            Date(date: .init(timeIntervalSince1970: 0)).toZinc(),
-            "1970-01-01"
+            try Date(
+                year: 1991,
+                month: 6,
+                day: 7
+            ).toZinc(),
+            "1991-06-07"
         )
     }
 }
