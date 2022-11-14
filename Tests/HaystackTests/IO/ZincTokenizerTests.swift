@@ -36,7 +36,7 @@ final class ZincTokenizerTests: XCTestCase {
         try XCTAssertEqualTokensAndVals(zinc: "12%", expected: [(.num, Number(val: 12, unit: "%"))])
         try XCTAssertEqualTokensAndVals(zinc: "987_foo", expected: [(.num, Number(val: 987, unit: "_foo"))])
         try XCTAssertEqualTokensAndVals(zinc: "-1.2m/s", expected: [(.num, Number(val: -1.2, unit: "m/s"))])
-        try XCTAssertEqualTokensAndVals(zinc: "12kWh/ft\u{00B2}", expected: [(.num, Number(val: 12, unit: "kWh/ft\u{00B2}"))])
+        try XCTAssertEqualTokensAndVals(zinc: #"12kWh/ft\u00B2"#, expected: [(.num, Number(val: 12, unit: "kWh/ft\u{00B2}"))])
         try XCTAssertEqualTokensAndVals(zinc: "3_000.5J/kg_dry", expected: [(.num, Number(val: 3000.5, unit: "J/kg_dry"))])
     }
     
@@ -112,14 +112,14 @@ final class ZincTokenizerTests: XCTestCase {
             zinc: "a\n  b   \rc \r\nd\n\ne",
             expected: [
                 (.id, "a"),
-                (.nl, nil),
+                (.nl, null),
                 (.id, "b"),
-                (.nl, nil),
+                (.nl, null),
                 (.id, "c"),
-                (.nl, nil),
+                (.nl, null),
                 (.id, "d"),
-                (.nl, nil),
-                (.nl, nil),
+                (.nl, null),
+                (.nl, null),
                 (.id, "e"),
             ]
         )
@@ -132,7 +132,7 @@ final class ZincTokenizerTests: XCTestCase {
         line: UInt = #line
     ) throws {
         var actual = [(ZincToken, (any Val)?)]()
-        let tokenizer = ZincTokenizer(zinc)
+        let tokenizer = try ZincTokenizer(zinc)
         while true {
             let token = try tokenizer.next()
             XCTAssertEqual(token, tokenizer.token)

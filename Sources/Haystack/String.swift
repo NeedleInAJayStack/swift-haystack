@@ -4,6 +4,11 @@ extension String: Val {
     public static var valType: ValType { .Str }
     
     public func toZinc() -> String {
+        let zinc = self.withZincUnicodeEscaping()
+        return "\"\(zinc)\""
+    }
+    
+    func withZincUnicodeEscaping() -> String {
         var zinc = ""
         for c in self.unicodeScalars {
             if c < " " {
@@ -23,7 +28,7 @@ extension String: Val {
                 }
             }
         }
-        return "\"\(zinc)\""
+        return zinc
     }
 }
 

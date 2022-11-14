@@ -60,6 +60,10 @@ final class NumberTests: XCTestCase {
             "12.199kWh"
         )
         XCTAssertEqual(
+            Number(val: 1, unit: "kWh/ft\u{00b2}").toZinc(),
+            #"1kWh/ft\u00b2"#
+        )
+        XCTAssertEqual(
             Number(val: 3.899).toZinc(),
             "3.899"
         )

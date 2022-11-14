@@ -10,11 +10,17 @@ public class ZincReader {
     var peekVal: any Val = null
     var peekLine: Int = 0
     
+    public init(_ data: Data) throws {
+        tokenizer = try ZincTokenizer(data)
+        try consume()
+        try consume()
+    }
     
-    public init(_ zinc: String) throws {
-        tokenizer = ZincTokenizer(zinc)
-        try consume()
-        try consume()
+    public convenience init(_ string: String) throws {
+        guard let data = string.data(using: .ascii) else {
+            throw ZincReaderError.InputIsNotUtf8
+        }
+        try self.init(data)
     }
     
     public func readVal() throws -> any Val {
@@ -298,6 +304,7 @@ enum ZincReaderError: Error {
     case GridDoesNotBeginWithVersion(any Val)
     case GridHasNoColumns
     case IdValueIsNotString(any Val)
+    case InputIsNotUtf8
     case InvalidCoord
     case InvalidRef
     case InvalidTagName

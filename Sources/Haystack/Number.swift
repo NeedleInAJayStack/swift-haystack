@@ -31,7 +31,7 @@ public struct Number: Val {
         }
         
         if let unit = unit {
-            zinc += "\(unit)"
+            zinc += "\(unit.withZincUnicodeEscaping())"
         }
         return zinc
     }

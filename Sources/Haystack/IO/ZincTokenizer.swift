@@ -1,7 +1,7 @@
 import Foundation
 
 class ZincTokenizer {
-    var sourceIterator: String.Iterator
+    var sourceIterator: Data.Iterator
     var token: ZincToken = .eof
     var val: any Val = null
     var line: Int = 0
@@ -10,12 +10,19 @@ class ZincTokenizer {
     var cur: ZincCharacter
     var peek: ZincCharacter
     
-    init(_ source: String) {
+    init(_ source: Data) throws {
         self.cur = .eof
         self.peek = .eof
         self.sourceIterator = source.makeIterator()
-        consume()
-        consume()
+        try consume()
+        try consume()
+    }
+    
+    public convenience init(_ string: String) throws {
+        guard let data = string.data(using: .ascii) else {
+            throw ZincTokenizerError.inputIsNotUtf8
+        }
+        try self.init(data)
     }
     
     // MARK: Tokenizing
@@ -28,11 +35,11 @@ class ZincTokenizer {
         while true {
             // treat space, tab, non-breaking space as whitespace
             if cur == .char(" ") || cur == .char("\t") {
-                consume()
+                try consume()
                 continue
             }
             if let char = try? cur.character(), char == Character(UnicodeScalar(0xa0)) {
-                consume()
+                try consume()
                 continue
             }
             
@@ -53,7 +60,7 @@ class ZincTokenizer {
         
         // newlines
         if cur == .char("\n") || cur == .char("\r") || cur == .char("\r\n") {
-            consume()
+            try consume()
             line += 1
             token = .nl
             return token
@@ -98,7 +105,7 @@ class ZincTokenizer {
         var s = ""
         while cur.isIdPart() {
             try s.append(cur.character())
-            consume()
+            try consume()
         }
         self.val = s
         return ZincToken.id
@@ -113,11 +120,11 @@ class ZincTokenizer {
             while true {
                 if cur.isHex() {
                     try s.append(cur.character())
-                    consume()
+                    try consume()
                     continue
                 }
                 if cur == .char("_") {
-                    consume()
+                    try consume()
                     continue
                 }
                 break
@@ -132,7 +139,7 @@ class ZincTokenizer {
         // consume all things that might be part of this number token
         var s = ""
         try s.append(cur.character())
-        consume()
+        try consume()
         var colons = 0
         var dashes = 0
         var unitIndex: String.Index? = nil
@@ -154,7 +161,9 @@ class ZincTokenizer {
                 } else if (cur == .char("e") || cur == .char("E")) &&
                             (peek == .char("-") || peek == .char("+") || peek.isDigit()) {
                     exp = true
-                } else if cur.isLetter() || cur == .char("%") || cur == .char("$") ||
+                } else if cur.isLetter() ||
+                            cur == .char("%") ||
+                            cur == .char("$") ||
                             cur == .char("/") ||
                             ((try? cur.character()) ?? " ") > Character(UnicodeScalar(128)) {
                     if (unitIndex == nil) {
@@ -162,7 +171,7 @@ class ZincTokenizer {
                     }
                 } else if cur == .char("_") {
                     if unitIndex == nil && peek.isDigit() {
-                        consume()
+                        try consume()
                         continue
                     } else {
                         if (unitIndex == nil) {
@@ -174,7 +183,7 @@ class ZincTokenizer {
                 }
             }
             try s.append(cur.character())
-            consume()
+            try consume()
         }
 
         if dashes == 2 && colons == 0 {
@@ -217,20 +226,20 @@ class ZincTokenizer {
                 throw ZincTokenizerError.expectingTimezone
             }
         } else {
-            consume()
+            try consume()
             s.append(" ")
             while cur.isIdPart() {
                 try s.append(cur.character())
-                consume()
+                try consume()
             }
 
             // handle GMT+xx or GMT-xx
             if (cur == .char("+") || cur == .char("-")) && s.hasSuffix("GMT") {
                 try s.append(cur.character())
-                consume()
+                try consume()
                 while cur.isDigit() {
                     try s.append(cur.character())
-                    consume()
+                    try consume()
                 }
             }
         }
@@ -272,7 +281,7 @@ class ZincTokenizer {
                 continue
             }
             try s.append(String(cur.character()))
-            consume()
+            try consume()
         }
         self.val = s
         return .str
@@ -284,7 +293,7 @@ class ZincTokenizer {
         while true {
             if let char = try? cur.character(), Ref.isIdChar(char) {
                 try s.append(String(cur.character()))
-                consume()
+                try consume()
             } else {
                 break
             }
@@ -302,7 +311,7 @@ class ZincTokenizer {
         while true {
             if let char = try? cur.character(), Ref.isIdChar(char) {
                 try s.append(String(cur.character()))
-                consume()
+                try consume()
             } else {
                 break
             }
@@ -327,57 +336,50 @@ class ZincTokenizer {
                 case ":", "/", "?", "#", "[", "]", "@", "\\", "&", "=", ";":
                     try s.append(String(cur.character()))
                     try s.append(String(peek.character()))
-                    consume()
-                    consume()
+                    try consume()
+                    try consume()
                     break
                 default:
                     try s.append(String(escape().character()))
                 }
             } else {
                 try s.append(String(cur.character()))
-                consume()
+                try consume()
             }
         }
         self.val = Uri(val: s)
         return .uri
     }
-
     
     private func escape() throws -> ZincCharacter {
         try consume("\\")
         switch (cur) {
         case let .char(char):
             switch char {
-                // TODO: These escaped literals don't appear to be supported in Swift
-//            case "b":
-//                consume()
-//                return .char("\b")
-//            case "f":
-//                consume()
-//                return .char("\f")
+            // \b and \f escaped literals aren't supported in Swift
             case "n":
-                consume()
+                try consume()
                 return .char("\n")
             case "r":
-                consume()
+                try consume()
                 return .char("\r")
             case "t":
-                consume()
+                try consume()
                 return .char("\t")
             case "\"":
-                consume()
+                try consume()
                 return .char("\"")
             case "$":
-                consume()
+                try consume()
                 return .char("$")
             case "'":
-                consume()
+                try consume()
                 return .char("'")
             case "`":
-                consume()
+                try consume()
                 return .char("`")
             case "\\":
-                consume()
+                try consume()
                 return .char("\\")
             default:
                 break
@@ -386,30 +388,14 @@ class ZincTokenizer {
             throw ZincTokenizerError.unexpectedEndOfFile
         }
 
-        // check for uxxxx
-        var esc = ""
-        if cur == .char("u") {
-            try consume("u")
-            try esc.append(String(cur.character()))
-            consume()
-            try esc.append(String(cur.character()))
-            consume()
-            try esc.append(String(cur.character()))
-            consume()
-            try esc.append(String(cur.character()))
-            consume()
-            guard let code = Int(esc, radix: 16), let scalar = UnicodeScalar(code) else {
-                throw ZincTokenizerError.invalidUnicodeEscape(esc)
-            }
-            return .char(.init(scalar))
-        }
+        // Unicode literals are handled within `consume`
         throw ZincTokenizerError.invalidEscapeSequence(cur)
     }
     
     /// parse a symbol token (typically into an operator)
     private func op() throws -> ZincToken {
         let curCopy = cur
-        consume()
+        try consume()
         switch curCopy {
         case let .char(char):
             switch char {
@@ -479,7 +465,7 @@ class ZincTokenizer {
             if cur == .char("\n") || cur == .eof {
                 break
             }
-            consume()
+            try consume()
         }
     }
     
@@ -508,7 +494,7 @@ class ZincTokenizer {
             if cur == .eof {
                 throw ZincTokenizerError.multiLineCommentNotClosed
             }
-            consume()
+            try consume()
         }
     }
     
@@ -518,16 +504,52 @@ class ZincTokenizer {
         if cur != .char(expected) {
             throw ZincTokenizerError.expectationFailed(.char(expected), cur)
         }
-        consume()
+        try consume()
     }
     
-    private func consume() {
-        position = position + 1
+    private func consume() throws {
         cur = peek
+        position = position + 1
         if let newPeek = sourceIterator.next() {
-            peek = .char(newPeek)
+            peek = .char(Character(UnicodeScalar(newPeek)))
         } else {
             peek = .eof
+        }
+        
+        if cur == .char("\r") && peek == .char("\n") {
+            cur = .char("\r\n")
+            position = position + 1
+            if let newPeek = sourceIterator.next() {
+                peek = .char(Character(UnicodeScalar(newPeek)))
+            } else {
+                peek = .eof
+            }
+        }
+        
+        if cur == .char("\\") && peek == .char("u") {
+            var unicodeValueStr = ""
+            var breakingChar: Character? = nil
+            while true {
+                position = position + 1
+                guard let next = sourceIterator.next() else {
+                    break
+                }
+                let char = Character(UnicodeScalar(next))
+                guard char.isHexDigit else {
+                    breakingChar = char
+                    break
+                }
+                unicodeValueStr.append(char)
+            }
+            guard let code = Int(unicodeValueStr, radix: 16), let scalar = UnicodeScalar(code) else {
+                throw ZincTokenizerError.invalidUnicodeEscape(unicodeValueStr)
+            }
+            cur = .char(Character(scalar))
+            if let breakingChar = breakingChar {
+                peek = .char(breakingChar)
+            } else {
+                peek = .eof
+            }
         }
     }
 }
@@ -588,20 +610,16 @@ enum ZincCharacter: Equatable {
     func isDigit() -> Bool {
         switch self {
         case let .char(char):
-            return ("0" <= char && char <= "9")
+            return char.isNumber
         case .eof:
             return false
         }
     }
     
     func isHex() -> Bool {
-        if self.isDigit() {
-            return true
-        }
         switch self {
         case let .char(char):
-            let lower = char.lowercased()
-            return ("a" <= lower && lower <= "f")
+            return char.isHexDigit
         case .eof:
             return false
         }
@@ -611,6 +629,7 @@ enum ZincCharacter: Equatable {
 enum ZincTokenizerError: Error {
     case expectationFailed(ZincCharacter, ZincCharacter)
     case expectingTimezone
+    case inputIsNotUtf8
     case invalidEmptySymbol
     case invalidEscapeSequence(ZincCharacter)
     case invalidHex(String)
