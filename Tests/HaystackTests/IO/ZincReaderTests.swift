@@ -91,7 +91,7 @@ final class ZincReaderTests: XCTestCase {
                 a,    b,      c,      d
                 T,    F,      N,   -99
                 2.3,  -5e-10, 2.4e20, 123e-10
-                "",   "a",   "\\" \\\\ \t \n \r", "\u{abcd}"
+                "",   "a",   "\\" \\\\ \t \n \r", "\\uabcd"
                 `path`, @12cbb082-0c02ae73, 4s, -2.5min
                 M,R,N,N
                 2009-12-31, 23:59:01, 01:02:03.123, 2009-02-03T04:05:06Z
@@ -137,8 +137,8 @@ final class ZincReaderTests: XCTestCase {
                 a,b
                 -3.1kg,4kg
                 5%,3.2%
-                5kWh/ft\u{00b2},-15kWh/m\u{00b2}
-                123e+12kJ/kg_dry,74\u{0394}\u{00b0F}
+                5kWh/ft\\u00b2,-15kWh/m\\u00b2
+                123e+12kJ/kg_dry,74\\u0394\\u0b0F
                 """,
             meta: [:],
             cols: [("a", nil), ("b", nil)],
@@ -146,7 +146,7 @@ final class ZincReaderTests: XCTestCase {
                 [Number(val: -3.1, unit: "kg"), Number(val: 4, unit: "kg")],
                 [Number(val: 5, unit: "%"), Number(val: 3.2, unit: "%")],
                 [Number(val: 5, unit: "kWh/ft\u{00b2}"), Number(val: -15, unit: "kWh/m\u{00b2}")],
-                [Number(val: 123e+12, unit: "kJ/kg_dry"), Number(val: 74, unit: "\u{0394}\u{00b0F}")],
+                [Number(val: 123e+12, unit: "kJ/kg_dry"), Number(val: 74, unit: "\u{0394}\u{0b0F}")],
             ]
         )
         
@@ -198,9 +198,9 @@ final class ZincReaderTests: XCTestCase {
                 2010-12-18T14:11:30.925Z UTC
                 2010-12-18T14:11:30.925Z London
                 45$
-                33\u{00a3}
+                33\\u00a3
                 @12cbb08e-0c02ae73
-                7.15625E-4kWh/ft\u{00b2}
+                7.15625E-4kWh/ft\\u00b2
                 R
                 NA
                 """,
