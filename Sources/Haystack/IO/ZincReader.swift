@@ -64,8 +64,8 @@ public class ZincReader {
             case "M": return marker
             case "R": return remove
             case "NA": return na
-            case "NaN": return Number(val: .nan)
-            case "INF": return Number(val: .infinity)
+            case "NaN": return Number(.nan)
+            case "INF": return Number(.infinity)
             default:
                 throw ZincReaderError.UnexpectedId(id)
             }
@@ -79,7 +79,7 @@ public class ZincReader {
         if cur == .minus, peek == .id, peekVal.equals("INF") {
             try consume(.minus)
             try consume(.id)
-            return Number(val: -1.0 * .infinity)
+            return Number(-1.0 * .infinity)
         }
         
         if cur == .lbracket {
@@ -123,7 +123,7 @@ public class ZincReader {
             guard let refVal = curVal as? String, let dis = peekVal as? String else {
                 throw ZincReaderError.InvalidRef
             }
-            val = Ref(val: refVal, dis: dis)
+            val = Ref(refVal, dis: dis)
             try consume(.ref)
         }
         try consume()

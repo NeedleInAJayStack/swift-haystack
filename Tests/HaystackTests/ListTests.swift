@@ -6,7 +6,7 @@ final class ListTests: XCTestCase {
         let value: List = [
             true,
             "abc",
-            Number(val: 42, unit: "furloghs"),
+            Number(42, unit: "furloghs"),
             List([
                 false,
                 "xyz"
@@ -32,7 +32,7 @@ final class ListTests: XCTestCase {
             List([
                 true,
                 "abc",
-                Number(val: 42, unit: "furloghs"),
+                Number(42, unit: "furloghs"),
                 List([
                     false,
                     "xyz"
@@ -90,7 +90,7 @@ final class ListTests: XCTestCase {
             List([
                 true,
                 "abc",
-                Number(val: 42, unit: "furloghs"),
+                Number(42, unit: "furloghs"),
                 List([
                     false,
                     "xyz"
@@ -99,7 +99,7 @@ final class ListTests: XCTestCase {
             List([
                 true,
                 "abc",
-                Number(val: 42, unit: "furloghs"),
+                Number(42, unit: "furloghs"),
                 List([
                     false,
                     "xyz"
@@ -110,7 +110,7 @@ final class ListTests: XCTestCase {
             List([
                 true,
                 "abc",
-                Number(val: 42, unit: "furloghs"),
+                Number(42, unit: "furloghs"),
                 List([
                     false,
                     "xyz"
@@ -119,7 +119,7 @@ final class ListTests: XCTestCase {
             List([
                 true,
                 "abc",
-                Number(val: 42, unit: "furloghs"),
+                Number(42, unit: "furloghs"),
                 List([
                     true,
                     "xyz"

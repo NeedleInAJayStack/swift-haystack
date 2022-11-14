@@ -18,7 +18,7 @@ public struct Ref: Val {
     public let val: String
     public let dis: String?
     
-    public init(val: String, dis: String? = nil) {
+    public init(_ val: String, dis: String? = nil) {
         self.val = val
         self.dis = dis
     }

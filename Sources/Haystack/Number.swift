@@ -6,7 +6,7 @@ public struct Number: Val {
     public let val: Double
     public let unit: String?
     
-    public init(val: Double, unit: String? = nil) {
+    public init(_ val: Double, unit: String? = nil) {
         self.val = val
         self.unit = unit
     }

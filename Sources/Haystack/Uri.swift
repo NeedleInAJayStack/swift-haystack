@@ -5,7 +5,7 @@ public struct Uri: Val {
     
     public let val: String
     
-    public init(val: String) {
+    public init(_ val: String) {
         self.val = val
     }
     

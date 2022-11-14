@@ -3,7 +3,7 @@ import Haystack
 
 final class NumberTests: XCTestCase {
     func testJsonCoding() throws {
-        let value = Number(val: 12.199, unit: "kWh")
+        let value = Number(12.199, unit: "kWh")
         let jsonString = #"{"_kind":"number","val":12.199,"unit":"kWh"}"#
         
         let encodedData = try JSONEncoder().encode(value)
@@ -20,7 +20,7 @@ final class NumberTests: XCTestCase {
     }
     
     func testJsonCoding_noUnit() throws {
-        let value = Number(val: 3.899)
+        let value = Number(3.899)
         let jsonString = #"3.899"#
         
         let encodedData = try JSONEncoder().encode(value)
@@ -56,31 +56,31 @@ final class NumberTests: XCTestCase {
     
     func testToZinc() throws {
         XCTAssertEqual(
-            Number(val: 12.199, unit: "kWh").toZinc(),
+            Number(12.199, unit: "kWh").toZinc(),
             "12.199kWh"
         )
         XCTAssertEqual(
-            Number(val: 1, unit: "kWh/ft\u{00b2}").toZinc(),
+            Number(1, unit: "kWh/ft\u{00b2}").toZinc(),
             #"1kWh/ft\u00b2"#
         )
         XCTAssertEqual(
-            Number(val: 3.899).toZinc(),
+            Number(3.899).toZinc(),
             "3.899"
         )
         XCTAssertEqual(
-            Number(val: 4).toZinc(),
+            Number(4).toZinc(),
             "4"
         )
         XCTAssertEqual(
-            Number(val: .infinity).toZinc(),
+            Number(.infinity).toZinc(),
             "INF"
         )
         XCTAssertEqual(
-            Number(val: (-1.0 * .infinity)).toZinc(),
+            Number((-1.0 * .infinity)).toZinc(),
             "-INF"
         )
         XCTAssertEqual(
-            Number(val: .nan).toZinc(),
+            Number(.nan).toZinc(),
             "NaN"
         )
     }
