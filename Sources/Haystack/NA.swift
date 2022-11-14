@@ -6,6 +6,10 @@ public let na = NA()
 public struct NA: Val {
     public static var valType: ValType { .NA }
     
+    public static var val: Self {
+        return na
+    }
+    
     public func toZinc() -> String {
         return "NA"
     }

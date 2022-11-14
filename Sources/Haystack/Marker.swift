@@ -6,6 +6,10 @@ public let marker = Marker()
 public struct Marker: Val {
     public static var valType: ValType { .Marker }
     
+    public static var val: Self {
+        return marker
+    }
+    
     public func toZinc() -> String {
         return "M"
     }

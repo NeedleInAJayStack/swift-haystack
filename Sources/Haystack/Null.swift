@@ -6,6 +6,10 @@ public let null = Null()
 public struct Null: Val {
     public static var valType: ValType { .Null }
     
+    public static var val: Self {
+        return null
+    }
+    
     public func toZinc() -> String {
         return "N"
     }
