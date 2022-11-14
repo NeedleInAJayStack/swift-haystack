@@ -132,7 +132,7 @@ class ZincTokenizer {
             guard let int = Int(s, radix: 16) else {
                 throw ZincTokenizerError.invalidHex(s)
             }
-            self.val = Number(val: Double(int))
+            self.val = Number(Double(int))
             return .num
         }
 
@@ -253,7 +253,7 @@ class ZincTokenizer {
             guard let double = Double(s) else {
                 throw ZincTokenizerError.invalidNumberLiteral(s)
             }
-            self.val = Number(val: double)
+            self.val = Number(double)
             return .num
         }
         let doubleStr = s[..<unitIndex]
@@ -261,7 +261,7 @@ class ZincTokenizer {
         guard let double = Double(doubleStr) else {
             throw ZincTokenizerError.invalidNumberLiteral(s)
         }
-        self.val = Number(val: double, unit: String(unitStr))
+        self.val = Number(double, unit: String(unitStr))
         return .num
     }
     
@@ -301,7 +301,7 @@ class ZincTokenizer {
         guard !s.isEmpty else {
             throw ZincTokenizerError.invalidEmptySymbol
         }
-        self.val = Symbol(val: s)
+        self.val = Symbol(s)
         return .symbol
     }
     
@@ -316,7 +316,7 @@ class ZincTokenizer {
                 break
             }
         }
-        self.val = Ref(val: s)
+        self.val = Ref(s)
         return .ref
     }
     
@@ -347,7 +347,7 @@ class ZincTokenizer {
                 try consume()
             }
         }
-        self.val = Uri(val: s)
+        self.val = Uri(s)
         return .uri
     }
     

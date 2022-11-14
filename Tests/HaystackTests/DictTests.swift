@@ -6,7 +6,7 @@ final class DictTests: XCTestCase {
         let value: Dict = [
             "bool": true,
             "str": "abc",
-            "number": Number(val: 42, unit: "furloghs"),
+            "number": Number(42, unit: "furloghs"),
             "dict": Dict([
                 "bool": false,
                 "str": "xyz"
@@ -35,7 +35,7 @@ final class DictTests: XCTestCase {
             Dict([
                 "bool": true,
                 "str": "abc",
-                "number": Number(val: 42, unit: "furloghs"),
+                "number": Number(42, unit: "furloghs"),
                 "dict": Dict([
                     "bool": false,
                     "str": "xyz"
@@ -94,7 +94,7 @@ final class DictTests: XCTestCase {
             Dict([
                 "bool": true,
                 "str": "abc",
-                "number": Number(val: 42, unit: "furloghs"),
+                "number": Number(42, unit: "furloghs"),
                 "dict": Dict([
                     "bool": false,
                     "str": "xyz"
@@ -103,7 +103,7 @@ final class DictTests: XCTestCase {
             Dict([
                 "bool": true,
                 "str": "abc",
-                "number": Number(val: 42, unit: "furloghs"),
+                "number": Number(42, unit: "furloghs"),
                 "dict": Dict([
                     "bool": false,
                     "str": "xyz"
@@ -114,7 +114,7 @@ final class DictTests: XCTestCase {
             Dict([
                 "bool": true,
                 "str": "abc",
-                "number": Number(val: 42, unit: "furloghs"),
+                "number": Number(42, unit: "furloghs"),
                 "dict": Dict([
                     "bool": false,
                     "str": "xyz"
@@ -123,7 +123,7 @@ final class DictTests: XCTestCase {
             Dict([
                 "bool": true,
                 "str": "abc",
-                "number": Number(val: 42, unit: "furloghs"),
+                "number": Number(42, unit: "furloghs"),
                 "dict": Dict([
                     "bool": true,
                     "str": "xyz"

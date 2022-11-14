@@ -25,7 +25,7 @@ final class ZincReaderTests: XCTestCase {
             meta: [:],
             cols: [("a", nil), ("b", nil)],
             rows: [
-                [Symbol(val: "foo"), Symbol(val: "a-b")]
+                [Symbol("foo"), Symbol("a-b")]
             ]
         )
     }
@@ -80,8 +80,8 @@ final class ZincReaderTests: XCTestCase {
             meta: [:],
             cols: [("a", nil), ("b", nil)],
             rows: [
-                [Number(val: 1), Number(val: 2)],
-                [Number(val: 3), Number(val: 4)],
+                [Number(1), Number(2)],
+                [Number(3), Number(4)],
             ]
         )
         
@@ -101,13 +101,13 @@ final class ZincReaderTests: XCTestCase {
             meta: [:],
             cols: [("a", nil), ("b", nil), ("c", nil), ("d", nil)],
             rows: [
-                [true, false, null, Number(val: -99)],
-                [Number(val: 2.3), Number(val: -5e-10), Number(val: 2.4e20), Number(val: 123e-10)],
+                [true, false, null, Number(-99)],
+                [Number(2.3), Number(-5e-10), Number(2.4e20), Number(123e-10)],
                 ["", "a", "\" \\ \t \n \r", "\u{abcd}"],
-                [Uri(val: "path"), Ref(val: "12cbb082-0c02ae73"), Number(val: 4, unit: "s"), Number(val: -2.5, unit: "min")],
+                [Uri("path"), Ref("12cbb082-0c02ae73"), Number(4, unit: "s"), Number(-2.5, unit: "min")],
                 [marker, remove, null, null], // Bin not supported.
                 [Date(year: 2009, month: 12, day: 31), Time(hour: 23, minute: 59, second: 1), Time(hour: 1, minute: 2, second: 3, millisecond: 123), DateTime(year: 2009, month: 2, day: 3, hour: 4, minute: 5, second: 6)],
-                [Number(val: .infinity), Number(val: -1 * .infinity), "", Number(val: .nan)],
+                [Number(.infinity), Number(-1 * .infinity), "", Number(.nan)],
                 [Coord(lat: 12, lng: -34), Coord(lat: 0.123, lng: -0.789), Coord(lat: 84.5, lng: -77.45), Coord(lat: -90, lng: 180)],
             ]
         )
@@ -124,9 +124,9 @@ final class ZincReaderTests: XCTestCase {
             meta: [:],
             cols: [("foo", nil)],
             rows: [
-                [Uri(val: "foo$20bar")],
-                [Uri(val: "foo`bar")],
-                [Uri(val: "file \\#2")],
+                [Uri("foo$20bar")],
+                [Uri("foo`bar")],
+                [Uri("file \\#2")],
                 ["$15"],
             ]
         )
@@ -143,10 +143,10 @@ final class ZincReaderTests: XCTestCase {
             meta: [:],
             cols: [("a", nil), ("b", nil)],
             rows: [
-                [Number(val: -3.1, unit: "kg"), Number(val: 4, unit: "kg")],
-                [Number(val: 5, unit: "%"), Number(val: 3.2, unit: "%")],
-                [Number(val: 5, unit: "kWh/ft\u{00b2}"), Number(val: -15, unit: "kWh/m\u{00b2}")],
-                [Number(val: 123e+12, unit: "kJ/kg_dry"), Number(val: 74, unit: "\u{0394}\u{0b0F}")],
+                [Number(-3.1, unit: "kg"), Number(4, unit: "kg")],
+                [Number(5, unit: "%"), Number(3.2, unit: "%")],
+                [Number(5, unit: "kWh/ft\u{00b2}"), Number(-15, unit: "kWh/m\u{00b2}")],
+                [Number(123e+12, unit: "kJ/kg_dry"), Number(74, unit: "\u{0394}\u{0b0F}")],
             ]
         )
         
@@ -164,12 +164,12 @@ final class ZincReaderTests: XCTestCase {
             meta: [:],
             cols: [("a", nil), ("b", nil), ("c", nil)],
             rows: [
-                [null, Number(val: 1), Number(val: 2)],
-                [Number(val: 3), null, Number(val: 5)],
-                [Number(val: 6), Number(val: 7000), null],
-                [null, null, Number(val: 10)],
+                [null, Number(1), Number(2)],
+                [Number(3), null, Number(5)],
+                [Number(6), Number(7000), null],
+                [null, null, Number(10)],
                 [null, null, null],
-                [Number(val: 14), null, null],
+                [Number(14), null, null],
             ]
         )
         
@@ -214,14 +214,14 @@ final class ZincReaderTests: XCTestCase {
             ],
             cols: [("a", nil)],
             rows: [
-                [Number(val: 3.814697265625E-6)],
+                [Number(3.814697265625E-6)],
                 [DateTime(year: 2010, month: 12, day: 18, hour: 14, minute: 11, second: 30, millisecond: 924)],
                 [DateTime(year: 2010, month: 12, day: 18, hour: 14, minute: 11, second: 30, millisecond: 925)],
                 [DateTime(year: 2010, month: 12, day: 18, hour: 14, minute: 11, second: 30, millisecond: 925, timezone: "London")],
-                [Number(val: 45, unit: "$")],
-                [Number(val: 33, unit: "\u{00a3}")],
-                [Ref(val: "12cbb08e-0c02ae73")],
-                [Number(val: 7.15625E-4, unit: "kWh/ft\u{00b2}")],
+                [Number(45, unit: "$")],
+                [Number(33, unit: "\u{00a3}")],
+                [Ref("12cbb08e-0c02ae73")],
+                [Number(7.15625E-4, unit: "kWh/ft\u{00b2}")],
                 [remove],
                 [na],
             ]

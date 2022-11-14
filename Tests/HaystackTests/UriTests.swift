@@ -3,7 +3,7 @@ import Haystack
 
 final class UriTests: XCTestCase {
     func testJsonCoding() throws {
-        let value = Uri(val: "http://en.wikipedia.org/")
+        let value = Uri("http://en.wikipedia.org/")
         let jsonString = #"{"_kind":"uri","val":"http:\/\/en.wikipedia.org\/"}"#
         
         let encodedData = try JSONEncoder().encode(value)
@@ -21,7 +21,7 @@ final class UriTests: XCTestCase {
     
     func testToZinc() throws {
         XCTAssertEqual(
-            Uri(val: "http://en.wikipedia.org/").toZinc(),
+            Uri("http://en.wikipedia.org/").toZinc(),
             "`http://en.wikipedia.org/`"
         )
     }

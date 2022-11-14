@@ -15,29 +15,29 @@ final class ZincTokenizerTests: XCTestCase {
     }
     
     func testNum() throws {
-        try XCTAssertEqualTokensAndVals(zinc: "5", expected: [(.num, Number(val: 5))])
-        try XCTAssertEqualTokensAndVals(zinc: "0x1234_abcd", expected: [(.num, Number(val: 0x1234abcd))])
+        try XCTAssertEqualTokensAndVals(zinc: "5", expected: [(.num, Number(5))])
+        try XCTAssertEqualTokensAndVals(zinc: "0x1234_abcd", expected: [(.num, Number(0x1234abcd))])
     }
     
     func testFloats() throws {
-        try XCTAssertEqualTokensAndVals(zinc: "5.0", expected: [(.num, Number(val: 5))])
-        try XCTAssertEqualTokensAndVals(zinc: "5.42", expected: [(.num, Number(val: 5.42))])
-        try XCTAssertEqualTokensAndVals(zinc: "123.2e32", expected: [(.num, Number(val: 123.2e32))])
-        try XCTAssertEqualTokensAndVals(zinc: "123.2e+32", expected: [(.num, Number(val: 123.2e+32))])
-        try XCTAssertEqualTokensAndVals(zinc: "2_123.2e+32", expected: [(.num, Number(val: 2_123.2e+32))])
-        try XCTAssertEqualTokensAndVals(zinc: "4.2e-7", expected: [(.num, Number(val: 4.2e-7))])
+        try XCTAssertEqualTokensAndVals(zinc: "5.0", expected: [(.num, Number(5))])
+        try XCTAssertEqualTokensAndVals(zinc: "5.42", expected: [(.num, Number(5.42))])
+        try XCTAssertEqualTokensAndVals(zinc: "123.2e32", expected: [(.num, Number(123.2e32))])
+        try XCTAssertEqualTokensAndVals(zinc: "123.2e+32", expected: [(.num, Number(123.2e+32))])
+        try XCTAssertEqualTokensAndVals(zinc: "2_123.2e+32", expected: [(.num, Number(2_123.2e+32))])
+        try XCTAssertEqualTokensAndVals(zinc: "4.2e-7", expected: [(.num, Number(4.2e-7))])
     }
     
     func testNumberWithUnits() throws {
-        try XCTAssertEqualTokensAndVals(zinc: "-40ms", expected: [(.num, Number(val: -40, unit: "ms"))])
-        try XCTAssertEqualTokensAndVals(zinc: "1sec", expected: [(.num, Number(val: 1, unit: "sec"))])
-        try XCTAssertEqualTokensAndVals(zinc: "5hr", expected: [(.num, Number(val: 5, unit: "hr"))])
-        try XCTAssertEqualTokensAndVals(zinc: "2.5day", expected: [(.num, Number(val: 2.5, unit: "day"))])
-        try XCTAssertEqualTokensAndVals(zinc: "12%", expected: [(.num, Number(val: 12, unit: "%"))])
-        try XCTAssertEqualTokensAndVals(zinc: "987_foo", expected: [(.num, Number(val: 987, unit: "_foo"))])
-        try XCTAssertEqualTokensAndVals(zinc: "-1.2m/s", expected: [(.num, Number(val: -1.2, unit: "m/s"))])
-        try XCTAssertEqualTokensAndVals(zinc: #"12kWh/ft\u00B2"#, expected: [(.num, Number(val: 12, unit: "kWh/ft\u{00B2}"))])
-        try XCTAssertEqualTokensAndVals(zinc: "3_000.5J/kg_dry", expected: [(.num, Number(val: 3000.5, unit: "J/kg_dry"))])
+        try XCTAssertEqualTokensAndVals(zinc: "-40ms", expected: [(.num, Number(-40, unit: "ms"))])
+        try XCTAssertEqualTokensAndVals(zinc: "1sec", expected: [(.num, Number(1, unit: "sec"))])
+        try XCTAssertEqualTokensAndVals(zinc: "5hr", expected: [(.num, Number(5, unit: "hr"))])
+        try XCTAssertEqualTokensAndVals(zinc: "2.5day", expected: [(.num, Number(2.5, unit: "day"))])
+        try XCTAssertEqualTokensAndVals(zinc: "12%", expected: [(.num, Number(12, unit: "%"))])
+        try XCTAssertEqualTokensAndVals(zinc: "987_foo", expected: [(.num, Number(987, unit: "_foo"))])
+        try XCTAssertEqualTokensAndVals(zinc: "-1.2m/s", expected: [(.num, Number(-1.2, unit: "m/s"))])
+        try XCTAssertEqualTokensAndVals(zinc: #"12kWh/ft\u00B2"#, expected: [(.num, Number(12, unit: "kWh/ft\u{00B2}"))])
+        try XCTAssertEqualTokensAndVals(zinc: "3_000.5J/kg_dry", expected: [(.num, Number(3000.5, unit: "J/kg_dry"))])
     }
     
     func testStrings() throws {
@@ -98,13 +98,13 @@ final class ZincTokenizerTests: XCTestCase {
     }
     
     func testRef() throws {
-        try XCTAssertEqualTokensAndVals(zinc: "@125b780e-0684e169", expected: [(.ref, Ref(val: "125b780e-0684e169"))])
-        try XCTAssertEqualTokensAndVals(zinc: "@demo:_:-.~", expected: [(.ref, Ref(val: "demo:_:-.~"))])
+        try XCTAssertEqualTokensAndVals(zinc: "@125b780e-0684e169", expected: [(.ref, Ref("125b780e-0684e169"))])
+        try XCTAssertEqualTokensAndVals(zinc: "@demo:_:-.~", expected: [(.ref, Ref("demo:_:-.~"))])
     }
     
     func testUri() throws {
-        try XCTAssertEqualTokensAndVals(zinc: "`http://foo/`", expected: [(.uri, Uri(val: "http://foo/"))])
-        try XCTAssertEqualTokensAndVals(zinc: "`_ \\n \\\\ \\`_`", expected: [(.uri, Uri(val: "_ \n \\\\ `_"))])
+        try XCTAssertEqualTokensAndVals(zinc: "`http://foo/`", expected: [(.uri, Uri("http://foo/"))])
+        try XCTAssertEqualTokensAndVals(zinc: "`_ \\n \\\\ \\`_`", expected: [(.uri, Uri("_ \n \\\\ `_"))])
     }
     
     func testWhitespace() throws {

@@ -3,7 +3,7 @@ import Haystack
 
 final class RefTests: XCTestCase {
     func testJsonCoding() throws {
-        let value = Ref(val: "123-abc", dis: "Name")
+        let value = Ref("123-abc", dis: "Name")
         let jsonString = #"{"_kind":"ref","val":"123-abc","dis":"Name"}"#
         
         let encodedData = try JSONEncoder().encode(value)
@@ -21,11 +21,11 @@ final class RefTests: XCTestCase {
     
     func testToZinc() throws {
         XCTAssertEqual(
-            Ref(val: "123-abc", dis: "Name").toZinc(),
+            Ref("123-abc", dis: "Name").toZinc(),
             "@123-abc Name"
         )
         XCTAssertEqual(
-            Ref(val: "123-abc").toZinc(),
+            Ref("123-abc").toZinc(),
             "@123-abc"
         )
     }

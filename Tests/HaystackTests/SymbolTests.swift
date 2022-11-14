@@ -3,7 +3,7 @@ import Haystack
 
 final class SymbolTests: XCTestCase {
     func testJsonCoding() throws {
-        let value = Symbol(val: "tagName")
+        let value = Symbol("tagName")
         let jsonString = #"{"_kind":"symbol","val":"tagName"}"#
         
         let encodedData = try JSONEncoder().encode(value)
@@ -21,7 +21,7 @@ final class SymbolTests: XCTestCase {
     
     func testToZinc() throws {
         XCTAssertEqual(
-            Symbol(val: "tagName").toZinc(),
+            Symbol("tagName").toZinc(),
             "^tagName"
         )
     }
