@@ -25,7 +25,7 @@ public struct Number: Val {
         
         var zinc: String
         if val.remainder(dividingBy: 1.0) == .zero {
-            zinc = "\(Int(val))"
+            zinc = String(format: "%.f", val)
         } else {
             zinc = "\(val)"
         }
@@ -85,5 +85,20 @@ extension Number {
             var container = encoder.singleValueContainer()
             try container.encode(val)
         }
+    }
+}
+
+// List + Equatable
+extension Number {
+    public static func == (lhs: Number, rhs: Number) -> Bool {
+        guard lhs.unit == rhs.unit else {
+            return false
+        }
+        
+        if lhs.val.isNaN {
+            return rhs.val.isNaN // Consider 2 NaN numbers as equal
+        }
+        
+        return lhs.val == rhs.val
     }
 }
