@@ -107,7 +107,7 @@ final class ZincReaderTests: XCTestCase {
                 [Uri("path"), Ref("12cbb082-0c02ae73"), Number(4, unit: "s"), Number(-2.5, unit: "min")],
                 [marker, remove, null, null], // Bin not supported.
                 [Date(year: 2009, month: 12, day: 31), Time(hour: 23, minute: 59, second: 1), Time(hour: 1, minute: 2, second: 3, millisecond: 123), DateTime(year: 2009, month: 2, day: 3, hour: 4, minute: 5, second: 6)],
-                [Number(.infinity), Number(-1 * .infinity), "", Number(.nan)],
+                [Number.infinity, Number.negativeInfinity, "", Number.nan],
                 [Coord(lat: 12, lng: -34), Coord(lat: 0.123, lng: -0.789), Coord(lat: 84.5, lng: -77.45), Coord(lat: -90, lng: 180)],
             ]
         )
