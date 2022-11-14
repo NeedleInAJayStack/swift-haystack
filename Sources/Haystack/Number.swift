@@ -3,6 +3,16 @@ import Foundation
 public struct Number: Val {
     public static var valType: ValType { .Number }
     
+    public static var infinity: Self {
+        return Number(.infinity)
+    }
+    public static var negativeInfinity: Self {
+        return Number(-1 * .infinity)
+    }
+    public static var nan: Self {
+        return Number(.nan)
+    }
+    
     public let val: Double
     public let unit: String?
     

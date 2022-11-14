@@ -72,15 +72,15 @@ final class NumberTests: XCTestCase {
             "4"
         )
         XCTAssertEqual(
-            Number(.infinity).toZinc(),
+            Number.infinity.toZinc(),
             "INF"
         )
         XCTAssertEqual(
-            Number((-1.0 * .infinity)).toZinc(),
+            Number.negativeInfinity.toZinc(),
             "-INF"
         )
         XCTAssertEqual(
-            Number(.nan).toZinc(),
+            Number.nan.toZinc(),
             "NaN"
         )
     }
