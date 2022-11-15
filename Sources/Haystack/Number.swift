@@ -1,5 +1,9 @@
 import Foundation
 
+/// Number is an integer or floating point value with an optional unit of measurement. Implementations should represent
+/// a number as a 64-bit IEEE 754 floating point and provide 52 bits of lossless integer representation.
+///
+/// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#number)
 public struct Number: Val {
     public static var valType: ValType { .Number }
     

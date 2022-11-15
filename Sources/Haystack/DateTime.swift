@@ -1,5 +1,12 @@
 import Foundation
 
+/// DateTime is an ISO 8601 timestamp paired with a timezone name. Haystack requires all timestamps
+/// to include a timezone. Timezone names are standardized in the
+/// [timezone database](https://project-haystack.org/doc/docHaystack/TimeZones)
+/// (city name from zoneinfo database). Implementations should support DateTime precision at least
+/// down to the millisecond.
+///
+/// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#datetime)
 public struct DateTime: Val {
     public static var valType: ValType { .DateTime }
     public static let utcName = "UTC"

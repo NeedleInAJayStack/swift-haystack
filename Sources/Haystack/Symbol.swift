@@ -1,5 +1,9 @@
 import Foundation
 
+/// Symbols are the data type for
+/// [def](https://project-haystack.org/doc/docHaystack/Defs) identifiers.
+///
+/// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#symbol)
 public struct Symbol: Val {
     public static var valType: ValType { .Symbol }
     

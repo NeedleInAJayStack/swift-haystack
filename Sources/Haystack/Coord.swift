@@ -1,5 +1,10 @@
 import Foundation
 
+/// Coord is a specialized data type to represent a geographic coordinate as a latitude and longitude.
+/// Haystack uses a special atomic type for coordinates to optimize historization of geolocation for
+/// transportation applications (versus a collection data type such as dict).
+///
+/// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#coord)
 public struct Coord: Val {
     public static var valType: ValType { .Coord }
     

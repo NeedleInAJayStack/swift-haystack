@@ -1,5 +1,12 @@
 import Foundation
 
+/// XStr is a tuple of a "type name" and string encoded value. The type name must follow tag naming rules
+/// except it must start with an ASCII upper case letter (A-Z). XStrs provide a mechanism for vendors to
+/// round trip specific string encoded atomic values. The type name is not currently standardized by Project
+/// Haystack. However it should be assumed that future versions of this specification may standardize a set
+/// of XStr type names.
+///
+/// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#xstr)
 public struct XStr: Val {
     public static var valType: ValType { .XStr }
     

@@ -3,6 +3,11 @@ import Foundation
 /// Singleton `NA` instance
 public let na = NA()
 
+/// NA is a singleton for not available. It fills a similar role as the NA constant in the R language as a place holding for
+/// missing or invalid data values. In Haystack it is most often used in historized data to indicate that a timestamp
+/// sample is in error.
+///
+/// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#na)
 public struct NA: Val {
     public static var valType: ValType { .NA }
     

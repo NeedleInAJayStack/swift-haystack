@@ -1,5 +1,9 @@
 import Foundation
 
+/// List is a collection data type. Lists are ordered sequences and may contain any other valid
+/// Haystack data types.
+///
+/// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#list)
 public struct List: Val {
     public static var valType: ValType { .List }
     

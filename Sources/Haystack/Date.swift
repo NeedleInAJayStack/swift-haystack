@@ -1,5 +1,8 @@
 import Foundation
 
+/// Date is an ISO 8601 calendar date. It is encoded as `YYYY-MM-DD`.
+///
+/// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#date)
 public struct Date: Val {
     public static var valType: ValType { .Date }
     

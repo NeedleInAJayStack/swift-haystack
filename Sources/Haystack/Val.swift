@@ -1,9 +1,7 @@
 import Foundation
 
-/// HVal is the base class for representing haystack tag
-/// scalar values as an immutable class.
-///
-/// See [Project Haystack](http://project-haystack.org/doc/TagModel#tagKinds)
+/// Val represents the core functionality of Haystack types, specifically
+/// hashability, equatability, JSON coding, and zinc coding.
 public protocol Val: Codable, Hashable {
     static var valType: ValType { get }
     func toZinc() -> String

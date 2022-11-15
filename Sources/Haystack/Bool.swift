@@ -1,5 +1,8 @@
 import Foundation
 
+/// Bool is the truth data type with the two values `true` and `false`.
+///
+/// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#bool)
 extension Bool: Val {
     public static var valType: ValType { .Bool }
     

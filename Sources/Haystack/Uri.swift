@@ -1,5 +1,9 @@
 import Foundation
 
+/// Uri is the data type used to represent Universal Resource Identifiers according to
+/// [RFC 3986](http://tools.ietf.org/html/rfc3986).
+///
+/// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#uri)
 public struct Uri: Val {
     public static var valType: ValType { .Uri }
     

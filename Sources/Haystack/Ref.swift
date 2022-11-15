@@ -1,5 +1,10 @@
 import Foundation
 
+/// Refs are the data type for instance data identifiers. All entities are identified via the id tag and a unique
+/// ref data value. Relationships cross-reference the entity with ref tags. And, operations such as the read
+/// or hisRead ops will identify the entity with its ref id.
+///
+/// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#ref)
 public struct Ref: Val {
     public static var valType: ValType { .Ref }
     

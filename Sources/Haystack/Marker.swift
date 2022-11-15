@@ -3,6 +3,10 @@ import Foundation
 /// Singleton `Marker` instance
 public let marker = Marker()
 
+/// Marker is a singleton used to create "label" tags. Markers are used to express typing information.
+/// For example the equip tag is used on any dict that represents an equipment asset.
+///
+/// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#marker)
 public struct Marker: Val {
     public static var valType: ValType { .Marker }
     

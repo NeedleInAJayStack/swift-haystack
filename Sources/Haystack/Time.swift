@@ -1,5 +1,8 @@
 import Foundation
 
+/// Time is an ISO 8601 time of day. It is encoded as `hh:mm:ss.sss`.
+///
+/// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#time)
 public struct Time: Val {
     public static var valType: ValType { .Time }
     

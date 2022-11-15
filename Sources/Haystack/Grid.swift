@@ -1,5 +1,11 @@
 import Foundation
 
+/// Grid is a two dimensional tabular data type. Grids are essentially a list of dicts. However, grids may
+/// include grid level and column level meta data that is modeled as a dict. Grids are the fundamental
+/// unit of data exchange over the
+/// [HTTP API](https://project-haystack.org/doc/docHaystack/HttpApi).
+///
+/// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#grid)
 public struct Grid: Val {
     public static var valType: ValType { .Grid }
     

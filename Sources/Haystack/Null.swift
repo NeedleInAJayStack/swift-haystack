@@ -1,8 +1,11 @@
 import Foundation
 
-/// Singleton `NA` instance
+/// Singleton `null` instance
 public let null = Null()
 
+/// Null is a value that maps to Haystack's null value, which is not formally defined. In some cases,
+/// (such as JSON coding), it is more convenient to work with a specific type instead of bridging
+/// Swift's nil.
 public struct Null: Val {
     public static var valType: ValType { .Null }
     

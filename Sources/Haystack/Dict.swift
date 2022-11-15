@@ -1,5 +1,12 @@
 import Foundation
 
+/// Dict (or dictionary) is the primary collection data type in Haystack. Dicts are an unordered collection of
+/// name/value pairs that we call *tags*. The name keys of a dict are restricted to ASCII letters, digits and
+/// underbar as discussed in the
+/// [names](https://project-haystack.org/doc/docHaystack/Kinds#names)
+/// section. The values may be be any other valid Haystack data type.
+///
+/// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#dict)
 public struct Dict: Val {
     public static var valType: ValType { .Dict }
     
