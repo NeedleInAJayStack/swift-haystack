@@ -291,7 +291,7 @@ class ZincTokenizer {
         try consume("^")
         var s = ""
         while true {
-            if let char = try? cur.character(), Ref.isIdChar(char) {
+            if let char = try? cur.character(), char.isIdChar {
                 try s.append(String(cur.character()))
                 try consume()
             } else {
@@ -301,7 +301,7 @@ class ZincTokenizer {
         guard !s.isEmpty else {
             throw ZincTokenizerError.invalidEmptySymbol
         }
-        self.val = Symbol(s)
+        self.val = try Symbol(s)
         return .symbol
     }
     
@@ -309,14 +309,14 @@ class ZincTokenizer {
         try consume("@")
         var s = ""
         while true {
-            if let char = try? cur.character(), Ref.isIdChar(char) {
+            if let char = try? cur.character(), char.isIdChar {
                 try s.append(String(cur.character()))
                 try consume()
             } else {
                 break
             }
         }
-        self.val = Ref(s)
+        self.val = try Ref(s)
         return .ref
     }
     

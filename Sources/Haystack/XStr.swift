@@ -6,7 +6,8 @@ public struct XStr: Val {
     public let type: String
     public let val: String
     
-    public init(type: String, val: String) {
+    public init(type: String, val: String) throws {
+        try type.validateXStrTypeName()
         self.type = type
         self.val = val
     }
@@ -38,8 +39,10 @@ extension XStr {
                 )
             }
             
-            self.type = try container.decode(String.self, forKey: .type)
-            self.val = try container.decode(String.self, forKey: .val)
+            try self.init(
+                type: container.decode(String.self, forKey: .type),
+                val: container.decode(String.self, forKey: .val)
+            )
         } else {
             throw DecodingError.typeMismatch(
                 Self.self,
@@ -58,3 +61,26 @@ extension XStr {
         try container.encode(val, forKey: .val)
     }
 }
+
+extension String {
+    func validateXStrTypeName() throws {
+        guard let firstChar = self.first else {
+            throw XStrError.cannotBeEmptyString
+        }
+        guard firstChar.isUppercase else {
+            throw XStrError.leadingCharacterIsNotUpperCase(self)
+        }
+        for char in self {
+            guard char.isTagChar else {
+                throw XStrError.invalidCharacter(char, self)
+            }
+        }
+    }
+}
+
+enum XStrError: Error {
+    case cannotBeEmptyString
+    case leadingCharacterIsNotUpperCase(String)
+    case invalidCharacter(Character, String)
+}
+

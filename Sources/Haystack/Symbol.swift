@@ -5,7 +5,12 @@ public struct Symbol: Val {
     
     public let val: String
     
-    public init(_ val: String) {
+    public init(_ val: String) throws {
+        for char in val {
+            guard char.isIdChar else {
+                throw SymbolError.invalidCharacterInSymbol(char, val)
+            }
+        }
         self.val = val
     }
     
@@ -35,7 +40,7 @@ extension Symbol {
                 )
             }
             
-            self.val = try container.decode(String.self, forKey: .val)
+            try self.init(container.decode(String.self, forKey: .val))
         } else {
             throw DecodingError.typeMismatch(
                 Self.self,
@@ -52,4 +57,9 @@ extension Symbol {
         try container.encode(Self.kindValue, forKey: ._kind)
         try container.encode(val, forKey: .val)
     }
+}
+
+public enum SymbolError: Error {
+    case leadingCharacterIsNotLowerCase(String)
+    case invalidCharacterInSymbol(Character, String)
 }

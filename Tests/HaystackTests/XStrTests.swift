@@ -2,8 +2,14 @@ import XCTest
 import Haystack
 
 final class XStrTests: XCTestCase {
+    func testInit() throws {
+        try XCTAssertThrowsError(XStr(type: "span", val: "today"))
+        try XCTAssertThrowsError(XStr(type: "Span range", val: "today"))
+        try XCTAssertThrowsError(XStr(type: "Span!", val: "today"))
+    }
+    
     func testJsonCoding() throws {
-        let value = XStr(type: "Span", val: "today")
+        let value = try XStr(type: "Span", val: "today")
         let jsonString = #"{"_kind":"xstr","type":"Span","val":"today"}"#
         
         let encodedData = try JSONEncoder().encode(value)
@@ -21,7 +27,7 @@ final class XStrTests: XCTestCase {
     
     func testToZinc() throws {
         XCTAssertEqual(
-            XStr(type: "Span", val: "today").toZinc(),
+            try XStr(type: "Span", val: "today").toZinc(),
             #"Span("today")"#
         )
     }

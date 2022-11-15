@@ -3,22 +3,15 @@ import Foundation
 public struct Ref: Val {
     public static var valType: ValType { .Ref }
     
-    static func isIdChar(_ char: Character) -> Bool {
-        return
-            "a" <= char && char <= "z" ||
-            "A" <= char && char <= "Z" ||
-            "0" <= char && char <= "9" ||
-            char == "_" ||
-            char == ":" ||
-            char == "-" ||
-            char == "." ||
-            char == "~"
-    }
-    
     public let val: String
     public let dis: String?
     
-    public init(_ val: String, dis: String? = nil) {
+    public init(_ val: String, dis: String? = nil) throws {
+        for char in val {
+            guard char.isIdChar else {
+                throw RefError.invalidCharacterInRef(char, val)
+            }
+        }
         self.val = val
         self.dis = dis
     }
@@ -54,8 +47,10 @@ extension Ref {
                 )
             }
             
-            self.val = try container.decode(String.self, forKey: .val)
-            self.dis = try container.decode(String?.self, forKey: .dis)
+            try self.init(
+                container.decode(String.self, forKey: .val),
+                dis: container.decode(String?.self, forKey: .dis)
+            )
         } else {
             throw DecodingError.typeMismatch(
                 Self.self,
@@ -74,3 +69,8 @@ extension Ref {
         try container.encode(dis, forKey: .dis)
     }
 }
+
+public enum RefError: Error {
+    case invalidCharacterInRef(Character, String)
+}
+

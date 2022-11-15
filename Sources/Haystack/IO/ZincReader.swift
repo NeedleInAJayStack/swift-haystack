@@ -104,7 +104,7 @@ public class ZincReader {
         try consume(.comma)
         let longitude = try consumeNumber()
         try consume(.rparen)
-        return Coord(lat: latitude.val, lng: longitude.val)
+        return try Coord(lat: latitude.val, lng: longitude.val)
     }
     
     private func parseXStr(_ id: String) throws -> XStr {
@@ -114,7 +114,7 @@ public class ZincReader {
         try consume(.lparen)
         let val = try consumeString()
         try consume(.rparen)
-        return XStr(type: id, val: val)
+        return try XStr(type: id, val: val)
     }
     
     private func parseLiteral() throws -> any Val {
@@ -123,7 +123,7 @@ public class ZincReader {
             guard let refVal = curVal as? String, let dis = peekVal as? String else {
                 throw ZincReaderError.InvalidRef
             }
-            val = Ref(refVal, dis: dis)
+            val = try Ref(refVal, dis: dis)
             try consume(.ref)
         }
         try consume()

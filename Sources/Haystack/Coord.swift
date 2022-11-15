@@ -6,7 +6,10 @@ public struct Coord: Val {
     public let lat: Double
     public let lng: Double
     
-    public init(lat: Double, lng: Double) {
+    public init(lat: Double, lng: Double) throws {
+        guard -90 <= lat, lat <= 90, -180 <= lng, lng <= 180 else {
+            throw CoordError.invalidCoordinates(lat: lat, lng: lng)
+        }
         self.lat = lat
         self.lng = lng
     }
@@ -38,8 +41,10 @@ extension Coord: Codable {
                 )
             }
             
-            self.lat = try container.decode(Double.self, forKey: .lat)
-            self.lng = try container.decode(Double.self, forKey: .lng)
+            try self.init(
+                lat: container.decode(Double.self, forKey: .lat),
+                lng: container.decode(Double.self, forKey: .lng)
+            )
         } else {
             throw DecodingError.typeMismatch(
                 Self.self,
@@ -57,4 +62,8 @@ extension Coord: Codable {
         try container.encode(lat, forKey: .lat)
         try container.encode(lng, forKey: .lng)
     }
+}
+
+public enum CoordError: Error {
+    case invalidCoordinates(lat: Double, lng: Double)
 }
