@@ -65,7 +65,6 @@ final class ZincTokenizerTests: XCTestCase {
         try XCTAssertEqualTokensAndVals(zinc: "12:00:12.001", expected: [(.time, Time(hour: 12, minute: 0, second: 12, millisecond: 1))])
     }
     
-    // TODO: Fix these!
     func testDateTime() throws {
         try XCTAssertEqualTokensAndVals(
             zinc: "2016-01-13T09:51:33-05:00 New_York",

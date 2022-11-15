@@ -36,23 +36,22 @@ final class NumberTests: XCTestCase {
         )
     }
     
-    // TODO: Fix this test
-//    func testJsonCoding_infinity() throws {
-//        let value = Number(val: .infinity)
-//        let jsonString = #"{"_kind":"number","val":"INF"}"#
-//
-//        let encodedData = try JSONEncoder().encode(value)
-//        XCTAssertEqual(
-//            String(data: encodedData, encoding: .utf8),
-//            jsonString
-//        )
-//
-//        let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))
-//        XCTAssertEqual(
-//            try JSONDecoder().decode(Number.self, from: decodedData),
-//            value
-//        )
-//    }
+    func testJsonCoding_infinity() throws {
+        let value = Number(.infinity)
+        let jsonString = #"{"_kind":"number","val":"INF"}"#
+
+        let encodedData = try JSONEncoder().encode(value)
+        XCTAssertEqual(
+            String(data: encodedData, encoding: .utf8),
+            jsonString
+        )
+
+        let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))
+        XCTAssertEqual(
+            try JSONDecoder().decode(Number.self, from: decodedData),
+            value
+        )
+    }
     
     func testToZinc() throws {
         XCTAssertEqual(

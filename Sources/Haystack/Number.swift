@@ -69,8 +69,36 @@ extension Number {
                 )
             }
             
-            self.val = try container.decode(Double.self, forKey: .val)
-            self.unit = try container.decode(String?.self, forKey: .unit)
+            if let val = try? container.decode(Double.self, forKey: .val) {
+                self.val = val
+                self.unit = try container.decode(String?.self, forKey: .unit)
+            } else if let val = try? container.decode(String.self, forKey: .val) {
+                self.unit = nil
+                switch val {
+                case "INF":
+                    self.val = .infinity
+                case "-INF":
+                    self.val = -1.0 * .infinity
+                case "NaN":
+                    self.val = .nan
+                default:
+                    throw DecodingError.typeMismatch(
+                        Self.self,
+                        .init(
+                            codingPath: [Self.CodingKeys.val],
+                            debugDescription: "String `val` must be either `INF`, `-INF`, or `NaN`, not \(val)"
+                        )
+                    )
+                }
+            } else {
+                throw DecodingError.typeMismatch(
+                    Self.self,
+                    .init(
+                        codingPath: [Self.CodingKeys.val],
+                        debugDescription: "Expected `val` to be either Double or String"
+                    )
+                )
+            }
         } else if let container = try? decoder.singleValueContainer() {
             self.val = try container.decode(Double.self)
             self.unit = nil
@@ -89,8 +117,19 @@ extension Number {
         if unit != nil || val.isNaN || val.isInfinite {
             var container = encoder.container(keyedBy: Self.CodingKeys)
             try container.encode(Self.kindValue, forKey: ._kind)
-            try container.encode(val, forKey: .val)
-            try container.encode(unit, forKey: .unit)
+            
+            if val.isNaN {
+                try container.encode("NaN", forKey: .val)
+            } else if val.isInfinite {
+                if val > 0 {
+                    try container.encode("INF", forKey: .val)
+                } else {
+                    try container.encode("-INF", forKey: .val)
+                }
+            } else {
+                try container.encode(val, forKey: .val)
+                try container.encode(unit, forKey: .unit)
+            }
         } else {
             var container = encoder.singleValueContainer()
             try container.encode(val)
