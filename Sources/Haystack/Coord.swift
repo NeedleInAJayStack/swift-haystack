@@ -8,19 +8,19 @@ import Foundation
 public struct Coord: Val {
     public static var valType: ValType { .Coord }
     
-    public let lat: Double
-    public let lng: Double
+    public let latitude: Double
+    public let longitude: Double
     
-    public init(lat: Double, lng: Double) throws {
-        guard -90 <= lat, lat <= 90, -180 <= lng, lng <= 180 else {
-            throw CoordError.invalidCoordinates(lat: lat, lng: lng)
+    public init(latitude: Double, longitude: Double) throws {
+        guard -90 <= latitude, latitude <= 90, -180 <= longitude, longitude <= 180 else {
+            throw CoordError.invalidCoordinates(lat: latitude, lng: longitude)
         }
-        self.lat = lat
-        self.lng = lng
+        self.latitude = latitude
+        self.longitude = longitude
     }
     
     public func toZinc() -> String {
-        return "C(\(lat),\(lng))"
+        return "C(\(latitude),\(longitude))"
     }
 }
 
@@ -47,8 +47,8 @@ extension Coord: Codable {
             }
             
             try self.init(
-                lat: container.decode(Double.self, forKey: .lat),
-                lng: container.decode(Double.self, forKey: .lng)
+                latitude: container.decode(Double.self, forKey: .lat),
+                longitude: container.decode(Double.self, forKey: .lng)
             )
         } else {
             throw DecodingError.typeMismatch(
@@ -64,8 +64,8 @@ extension Coord: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: Self.CodingKeys)
         try container.encode(Self.kindValue, forKey: ._kind)
-        try container.encode(lat, forKey: .lat)
-        try container.encode(lng, forKey: .lng)
+        try container.encode(latitude, forKey: .lat)
+        try container.encode(longitude, forKey: .lng)
     }
 }
 

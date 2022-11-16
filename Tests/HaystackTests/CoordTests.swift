@@ -3,14 +3,14 @@ import Haystack
 
 final class CoordTests: XCTestCase {
     func testInit() throws {
-        try XCTAssertThrowsError(Coord(lat: -91, lng: 0))
-        try XCTAssertThrowsError(Coord(lat: 91, lng: 0))
-        try XCTAssertThrowsError(Coord(lat: 0, lng: -181))
-        try XCTAssertThrowsError(Coord(lat: 0, lng: 181))
+        try XCTAssertThrowsError(Coord(latitude: -91, longitude: 0))
+        try XCTAssertThrowsError(Coord(latitude: 91, longitude: 0))
+        try XCTAssertThrowsError(Coord(latitude: 0, longitude: -181))
+        try XCTAssertThrowsError(Coord(latitude: 0, longitude: 181))
     }
     
     func testJsonCoding() throws {
-        let value = try Coord(lat: 40, lng: -111.84)
+        let value = try Coord(latitude: 40, longitude: -111.84)
         let jsonString = #"{"_kind":"coord","lat":40,"lng":-111.84}"#
         
         let encodedData = try JSONEncoder().encode(value)
@@ -28,7 +28,7 @@ final class CoordTests: XCTestCase {
     
     func testToZinc() throws {
         XCTAssertEqual(
-            try Coord(lat: 40, lng: -111.84).toZinc(),
+            try Coord(latitude: 40, longitude: -111.84).toZinc(),
             "C(40.0,-111.84)"
         )
     }
