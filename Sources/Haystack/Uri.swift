@@ -13,12 +13,13 @@ public struct Uri: Val {
         self.val = val
     }
     
+    /// Converts to Zinc formatted string.
+    /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         return "`\(val)`"
     }
 }
 
-/// See https://project-haystack.org/doc/docHaystack/Json#uri
 extension Uri {
     static let kindValue = "uri"
     
@@ -27,6 +28,8 @@ extension Uri {
         case val
     }
     
+    /// Read from decodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#uri)
     public init(from decoder: Decoder) throws {
         if let container = try? decoder.container(keyedBy: Self.CodingKeys) {
             guard try container.decode(String.self, forKey: ._kind) == Self.kindValue else {
@@ -51,6 +54,8 @@ extension Uri {
         }
     }
     
+    /// Write to encodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#uri)
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: Self.CodingKeys)
         try container.encode(Self.kindValue, forKey: ._kind)

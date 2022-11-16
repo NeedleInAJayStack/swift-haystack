@@ -13,13 +13,17 @@ public struct Null: Val {
         return null
     }
     
+    /// Converts to Zinc formatted string.
+    /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         return "N"
     }
 }
 
-/// See https://project-haystack.org/doc/docHaystack/Json#v4
 extension Null {
+    
+    /// Read from decodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#v4)
     public init(from decoder: Decoder) throws {
         if let container = try? decoder.singleValueContainer() {
             guard container.decodeNil() else {
@@ -43,6 +47,8 @@ extension Null {
         }
     }
     
+    /// Write to encodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#v4)
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encodeNil()

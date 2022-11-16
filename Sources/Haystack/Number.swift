@@ -25,6 +25,8 @@ public struct Number: Val {
         self.unit = unit
     }
     
+    /// Converts to Zinc formatted string.
+    /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         guard !val.isNaN else {
             return "NaN"
@@ -51,7 +53,6 @@ public struct Number: Val {
     }
 }
 
-/// See https://project-haystack.org/doc/docHaystack/Json#number
 extension Number {
     static let kindValue = "number"
     
@@ -61,6 +62,8 @@ extension Number {
         case unit
     }
     
+    /// Read from decodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#number)
     public init(from decoder: Decoder) throws {
         if let container = try? decoder.container(keyedBy: Self.CodingKeys) {
             guard try container.decode(String.self, forKey: ._kind) == Self.kindValue else {
@@ -117,6 +120,8 @@ extension Number {
         }
     }
     
+    /// Write to encodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#number)
     public func encode(to encoder: Encoder) throws {
         if unit != nil || val.isNaN || val.isInfinite {
             var container = encoder.container(keyedBy: Self.CodingKeys)

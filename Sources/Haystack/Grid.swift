@@ -19,6 +19,8 @@ public struct Grid: Val {
         self.rows = rows
     }
     
+    /// Converts to Zinc formatted string.
+    /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         var zinc = #"ver:"3.0""#
         if meta.elements.count > 0 {
@@ -49,7 +51,6 @@ public struct Grid: Val {
     }
 }
 
-/// See https://project-haystack.org/doc/docHaystack/Json#grid
 extension Grid {
     static let kindValue = "grid"
     
@@ -60,6 +61,8 @@ extension Grid {
         case rows
     }
     
+    /// Read from decodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#grid)
     public init(from decoder: Decoder) throws {
         if let container = try? decoder.container(keyedBy: Self.CodingKeys) {
             guard try container.decode(String.self, forKey: ._kind) == Self.kindValue else {
@@ -86,6 +89,8 @@ extension Grid {
         }
     }
     
+    /// Write to encodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#grid)
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: Self.CodingKeys)
         try container.encode(Self.kindValue, forKey: ._kind)

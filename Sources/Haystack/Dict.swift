@@ -20,6 +20,8 @@ public struct Dict: Val {
         self.elements = elements
     }
     
+    /// Converts to Zinc formatted string.
+    /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         return toZinc(withBraces: true)
     }
@@ -38,10 +40,11 @@ public struct Dict: Val {
     }
 }
 
-/// See https://project-haystack.org/doc/docHaystack/Json#dict
 extension Dict {
     static let kindValue = "dateTime"
     
+    /// Read from decodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#dict)
     public init(from decoder: Decoder) throws {
         guard let container = try? decoder.container(keyedBy: DictCodingKey.self) else {
             throw DecodingError.typeMismatch(
@@ -79,7 +82,9 @@ extension Dict {
         }
         self.elements = elements
     }
-
+    
+    /// Write to encodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#dict)
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: DictCodingKey.self)
         for (key, value) in elements {

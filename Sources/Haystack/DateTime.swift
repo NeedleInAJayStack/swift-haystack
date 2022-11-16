@@ -89,6 +89,8 @@ public struct DateTime: Val {
         }
     }
     
+    /// Converts to Zinc formatted string.
+    /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         var zinc: String
         if hasMilliseconds {
@@ -166,14 +168,6 @@ public struct DateTime: Val {
         }
         
         return (date, gmtOffset)
-        
-//        if let date = dateTimeFormatter.date(from: isoString) {
-//            return date
-//        } else if let date = dateTimeWithMillisFormatter.date(from: isoString) {
-//            return date
-//        } else {
-//            throw ValError.invalidDateTimeFormat(isoString)
-//        }
     }
     
     private var hasMilliseconds: Bool {
@@ -199,7 +193,6 @@ public struct DateTime: Val {
 
 var calendar = Calendar(identifier: .gregorian)
 
-/// See https://project-haystack.org/doc/docHaystack/Json#dateTime
 extension DateTime {
     static let kindValue = "dateTime"
     
@@ -209,6 +202,8 @@ extension DateTime {
         case tz
     }
     
+    /// Read from decodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#dateTime)
     public init(from decoder: Decoder) throws {
         guard let container = try? decoder.container(keyedBy: Self.CodingKeys) else {
             throw DecodingError.typeMismatch(
@@ -249,6 +244,8 @@ extension DateTime {
         self.timezone = timezone
     }
     
+    /// Write to encodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#dateTime)
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: Self.CodingKeys)
         try container.encode(Self.kindValue, forKey: ._kind)

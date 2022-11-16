@@ -10,16 +10,18 @@ public let marker = Marker()
 public struct Marker: Val {
     public static var valType: ValType { .Marker }
     
+    /// Singleton `Marker` instance
     public static var val: Self {
         return marker
     }
     
+    /// Converts to Zinc formatted string.
+    /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         return "M"
     }
 }
 
-/// See https://project-haystack.org/doc/docHaystack/Json#marker
 extension Marker {
     static let kindValue = "marker"
     
@@ -27,6 +29,8 @@ extension Marker {
         case _kind
     }
     
+    /// Read from decodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#marker)
     public init(from decoder: Decoder) throws {
         if let container = try? decoder.container(keyedBy: Self.CodingKeys) {
             guard try container.decode(String.self, forKey: ._kind) == Self.kindValue else {
@@ -50,6 +54,8 @@ extension Marker {
         }
     }
     
+    /// Write to encodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#marker)
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: Self.CodingKeys)
         try container.encode(Self.kindValue, forKey: ._kind)

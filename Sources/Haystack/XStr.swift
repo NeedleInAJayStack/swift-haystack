@@ -19,12 +19,13 @@ public struct XStr: Val {
         self.val = val
     }
     
+    /// Converts to Zinc formatted string.
+    /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         return "\(type)(\"\(val)\")"
     }
 }
 
-/// See https://project-haystack.org/doc/docHaystack/Json#xstr
 extension XStr {
     static let kindValue = "xstr"
     
@@ -34,6 +35,8 @@ extension XStr {
         case val
     }
     
+    /// Read from decodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#xstr)
     public init(from decoder: Decoder) throws {
         if let container = try? decoder.container(keyedBy: Self.CodingKeys) {
             guard try container.decode(String.self, forKey: ._kind) == Self.kindValue else {
@@ -61,6 +64,8 @@ extension XStr {
         }
     }
     
+    /// Write to encodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#xstr)
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: Self.CodingKeys)
         try container.encode(Self.kindValue, forKey: ._kind)

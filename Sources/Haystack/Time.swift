@@ -68,6 +68,8 @@ public struct Time: Val {
         }
     }
     
+    /// Converts to Zinc formatted string.
+    /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         return isoString
     }
@@ -86,7 +88,6 @@ public struct Time: Val {
     }
 }
 
-/// See https://project-haystack.org/doc/docHaystack/Json#date
 extension Time {
     static let kindValue = "time"
     
@@ -95,6 +96,8 @@ extension Time {
         case val
     }
     
+    /// Read from decodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#date)
     public init(from decoder: Decoder) throws {
         if let container = try? decoder.container(keyedBy: Self.CodingKeys) {
             guard try container.decode(String.self, forKey: ._kind) == Self.kindValue else {
@@ -130,6 +133,8 @@ extension Time {
         }
     }
     
+    /// Write to encodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#time)
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: Self.CodingKeys)
         try container.encode(Self.kindValue, forKey: ._kind)

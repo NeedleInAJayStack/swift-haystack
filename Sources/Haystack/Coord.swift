@@ -19,12 +19,13 @@ public struct Coord: Val {
         self.longitude = longitude
     }
     
+    /// Converts to Zinc formatted string.
+    /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         return "C(\(latitude),\(longitude))"
     }
 }
 
-/// See https://project-haystack.org/doc/docHaystack/Json#coord
 extension Coord: Codable {
     static let kindValue = "coord"
     
@@ -34,6 +35,8 @@ extension Coord: Codable {
         case lng
     }
     
+    /// Read from decodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#coord)
     public init(from decoder: Decoder) throws {
         if let container = try? decoder.container(keyedBy: Self.CodingKeys) {
             guard try container.decode(String.self, forKey: ._kind) == Self.kindValue else {
@@ -61,6 +64,8 @@ extension Coord: Codable {
         }
     }
     
+    /// Write to encodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#coord)
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: Self.CodingKeys)
         try container.encode(Self.kindValue, forKey: ._kind)

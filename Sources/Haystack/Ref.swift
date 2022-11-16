@@ -21,6 +21,8 @@ public struct Ref: Val {
         self.dis = dis
     }
     
+    /// Converts to Zinc formatted string.
+    /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         var zinc = "@\(val)"
         if let dis = dis {
@@ -30,7 +32,6 @@ public struct Ref: Val {
     }
 }
 
-/// See https://project-haystack.org/doc/docHaystack/Json#ref
 extension Ref {
     static let kindValue = "ref"
     
@@ -40,6 +41,8 @@ extension Ref {
         case dis
     }
     
+    /// Read from decodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#ref)
     public init(from decoder: Decoder) throws {
         if let container = try? decoder.container(keyedBy: Self.CodingKeys) {
             guard try container.decode(String.self, forKey: ._kind) == Self.kindValue else {
@@ -67,6 +70,8 @@ extension Ref {
         }
     }
     
+    /// Write to encodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#ref)
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: Self.CodingKeys)
         try container.encode(Self.kindValue, forKey: ._kind)

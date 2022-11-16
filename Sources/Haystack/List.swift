@@ -13,14 +13,18 @@ public struct List: Val {
         self.elements = elements
     }
     
+    /// Converts to Zinc formatted string.
+    /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         let zincElements = elements.map { $0.toZinc() }
         return "[\(zincElements.joined(separator:", "))]"
     }
 }
 
-/// See https://project-haystack.org/doc/docHaystack/Json#list
-extension List: Encodable {
+extension List {
+    
+    /// Read from decodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#list)
     public init(from decoder: Decoder) throws {
         guard var container = try? decoder.unkeyedContainer() else {
             throw DecodingError.typeMismatch(
@@ -43,7 +47,9 @@ extension List: Encodable {
         }
         self.elements = elements
     }
-
+    
+    /// Write to encodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#list)
     public func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
         for element in elements {

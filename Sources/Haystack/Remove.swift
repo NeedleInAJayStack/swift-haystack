@@ -9,12 +9,13 @@ public let remove = Remove()
 public struct Remove: Val {
     public static var valType: ValType { .Remove }
     
+    /// Converts to Zinc formatted string.
+    /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         return "R"
     }
 }
 
-/// See https://project-haystack.org/doc/docHaystack/Json#remove
 extension Remove {
     static let kindValue = "remove"
     
@@ -22,6 +23,8 @@ extension Remove {
         case _kind
     }
     
+    /// Read from decodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#remove)
     public init(from decoder: Decoder) throws {
         if let container = try? decoder.container(keyedBy: Self.CodingKeys) {
             guard try container.decode(String.self, forKey: ._kind) == Self.kindValue else {
@@ -45,6 +48,8 @@ extension Remove {
         }
     }
     
+    /// Write to encodable data
+    /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#remove)
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: Self.CodingKeys)
         try container.encode(Self.kindValue, forKey: ._kind)

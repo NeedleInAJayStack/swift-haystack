@@ -8,6 +8,8 @@ import Foundation
 extension String: Val {
     public static var valType: ValType { .Str }
     
+    /// Converts to Zinc formatted string.
+    /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         let zinc = self.withZincUnicodeEscaping()
         return "\"\(zinc)\""
