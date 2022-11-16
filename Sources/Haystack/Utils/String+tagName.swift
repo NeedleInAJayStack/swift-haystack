@@ -1,6 +1,7 @@
 import Foundation
 
 extension String {
+    /// Throws if the string is not a valid [tag name](https://project-haystack.org/doc/docHaystack/Kinds#names)
     func validateTagName() throws {
         guard let firstChar = self.first else {
             throw TagNameError.cannotBeEmptyString
@@ -17,6 +18,8 @@ extension String {
 }
 
 extension Character {
+    /// Is valid [tag name](https://project-haystack.org/doc/docHaystack/Kinds#names)
+    /// character
     var isTagChar: Bool {
         return
             "a" <= self && self <= "z" ||

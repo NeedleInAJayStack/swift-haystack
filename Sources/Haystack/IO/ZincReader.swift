@@ -1,5 +1,6 @@
 import Foundation
 
+/// Used to read Zinc data into Haystack Vals
 public class ZincReader {
     let tokenizer: ZincTokenizer
     
@@ -10,19 +11,24 @@ public class ZincReader {
     var peekVal: any Val = null
     var peekLine: Int = 0
     
+    /// Create a reader from the input zinc data
+    /// - Parameter data: The zinc data
     public init(_ data: Data) throws {
         tokenizer = try ZincTokenizer(data)
         try consume()
         try consume()
     }
     
+    /// Create a reader from the input zinc string. It is coerced to ASCII format.
+    /// - Parameter data: The zinc string
     public convenience init(_ string: String) throws {
         guard let data = string.data(using: .ascii) else {
-            throw ZincReaderError.InputIsNotUtf8
+            throw ZincReaderError.InputIsNotASCII
         }
         try self.init(data)
     }
     
+    /// Read the Haystack Val contained by the data.
     public func readVal() throws -> any Val {
         var val: any Val = null
         if cur == .id, curVal.equals("ver") {
@@ -34,6 +40,7 @@ public class ZincReader {
         return val
     }
     
+    /// Read the Grid contained by the data. If the data does not contain a grid, throw an error.
     public func readGrid() throws -> Grid {
         guard let grid = try readVal() as? Grid else {
             throw ZincReaderError.InputIsNotGrid
@@ -304,7 +311,7 @@ enum ZincReaderError: Error {
     case GridDoesNotBeginWithVersion(any Val)
     case GridHasNoColumns
     case IdValueIsNotString(any Val)
-    case InputIsNotUtf8
+    case InputIsNotASCII
     case InvalidCoord
     case InvalidRef
     case InvalidTagName
