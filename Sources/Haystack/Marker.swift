@@ -22,6 +22,7 @@ public struct Marker: Val {
     }
 }
 
+// Marker + Codable
 extension Marker {
     static let kindValue = "marker"
     

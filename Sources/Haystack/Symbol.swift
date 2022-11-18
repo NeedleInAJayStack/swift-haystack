@@ -25,6 +25,7 @@ public struct Symbol: Val {
     }
 }
 
+// Symbol + Codable
 extension Symbol {
     static let kindValue = "symbol"
     
@@ -69,6 +70,5 @@ extension Symbol {
 }
 
 public enum SymbolError: Error {
-    case leadingCharacterIsNotLowerCase(String)
     case invalidCharacterInSymbol(Character, String)
 }

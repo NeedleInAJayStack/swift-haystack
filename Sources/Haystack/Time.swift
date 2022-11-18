@@ -88,6 +88,7 @@ public struct Time: Val {
     }
 }
 
+// Time + Codable
 extension Time {
     static let kindValue = "time"
     

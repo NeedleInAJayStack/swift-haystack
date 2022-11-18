@@ -61,13 +61,7 @@ public struct Date: Val {
     }
 }
 
-/// Singleton Haystack Date formatter
-var dateFormatter: ISO8601DateFormatter {
-    let formatter = ISO8601DateFormatter()
-    formatter.formatOptions = [.withFullDate, .withColonSeparatorInTime]
-    return formatter
-}
-
+// Date + Codable
 extension Date {
     static let kindValue = "date"
     

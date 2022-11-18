@@ -20,6 +20,7 @@ public struct Null: Val {
     }
 }
 
+// Null + Codable
 extension Null {
     
     /// Read from decodable data

@@ -22,6 +22,7 @@ public struct NA: Val {
     }
 }
 
+// NA + Codable
 extension NA {
     static let kindValue = "na"
     

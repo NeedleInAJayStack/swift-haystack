@@ -26,6 +26,7 @@ public struct XStr: Val {
     }
 }
 
+// XStr + Codable
 extension XStr {
     static let kindValue = "xstr"
     

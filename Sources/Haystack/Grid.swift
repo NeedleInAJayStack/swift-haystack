@@ -51,6 +51,7 @@ public struct Grid: Val {
     }
 }
 
+// Grid + Codable
 extension Grid {
     static let kindValue = "grid"
     
@@ -100,7 +101,7 @@ extension Grid {
     }
 }
 
-// Dict + Equatable
+// Grid + Equatable
 extension Grid {
     public static func == (lhs: Grid, rhs: Grid) -> Bool {
         guard lhs.meta == rhs.meta else {
@@ -132,7 +133,7 @@ extension Grid {
     }
 }
 
-// Dict + Hashable
+// Grid + Hashable
 extension Grid {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(meta)

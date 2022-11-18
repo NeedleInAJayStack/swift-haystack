@@ -40,6 +40,7 @@ public struct Dict: Val {
     }
 }
 
+// Dict + Codable
 extension Dict {
     static let kindValue = "dateTime"
     
@@ -156,8 +157,8 @@ extension Dict {
     }
 }
 
-// Dict + ExpressibleByDictionaryLiteral
 extension Dict: ExpressibleByDictionaryLiteral {
+    /// Creates an instance initialized with the given key-value pairs.
     public init(dictionaryLiteral elementLiterals: (String, any Val)...) {
         var elements = [String: any Val](minimumCapacity: elementLiterals.count)
         for (key, value) in elementLiterals {

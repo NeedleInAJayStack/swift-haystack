@@ -53,6 +53,7 @@ public struct Number: Val {
     }
 }
 
+// Number + Codable
 extension Number {
     static let kindValue = "number"
     
@@ -146,7 +147,7 @@ extension Number {
     }
 }
 
-// List + Equatable
+// Number + Equatable
 extension Number {
     public static func == (lhs: Number, rhs: Number) -> Bool {
         guard lhs.unit == rhs.unit else {

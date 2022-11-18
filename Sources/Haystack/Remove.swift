@@ -16,6 +16,7 @@ public struct Remove: Val {
     }
 }
 
+// Remove + Codable
 extension Remove {
     static let kindValue = "remove"
     

@@ -21,6 +21,7 @@ public struct List: Val {
     }
 }
 
+// List + Codable
 extension List {
     
     /// Read from decodable data
@@ -84,8 +85,8 @@ extension List {
     }
 }
 
-// List + ExpressibleByDictionaryLiteral
 extension List: ExpressibleByArrayLiteral {
+    /// Creates an instance initialized with the given elements.
     public init(arrayLiteral: any Val...) {
         self.elements = arrayLiteral
     }

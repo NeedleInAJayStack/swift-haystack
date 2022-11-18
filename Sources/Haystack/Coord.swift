@@ -26,6 +26,7 @@ public struct Coord: Val {
     }
 }
 
+// Coord + Codable
 extension Coord: Codable {
     static let kindValue = "coord"
     
