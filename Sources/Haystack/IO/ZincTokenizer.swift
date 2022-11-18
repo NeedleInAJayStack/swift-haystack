@@ -19,7 +19,7 @@ class ZincTokenizer {
     }
     
     public convenience init(_ string: String) throws {
-        guard let data = string.data(using: .ascii) else {
+        guard let data = string.data(using: .utf8) else {
             throw ZincTokenizerError.inputIsNotUtf8
         }
         try self.init(data)

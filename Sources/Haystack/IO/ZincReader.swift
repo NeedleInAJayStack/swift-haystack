@@ -22,8 +22,8 @@ public class ZincReader {
     /// Create a reader from the input zinc string. It is coerced to ASCII format.
     /// - Parameter data: The zinc string
     public convenience init(_ string: String) throws {
-        guard let data = string.data(using: .ascii) else {
-            throw ZincReaderError.InputIsNotASCII
+        guard let data = string.data(using: .utf8) else {
+            throw ZincReaderError.inputIsNotUtf8
         }
         try self.init(data)
     }
@@ -43,7 +43,7 @@ public class ZincReader {
     /// Read the Grid contained by the data. If the data does not contain a grid, throw an error.
     public func readGrid() throws -> Grid {
         guard let grid = try readVal() as? Grid else {
-            throw ZincReaderError.InputIsNotGrid
+            throw ZincReaderError.inputIsNotGrid
         }
         return grid
     }
@@ -51,7 +51,7 @@ public class ZincReader {
     private func parseVal() throws -> any Val {
         if cur == .id {
             guard let id = curVal as? String else {
-                throw ZincReaderError.IdValueIsNotString(curVal)
+                throw ZincReaderError.idValueIsNotString(curVal)
             }
             try consume(.id)
             
@@ -74,7 +74,7 @@ public class ZincReader {
             case "NaN": return Number.nan
             case "INF": return Number.infinity
             default:
-                throw ZincReaderError.UnexpectedId(id)
+                throw ZincReaderError.unexpectedId(id)
             }
         }
         
@@ -99,12 +99,12 @@ public class ZincReader {
             return try parseGrid()
         }
         
-        throw ZincReaderError.UnexpectedToken(cur)
+        throw ZincReaderError.unexpectedToken(cur)
     }
     
     private func parseCoord(_ id: String) throws -> Coord {
         guard id == "C" else {
-            throw ZincReaderError.InvalidCoord
+            throw ZincReaderError.invalidCoord
         }
         try consume(.lparen)
         let latitude = try consumeNumber()
@@ -116,7 +116,7 @@ public class ZincReader {
     
     private func parseXStr(_ id: String) throws -> XStr {
         guard (id.first?.isLowercase ?? false) else {
-            throw ZincReaderError.InvalidXStr
+            throw ZincReaderError.invalidXStr
         }
         try consume(.lparen)
         let val = try consumeString()
@@ -128,7 +128,7 @@ public class ZincReader {
         var val = self.curVal
         if cur == .ref, peek == .str {
             guard let refVal = curVal as? String, let dis = peekVal as? String else {
-                throw ZincReaderError.InvalidRef
+                throw ZincReaderError.invalidRef
             }
             val = try Ref(refVal, dis: dis)
             try consume(.ref)
@@ -183,13 +183,13 @@ public class ZincReader {
         
         // Check version
         guard cur == .id, curVal.equals("ver") else {
-            throw ZincReaderError.GridDoesNotBeginWithVersion(curVal)
+            throw ZincReaderError.gridDoesNotBeginWithVersion(curVal)
         }
         try consume()
         try consume(.colon)
         let version = try consumeString()
         guard version == "3.0" else {
-            throw ZincReaderError.UnsupportedZincVersion(version)
+            throw ZincReaderError.unsupportedZincVersion(version)
         }
         
         // Metadata
@@ -216,7 +216,7 @@ public class ZincReader {
             try consume(.comma)
         }
         guard numCols > 0 else {
-            throw ZincReaderError.GridHasNoColumns
+            throw ZincReaderError.gridHasNoColumns
         }
         try consume(.nl)
         
@@ -259,10 +259,10 @@ public class ZincReader {
     private func consumeTagName() throws -> String {
         try verify(.id)
         guard let id = curVal as? String else {
-            throw ZincReaderError.IdValueIsNotString(curVal)
+            throw ZincReaderError.idValueIsNotString(curVal)
         }
         guard (id.first?.isLowercase ?? false) else {
-            throw ZincReaderError.InvalidTagName
+            throw ZincReaderError.invalidTagName
         }
         try consume(.id)
         return id
@@ -271,7 +271,7 @@ public class ZincReader {
     private func consumeNumber() throws -> Number {
         try verify(.num)
         guard let number = curVal as? Number else {
-            throw ZincReaderError.NumValueIsNotNumber(curVal)
+            throw ZincReaderError.numValueIsNotNumber(curVal)
         }
         try consume(.num)
         return number
@@ -280,7 +280,7 @@ public class ZincReader {
     private func consumeString() throws -> String {
         try verify(.str)
         guard let number = curVal as? String else {
-            throw ZincReaderError.StrValueIsNotString(curVal)
+            throw ZincReaderError.strValueIsNotString(curVal)
         }
         try consume(.str)
         return number
@@ -301,25 +301,25 @@ public class ZincReader {
     
     private func verify(_ expected: ZincToken) throws {
         if cur != expected {
-            throw ZincReaderError.ExpectedToken(expected, not: cur)
+            throw ZincReaderError.expectedToken(expected, not: cur)
         }
     }
 }
 
 enum ZincReaderError: Error {
-    case ExpectedToken(ZincToken, not: ZincToken)
-    case GridDoesNotBeginWithVersion(any Val)
-    case GridHasNoColumns
-    case IdValueIsNotString(any Val)
-    case InputIsNotASCII
-    case InvalidCoord
-    case InvalidRef
-    case InvalidTagName
-    case InvalidXStr
-    case NumValueIsNotNumber(any Val)
-    case StrValueIsNotString(any Val)
-    case UnexpectedId(String)
-    case UnexpectedToken(ZincToken)
-    case InputIsNotGrid
-    case UnsupportedZincVersion(String)
+    case expectedToken(ZincToken, not: ZincToken)
+    case gridDoesNotBeginWithVersion(any Val)
+    case gridHasNoColumns
+    case idValueIsNotString(any Val)
+    case inputIsNotUtf8
+    case invalidCoord
+    case invalidRef
+    case invalidTagName
+    case invalidXStr
+    case numValueIsNotNumber(any Val)
+    case strValueIsNotString(any Val)
+    case unexpectedId(String)
+    case unexpectedToken(ZincToken)
+    case inputIsNotGrid
+    case unsupportedZincVersion(String)
 }

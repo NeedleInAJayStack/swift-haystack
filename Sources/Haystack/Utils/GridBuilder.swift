@@ -57,11 +57,11 @@ public class GridBuilder {
     /// - Returns: This instance for chaining
     public func addCol(name: String, meta: [String: any Val]? = nil) throws -> Self {
         guard rows.count == 0 else {
-            throw GridBuilderError.CannotAddColAfterRows
+            throw GridBuilderError.cannotAddColAfterRows
         }
         
         guard !colNames.contains(name) else {
-            throw GridBuilderError.ColAlreadyDefined(name: name)
+            throw GridBuilderError.colAlreadyDefined(name: name)
         }
         colNames.append(name)
         if let meta = meta {
@@ -79,7 +79,7 @@ public class GridBuilder {
     /// - Returns: This instance for chaining
     public func setColMeta(name: String, _ keysAndVals: [String: any Val]) throws -> Self {
         guard var meta = colMeta[name] else {
-            throw GridBuilderError.ColNotDefined(name: name)
+            throw GridBuilderError.colNotDefined(name: name)
         }
         for (key, val) in keysAndVals {
             if val is Remove {
@@ -98,7 +98,7 @@ public class GridBuilder {
     /// - Returns: This instance for chaining
     public func addRow(_ vals: [any Val]) throws -> Self {
         guard vals.count == colNames.count else {
-            throw GridBuilderError.ValCountDoesntMatchColCount
+            throw GridBuilderError.valCountDoesntMatchColCount
         }
         
         var row = [String: any Val]()
@@ -111,8 +111,8 @@ public class GridBuilder {
 }
 
 enum GridBuilderError: Error {
-    case CannotAddColAfterRows
-    case ColAlreadyDefined(name: String)
-    case ColNotDefined(name: String)
-    case ValCountDoesntMatchColCount
+    case cannotAddColAfterRows
+    case colAlreadyDefined(name: String)
+    case colNotDefined(name: String)
+    case valCountDoesntMatchColCount
 }
