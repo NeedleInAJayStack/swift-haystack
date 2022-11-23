@@ -9,6 +9,10 @@ let package = Package(
             name: "Haystack",
             targets: ["Haystack"]
         ),
+        .library(
+            name: "HaystackClient",
+            targets: ["HaystackClient"]
+        ),
     ],
     dependencies: [],
     targets: [
@@ -16,9 +20,17 @@ let package = Package(
             name: "Haystack",
             dependencies: []
         ),
+        .target(
+            name: "HaystackClient",
+            dependencies: ["Haystack"]
+        ),
         .testTarget(
             name: "HaystackTests",
             dependencies: ["Haystack"]
+        ),
+        .testTarget(
+            name: "HaystackClientTests",
+            dependencies: ["HaystackClient"]
         ),
     ]
 )
