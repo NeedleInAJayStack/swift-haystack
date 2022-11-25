@@ -48,7 +48,7 @@ class ScramClient<Hash: HashFunction> {
             throw ScramClientError.serverFirstMessageMissingAttribute("s")
         }
         guard let salt = Data(base64Encoded: saltString) else {
-            throw ScramClientError.serverFirstMessageSaltCannotBeEncoded(saltString)
+            throw ScramClientError.serverFirstMessageSaltIsNotBase64Encoded(saltString)
         }
         guard let iterationCountString = serverFirstMessageParts["i"] else {
             throw ScramClientError.serverFirstMessageMissingAttribute("i")
@@ -173,7 +173,10 @@ func extractNameValuePairs(from fieldsString: String) -> [String: String] {
         let assnIndex = pair.firstIndex(of: "=") ?? pair.endIndex
         let name = String(pair[..<assnIndex]).trimmingCharacters(in: .whitespaces)
         var value = String(pair[assnIndex...]).trimmingCharacters(in: .whitespaces)
-        value.removeFirst()
+        if value.count > 0 {
+            // Remove "=" prefix
+            value.removeFirst()
+        }
         
         attributes[name] = value
     }
@@ -185,7 +188,7 @@ enum ScramClientError: Error {
     case authMessageIsNotUtf8(String)
     case passwordIsNotAscii(String)
     case serverFirstMessageMissingAttribute(String)
-    case serverFirstMessageSaltCannotBeEncoded(String)
+    case serverFirstMessageSaltIsNotBase64Encoded(String)
     case serverFirstMessageIterationCountIsNotInt(String)
     case serverFirstMessageNonceNotPrefixedByClientNonce
     case serverFinalMessageMissingAttribute(String)
