@@ -6,10 +6,15 @@ import Foundation
 /// [RFC 5802](https://www.rfc-editor.org/rfc/rfc5802)
 class ScramClient<Hash: HashFunction> {
     private let clientKeyData = "Client Key".data(using: .utf8)!
+    private let serverKeyData = "Server Key".data(using: .utf8)!
     
     private let username: String
     private let password: String
     private let clientNonce: String
+    
+    // Populated as messages are built up
+    private var saltedPassword: Data? = nil
+    private var authMessage: Data? = nil
     
     init(
         hash: Hash.Type,
@@ -57,18 +62,41 @@ class ScramClient<Hash: HashFunction> {
         }
         
         let saltedPassword = try saltPassword(salt: salt, iterationCount: iterationCount)
+        self.saltedPassword = saltedPassword // Store for later verification
         let clientKey = clientKey(saltedPassword: saltedPassword)
         let storedKey = storedKey(clientKey: clientKey)
         let clientFinalMessageWithoutProof = "c=biws,r=\(serverNonce)"
-        let authMessage = "\(clientFirstMessageBare()),\(serverFirstMessage),\(clientFinalMessageWithoutProof)"
-        guard let authMessageData = authMessage.data(using: .utf8) else {
-            throw ScramClientError.authMessageIsNotUtf8(authMessage)
+        let authMessageString = "\(clientFirstMessageBare()),\(serverFirstMessage),\(clientFinalMessageWithoutProof)"
+        guard let authMessage = authMessageString.data(using: .utf8) else {
+            throw ScramClientError.authMessageIsNotUtf8(authMessageString)
         }
-        let clientSignature = clientSignature(storedKey: storedKey, authMessage: authMessageData)
+        self.authMessage = authMessage // Store for later verification
+        let clientSignature = clientSignature(storedKey: storedKey, authMessage: authMessage)
         let clientProof = Data(zip(clientKey, clientSignature).map { $0 ^ $1 }).base64EncodedString()
-        
         let clientFinalMessage = "\(clientFinalMessageWithoutProof),p=\(clientProof)"
         return clientFinalMessage
+    }
+    
+    func validate(serverFinalMessage: String) throws {
+        let serverFinalMessageParts = extractNameValuePairs(from: serverFinalMessage)
+        if let error = serverFinalMessageParts["e"] {
+            throw ScramClientError.authError(error)
+        }
+        guard let actualServerSignature = serverFinalMessageParts["v"] else {
+            throw ScramClientError.serverFinalMessageMissingAttribute("v")
+        }
+        guard
+            let authMessage = self.authMessage,
+            let saltedPassword = self.saltedPassword
+        else {
+            throw ScramClientError.validateCalledBeforeClientFinalMessage
+        }
+        let serverKey = serverKey(saltedPassword: saltedPassword)
+        let expectedServerSignature = serverSignature(serverKey: serverKey, authMessage: authMessage)
+        
+        if actualServerSignature != expectedServerSignature.base64EncodedString() {
+            throw ScramClientError.serverFinalMessageDoesNotMatchExpected
+        }
     }
     
     private func saltPassword(salt: Data, iterationCount: Int) throws -> Data {
@@ -89,9 +117,11 @@ class ScramClient<Hash: HashFunction> {
     }
     
     private func clientKey(saltedPassword: Data) -> Data {
-        var hmac = HMAC<Hash>(key: SymmetricKey(data: saltedPassword))
-        hmac.update(data: clientKeyData)
-        return Data(hmac.finalize())
+        return hmac(key: saltedPassword, data: clientKeyData)
+    }
+    
+    private func serverKey(saltedPassword: Data) -> Data {
+        return hmac(key: saltedPassword, data: serverKeyData)
     }
     
     private func storedKey(clientKey: Data) -> Data {
@@ -102,6 +132,10 @@ class ScramClient<Hash: HashFunction> {
     
     private func clientSignature(storedKey: Data, authMessage: Data) -> Data {
         return hmac(key: storedKey, data: authMessage)
+    }
+    
+    private func serverSignature(serverKey: Data, authMessage: Data) -> Data {
+        return hmac(key: serverKey, data: authMessage)
     }
     
     private func hmac(key: Data, data: Data) -> Data {
@@ -147,10 +181,14 @@ func extractNameValuePairs(from fieldsString: String) -> [String: String] {
 }
 
 enum ScramClientError: Error {
+    case authError(String)
     case authMessageIsNotUtf8(String)
     case passwordIsNotAscii(String)
     case serverFirstMessageMissingAttribute(String)
     case serverFirstMessageSaltCannotBeEncoded(String)
     case serverFirstMessageIterationCountIsNotInt(String)
     case serverFirstMessageNonceNotPrefixedByClientNonce
+    case serverFinalMessageMissingAttribute(String)
+    case serverFinalMessageDoesNotMatchExpected
+    case validateCalledBeforeClientFinalMessage
 }
