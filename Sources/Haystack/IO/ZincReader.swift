@@ -139,6 +139,7 @@ public class ZincReader {
     
     private func parseList() throws -> List {
         var elements = [any Val]()
+        try consume(.lbracket)
         while cur != .rbracket, cur != .eof {
             try elements.append(parseVal())
             guard cur == .comma else {
