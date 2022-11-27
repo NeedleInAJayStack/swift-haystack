@@ -7,17 +7,21 @@ public class HaystackClient {
     public let baseUrl: URL
     private let username: String
     private let password: String
+    private let format: DataFormat
     
     /// Set when `login` is called.
     private var authToken: String? = nil
     
-    public init(baseUrl: URL, username: String, password: String) throws {
+    private let jsonDecoder = JSONDecoder()
+    
+    public init(baseUrl: URL, username: String, password: String, format: DataFormat = .zinc) throws {
         guard !baseUrl.isFileURL else {
             throw HaystackClientError.baseUrlCannotBeFile
         }
         self.baseUrl = baseUrl
         self.username = username
         self.password = password
+        self.format = format
     }
     
     public func login() async throws {
@@ -70,17 +74,49 @@ public class HaystackClient {
     }
     
     public func about() async throws -> Grid {
-        let aboutUrl = baseUrl.appending(path: "about")
-        
-        var request = URLRequest(url: aboutUrl)
-        request.httpMethod = "GET"
-        request.addValue("text/zinc", forHTTPHeaderField: "Accept")
+        return try await requestGrid(path: "about", method: .GET)
+    }
+    
+    private func requestGrid(path: String, method: HttpMethod) async throws -> Grid {
+        let url = baseUrl.appending(path: path)
+        var request = URLRequest(url: url)
+        request.httpMethod = method.rawValue
+        guard let authToken = authToken else {
+            throw HaystackClientError.notLoggedIn
+        }
+        request.addValue("BEARER \(authToken)", forHTTPHeaderField: "Authentication")
+        // See Content Negotiation: https://haxall.io/doc/docHaystack/HttpApi.html#contentNegotiation
+        request.addValue(format.acceptHeaderValue, forHTTPHeaderField: "Accept")
         let (data, responseGen) = try await URLSession.shared.data(for: request)
         let response = (responseGen as! HTTPURLResponse)
-        guard response.value(forHTTPHeaderField: "Content-Type") == "text/zinc" else {
+        guard
+            let contentType = response.value(forHTTPHeaderField: "Content-Type"),
+            contentType.hasPrefix(format.acceptHeaderValue)
+        else {
             throw HaystackClientError.responseIsNotZinc
         }
-        return try ZincReader(data).readGrid()
+        switch format {
+        case .json: return try jsonDecoder.decode(Grid.self, from: data)
+        case .zinc: return try ZincReader(data).readGrid()
+        }
+    }
+    
+    private enum HttpMethod: String {
+        case GET
+        case POST
+    }
+}
+
+public enum DataFormat: String {
+    case json
+    case zinc
+    
+    // See Content Negotiation: https://haxall.io/doc/docHaystack/HttpApi.html#contentNegotiation
+    var acceptHeaderValue: String {
+        switch self {
+        case .json: return "application/json"
+        case .zinc: return "text/zinc"
+        }
     }
 }
 
@@ -91,6 +127,7 @@ enum HaystackClientError: Error {
     case authHashFunctionNotRecognized(String)
     case authMechanismNotRecognized(String)
     case authMechanismNotImplemented(AuthMechanism)
+    case notLoggedIn
     case baseUrlCannotBeFile
     case responseIsNotZinc
 }
