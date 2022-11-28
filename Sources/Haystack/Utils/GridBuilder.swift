@@ -8,7 +8,7 @@ public class GridBuilder {
     var rows: [[String: any Val]]
     
     public init() {
-        meta = [:]
+        meta = ["ver":"3.0"] // We don't back-support old grid versions
         colNames = []
         colMeta = [:]
         rows = []

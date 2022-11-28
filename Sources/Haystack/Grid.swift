@@ -5,6 +5,8 @@ import Foundation
 /// unit of data exchange over the
 /// [HTTP API](https://project-haystack.org/doc/docHaystack/HttpApi).
 ///
+/// To create a Grid, use a `GridBuilder`.
+///
 /// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#grid)
 public struct Grid: Val {
     public static var valType: ValType { .Grid }
@@ -22,30 +24,39 @@ public struct Grid: Val {
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
-        var zinc = #"ver:"3.0""#
-        if meta.elements.count > 0 {
-            zinc += " \(meta.toZinc(withBraces: false))"
+        // Ensure `ver` is listed first in meta
+        let ver = meta.elements["ver"] ?? "3.0"
+        var zinc = "ver:\(ver.toZinc())"
+        
+        var metaWithoutVer = meta.elements
+        metaWithoutVer["ver"] = nil
+        if metaWithoutVer.count > 0 {
+            zinc += " \(Dict(metaWithoutVer).toZinc(withBraces: false))"
         }
         zinc += "\n"
         
-        let zincCols = cols.map { col in
-            var colZinc = col.name
-            if let colMeta = col.meta, colMeta.elements.count > 0 {
-                colZinc += " \(colMeta.toZinc(withBraces: false))"
+        if cols.isEmpty {
+            zinc += "empty"
+        } else {
+            let zincCols = cols.map { col in
+                var colZinc = col.name
+                if let colMeta = col.meta, colMeta.elements.count > 0 {
+                    colZinc += " \(colMeta.toZinc(withBraces: false))"
+                }
+                return colZinc
             }
-            return colZinc
-        }
-        zinc += zincCols.joined(separator: ", ")
-        zinc += "\n"
-        
-        let zincRows = rows.map { row in
-            let rowZincElements = cols.map { col in
-                let element = row.elements[col.name] ?? null
-                return element.toZinc()
+            zinc += zincCols.joined(separator: ", ")
+            zinc += "\n"
+            
+            let zincRows = rows.map { row in
+                let rowZincElements = cols.map { col in
+                    let element = row.elements[col.name] ?? null
+                    return element.toZinc()
+                }
+                return rowZincElements.joined(separator: ", ")
             }
-            return rowZincElements.joined(separator: ", ")
+            zinc += zincRows.joined(separator: "\n")
         }
-        zinc += zincRows.joined(separator: "\n")
         
         return zinc
     }
@@ -77,8 +88,14 @@ extension Grid {
             }
             
             self.meta = try container.decode(Dict.self, forKey: .meta)
-            self.cols = try container.decode([Col].self, forKey: .cols)
-            self.rows = try container.decode([Dict].self, forKey: .rows)
+            let cols = try container.decode([Col].self, forKey: .cols)
+            if cols.map(\.name) == ["empty"] {
+                self.cols = []
+                self.rows = []
+            } else {
+                self.cols = cols
+                self.rows = try container.decode([Dict].self, forKey: .rows)
+            }
         } else {
             throw DecodingError.typeMismatch(
                 Self.self,
@@ -96,8 +113,13 @@ extension Grid {
         var container = encoder.container(keyedBy: Self.CodingKeys)
         try container.encode(Self.kindValue, forKey: ._kind)
         try container.encode(meta, forKey: .meta)
-        try container.encode(cols, forKey: .cols)
-        try container.encode(rows, forKey: .rows)
+        if cols.isEmpty {
+            try container.encode([Col(name: "empty")], forKey: .cols)
+            try container.encode([Dict](), forKey: .rows)
+        } else {
+            try container.encode(cols, forKey: .cols)
+            try container.encode(rows, forKey: .rows)
+        }
     }
 }
 
