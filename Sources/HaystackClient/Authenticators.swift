@@ -51,7 +51,7 @@ struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
                     "data": clientFirstMessage.encodeBase64UrlSafe()
                 ]
             ).description,
-            forHTTPHeaderField: "Authorization"
+            forHTTPHeaderField: HTTPHeader.authorization
         )
         let (_, firstResponseGen) = try await session.data(for: firstRequest)
         let firstResponse = (firstResponseGen as! HTTPURLResponse)
@@ -60,7 +60,7 @@ struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
         guard firstResponse.statusCode == 401 else {
             throw ScramAuthenticatorError.FirstResponseStatusIsNot401(firstResponse.statusCode)
         }
-        guard let firstResponseHeaderString = firstResponse.value(forHTTPHeaderField: "Www-Authenticate") else {
+        guard let firstResponseHeaderString = firstResponse.value(forHTTPHeaderField: HTTPHeader.wwwAuthenticate) else {
             throw ScramAuthenticatorError.FirstResponseNoHeaderWwwAuthenticate
         }
         let firstResponseAuth = try AuthMessage.from(firstResponseHeaderString)
@@ -95,7 +95,7 @@ struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
                     "data": clientFinalMessage.encodeBase64UrlSafe()
                 ]
             ).description,
-            forHTTPHeaderField: "Authorization"
+            forHTTPHeaderField: HTTPHeader.authorization
         )
         let (_, finalResponseGen) = try await session.data(for: finalRequest)
         let finalResponse = (finalResponseGen as! HTTPURLResponse)
@@ -104,7 +104,7 @@ struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
         guard finalResponse.statusCode == 200 else {
             throw ScramAuthenticatorError.authFailedWithHttpCode(finalResponse.statusCode)
         }
-        guard let finalResponseHeaderString = finalResponse.value(forHTTPHeaderField: "Authentication-Info") else {
+        guard let finalResponseHeaderString = finalResponse.value(forHTTPHeaderField: HTTPHeader.authenticationInfo) else {
             throw ScramAuthenticatorError.SecondResponseNoHeaderAuthenticationInfo
         }
         let finalResponseAttributes = extractNameValuePairs(from: finalResponseHeaderString)
