@@ -12,12 +12,21 @@ struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
     let username: String
     let password: String
     let handshakeToken: String
+    let session: URLSession
     
-    init(url: URL, username: String, password: String, handshakeToken: String) {
+    init(
+        url: URL,
+        username: String,
+        password: String,
+        handshakeToken: String
+    ) {
         self.url = url
         self.username = username
         self.password = password
         self.handshakeToken = handshakeToken
+        
+        // It seems we need a separate session to avoid storing cookies? I guess?
+        self.session = URLSession(configuration: .ephemeral)
     }
     
     func getAuthToken() async throws -> String {
@@ -44,7 +53,7 @@ struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
             ).description,
             forHTTPHeaderField: "Authorization"
         )
-        let (_, firstResponseGen) = try await URLSession.shared.data(for: firstRequest)
+        let (_, firstResponseGen) = try await session.data(for: firstRequest)
         let firstResponse = (firstResponseGen as! HTTPURLResponse)
         
         // Server Initiation Response
@@ -88,7 +97,7 @@ struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
             ).description,
             forHTTPHeaderField: "Authorization"
         )
-        let (_, finalResponseGen) = try await URLSession.shared.data(for: finalRequest)
+        let (_, finalResponseGen) = try await session.data(for: finalRequest)
         let finalResponse = (finalResponseGen as! HTTPURLResponse)
         
         // Final Server Message

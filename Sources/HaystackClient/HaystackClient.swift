@@ -8,6 +8,7 @@ public class HaystackClient {
     private let username: String
     private let password: String
     private let format: DataFormat
+    private let session: URLSession
     
     /// Set when `login` is called.
     private var authToken: String? = nil
@@ -22,6 +23,7 @@ public class HaystackClient {
         self.username = username
         self.password = password
         self.format = format
+        self.session = URLSession(configuration: .ephemeral)
     }
     
     public func login() async throws {
