@@ -36,7 +36,7 @@ public struct Grid: Val {
         zinc += "\n"
         
         if cols.isEmpty {
-            zinc += "empty"
+            zinc += "empty\n"
         } else {
             let zincCols = cols.map { col in
                 var colZinc = col.name

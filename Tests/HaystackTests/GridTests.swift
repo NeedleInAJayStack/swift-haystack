@@ -76,6 +76,7 @@ final class GridTests: XCTestCase {
             """
             ver:"3.0"
             empty
+            
             """
         )
     }

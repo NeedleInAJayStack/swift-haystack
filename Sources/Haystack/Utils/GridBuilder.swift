@@ -17,6 +17,15 @@ public class GridBuilder {
     /// Construct a grid from the assets of this instance
     /// - Returns: The resulting grid
     public func toGrid() -> Grid {
+        // empty grid handler
+        if colNames == ["empty"] {
+            return Grid(
+                meta: Dict(meta),
+                cols: [],
+                rows: []
+            )
+        }
+        
         let cols = colNames.map { colName in
             if let meta = colMeta[colName] {
                 return Col(name: colName, meta: Dict(meta))
