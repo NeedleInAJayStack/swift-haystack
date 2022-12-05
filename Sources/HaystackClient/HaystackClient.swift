@@ -94,11 +94,11 @@ public class HaystackClient {
     }
     
     public func about() async throws -> Grid {
-        return try await request(path: "about", method: .POST)
+        return try await post(path: "about")
     }
     
     public func close() async throws {
-        try await request(path: "close", method: .POST)
+        try await post(path: "close")
     }
     
     public func defs(filter: String? = nil, limit: Number? = nil) async throws -> Grid {
@@ -109,7 +109,7 @@ public class HaystackClient {
         if let limit = limit {
             args["limit"] = limit
         }
-        return try await request(path: "defs", method: .POST, args: args)
+        return try await post(path: "defs", args: args)
     }
     
     public func libs(filter: String? = nil, limit: Number? = nil) async throws -> Grid {
@@ -120,7 +120,7 @@ public class HaystackClient {
         if let limit = limit {
             args["limit"] = limit
         }
-        return try await request(path: "libs", method: .POST, args: args)
+        return try await post(path: "libs", args: args)
     }
     
     public func ops(filter: String? = nil, limit: Number? = nil) async throws -> Grid {
@@ -131,7 +131,7 @@ public class HaystackClient {
         if let limit = limit {
             args["limit"] = limit
         }
-        return try await request(path: "ops", method: .POST, args: args)
+        return try await post(path: "ops", args: args)
     }
     
     public func filetypes(filter: String? = nil, limit: Number? = nil) async throws -> Grid {
@@ -142,12 +142,16 @@ public class HaystackClient {
         if let limit = limit {
             args["limit"] = limit
         }
-        return try await request(path: "filetypes", method: .POST, args: args)
+        return try await post(path: "filetypes", args: args)
     }
     
-    public func read(id: Ref) async throws -> Grid {
-        // TODO: This doesn't work if you pass multiple IDs (like is documented). Report as bug to Haxall.
-        return try await request(path: "read", method: .POST, args: ["id": id])
+    public func read(ids: [Ref]) async throws -> Grid {
+        let builder = GridBuilder()
+        try builder.addCol(name: "id")
+        for id in ids {
+            try builder.addRow([id])
+        }
+        return try await post(path: "read", grid: builder.toGrid())
     }
     
     public func readAll(filter: String, limit: Number? = nil) async throws -> Grid {
@@ -155,53 +159,67 @@ public class HaystackClient {
         if let limit = limit {
             args["limit"] = limit
         }
-        return try await request(path: "read", method: .POST, args: args)
+        return try await post(path: "read", args: args)
     }
     
     public func nav(navId: Ref) async throws -> Grid {
-        return try await request(path: "nav", method: .POST, args: ["navId": navId])
+        return try await post(path: "nav", args: ["navId": navId])
     }
     
     @discardableResult
-    private func request(path: String, method: HttpMethod, args: [String: any Val] = [:]) async throws -> Grid {
+    private func post(path: String, args: [String: any Val] = [:]) async throws -> Grid {
+        let grid: Grid
+        if args.isEmpty {
+            // Create empty grid
+            grid = GridBuilder().toGrid()
+        } else {
+            let builder = GridBuilder()
+            var row = [any Val]()
+            for (argName, argValue) in args {
+                try builder.addCol(name: argName)
+                row.append(argValue)
+            }
+            try builder.addRow(row)
+            grid = builder.toGrid()
+        }
+        
+        return try await post(path: path, grid: grid)
+    }
+    
+    @discardableResult
+    private func post(path: String, grid: Grid) async throws -> Grid {
+        let url = baseUrl.appending(path: path)
+        return try await execute(url: url, method: .POST, grid: grid)
+    }
+    
+    @discardableResult
+    private func get(path: String, args: [String: any Val] = [:]) async throws -> Grid {
         var url = baseUrl.appending(path: path)
         // Adjust url based on GET args
-        if method == .GET && !args.isEmpty {
+        if !args.isEmpty {
             var queryItems = [URLQueryItem]()
             for (argName, argValue) in args {
                 queryItems.append(.init(name: argName, value: argValue.toZinc()))
             }
             url = url.appending(queryItems: queryItems)
         }
-        
+        return try await execute(url: url, method: .GET)
+    }
+    
+    private func execute(url: URL, method: HttpMethod, grid: Grid? = nil) async throws -> Grid {
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         
-        // Adjust body based on POST args
-        if method == .POST {
-            let grid: Grid
-            if args.isEmpty {
-                // Create empty grid
-                grid = GridBuilder().toGrid()
-            } else {
-                let builder = GridBuilder()
-                var row = [any Val]()
-                for (argName, argValue) in args {
-                    try builder.addCol(name: argName)
-                    row.append(argValue)
-                }
-                try builder.addRow(row)
-                grid = builder.toGrid()
-            }
-            let data: Data
+        if method == .POST, let grid = grid {
+            let requestData: Data
             switch format {
             case .json:
-                data = try jsonEncoder.encode(grid)
+                requestData = try jsonEncoder.encode(grid)
             case .zinc:
-                data = grid.toZinc().data(using: .utf8)! // Unwrap is safe b/c zinc is always UTF8 compatible
+                requestData = grid.toZinc().data(using: .utf8)! // Unwrap is safe b/c zinc is always UTF8 compatible
             }
             request.addValue(format.contentTypeHeaderValue, forHTTPHeaderField: HTTPHeader.contentType)
-            request.httpBody = data
+            request.httpBody = requestData
         }
         
         // Set auth token header
@@ -215,31 +233,26 @@ public class HaystackClient {
         // See Content Negotiation: https://haxall.io/doc/docHaystack/HttpApi.html#contentNegotiation
         request.addValue(format.acceptHeaderValue, forHTTPHeaderField: HTTPHeader.accept)
         request.addValue(userAgentHeaderValue, forHTTPHeaderField: HTTPHeader.userAgent)
-        do {
-            let (data, responseGen) = try await session.data(for: request)
-            let response = (responseGen as! HTTPURLResponse)
-            guard response.statusCode == 200 else {
-                throw HaystackClientError.requestFailed(
-                    httpCode: response.statusCode,
-                    message: String(data: data, encoding: .utf8)
-                )
-            }
-            guard
-                let contentType = response.value(forHTTPHeaderField: HTTPHeader.contentType),
-                contentType.hasPrefix(format.acceptHeaderValue)
-            else {
-                throw HaystackClientError.responseIsNotZinc
-            }
-            switch format {
-            case .json:
-                return try jsonDecoder.decode(Grid.self, from: data)
-            case .zinc:
-                return try ZincReader(data).readGrid()
-            }
-        } catch {
-            throw error
+        let (data, responseGen) = try await session.data(for: request)
+        let response = (responseGen as! HTTPURLResponse)
+        guard response.statusCode == 200 else {
+            throw HaystackClientError.requestFailed(
+                httpCode: response.statusCode,
+                message: String(data: data, encoding: .utf8)
+            )
         }
-        
+        guard
+            let contentType = response.value(forHTTPHeaderField: HTTPHeader.contentType),
+            contentType.hasPrefix(format.acceptHeaderValue)
+        else {
+            throw HaystackClientError.responseIsNotZinc
+        }
+        switch format {
+        case .json:
+            return try jsonDecoder.decode(Grid.self, from: data)
+        case .zinc:
+            return try ZincReader(data).readGrid()
+        }
     }
     
     private enum HttpMethod: String {
