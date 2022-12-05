@@ -18,15 +18,14 @@ struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
         url: URL,
         username: String,
         password: String,
-        handshakeToken: String
+        handshakeToken: String,
+        session: URLSession
     ) {
         self.url = url
         self.username = username
         self.password = password
         self.handshakeToken = handshakeToken
-        
-        // It seems we need a separate session to avoid storing cookies? I guess?
-        self.session = URLSession(configuration: .ephemeral)
+        self.session = session
     }
     
     func getAuthToken() async throws -> String {

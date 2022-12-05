@@ -31,7 +31,15 @@ public class HaystackClient {
         self.username = username
         self.password = password
         self.format = format
-        self.session = URLSession(configuration: .ephemeral)
+        
+        // Disable all cookies, otherwise haystack thinks we're a browser client
+        // and asks for an Attest-Key header
+        let sessionConfig = URLSessionConfiguration.ephemeral
+        sessionConfig.httpCookieAcceptPolicy = .never
+        sessionConfig.httpShouldSetCookies = false
+        sessionConfig.httpCookieStorage = nil
+        
+        self.session = URLSession(configuration: sessionConfig)
     }
     
     public func login() async throws {
@@ -41,7 +49,7 @@ public class HaystackClient {
         let helloRequestAuth = AuthMessage(scheme: "hello", attributes: ["username": username.encodeBase64UrlSafe()])
         var helloRequest = URLRequest(url: url)
         helloRequest.addValue(helloRequestAuth.description, forHTTPHeaderField: HTTPHeader.authorization)
-        let (_, helloResponse) = try await URLSession.shared.data(for: helloRequest)
+        let (_, helloResponse) = try await session.data(for: helloRequest)
         guard let helloHeaderString = (helloResponse as! HTTPURLResponse).value(forHTTPHeaderField: HTTPHeader.wwwAuthenticate) else {
             throw HaystackClientError.authHelloNoWwwAuthenticateHeader
         }
@@ -68,14 +76,16 @@ public class HaystackClient {
                     url: baseUrl,
                     username: username,
                     password: password,
-                    handshakeToken: handshakeToken
+                    handshakeToken: handshakeToken,
+                    session: session
                 )
             case .SHA512:
                 authenticator = ScramAuthenticator<SHA512>(
                     url: baseUrl,
                     username: username,
                     password: password,
-                    handshakeToken: handshakeToken
+                    handshakeToken: handshakeToken,
+                    session: session
                 )
             }
         // TODO: Implement PLAINTEXT auth scheme
