@@ -42,7 +42,7 @@ public class HaystackClient {
         self.session = URLSession(configuration: sessionConfig)
     }
     
-    public func login() async throws {
+    public func open() async throws {
         let url = baseUrl.appending(path: "about")
         
         // Hello
@@ -97,10 +97,72 @@ public class HaystackClient {
         return try await request(path: "about", method: .POST)
     }
     
-    public func ops() async throws -> Grid {
-        return try await request(path: "ops", method: .POST)
+    public func close() async throws {
+        try await request(path: "close", method: .POST)
     }
     
+    public func defs(filter: String? = nil, limit: Number? = nil) async throws -> Grid {
+        var args: [String: any Val] = [:]
+        if let filter = filter {
+            args["filter"] = filter
+        }
+        if let limit = limit {
+            args["limit"] = limit
+        }
+        return try await request(path: "defs", method: .POST, args: args)
+    }
+    
+    public func libs(filter: String? = nil, limit: Number? = nil) async throws -> Grid {
+        var args: [String: any Val] = [:]
+        if let filter = filter {
+            args["filter"] = filter
+        }
+        if let limit = limit {
+            args["limit"] = limit
+        }
+        return try await request(path: "libs", method: .POST, args: args)
+    }
+    
+    public func ops(filter: String? = nil, limit: Number? = nil) async throws -> Grid {
+        var args: [String: any Val] = [:]
+        if let filter = filter {
+            args["filter"] = filter
+        }
+        if let limit = limit {
+            args["limit"] = limit
+        }
+        return try await request(path: "ops", method: .POST, args: args)
+    }
+    
+    public func filetypes(filter: String? = nil, limit: Number? = nil) async throws -> Grid {
+        var args: [String: any Val] = [:]
+        if let filter = filter {
+            args["filter"] = filter
+        }
+        if let limit = limit {
+            args["limit"] = limit
+        }
+        return try await request(path: "filetypes", method: .POST, args: args)
+    }
+    
+    public func read(id: Ref) async throws -> Grid {
+        // TODO: This doesn't work if you pass multiple IDs (like is documented). Report as bug to Haxall.
+        return try await request(path: "read", method: .POST, args: ["id": id])
+    }
+    
+    public func readAll(filter: String, limit: Number? = nil) async throws -> Grid {
+        var args: [String: any Val] = ["filter": filter]
+        if let limit = limit {
+            args["limit"] = limit
+        }
+        return try await request(path: "read", method: .POST, args: args)
+    }
+    
+    public func nav(navId: Ref) async throws -> Grid {
+        return try await request(path: "nav", method: .POST, args: ["navId": navId])
+    }
+    
+    @discardableResult
     private func request(path: String, method: HttpMethod, args: [String: any Val] = [:]) async throws -> Grid {
         var url = baseUrl.appending(path: path)
         // Adjust url based on GET args
