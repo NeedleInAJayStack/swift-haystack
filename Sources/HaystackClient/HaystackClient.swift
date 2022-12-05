@@ -166,6 +166,81 @@ public class HaystackClient {
         return try await post(path: "nav", args: ["navId": navId])
     }
     
+    
+    public func watchSubCreate(
+        watchDis: String,
+        lease: Number? = nil,
+        ids: [Ref]
+    ) async throws -> Grid {
+        var gridMeta: [String: any Val] = ["watchDis": watchDis]
+        if let lease = lease {
+            gridMeta["lease"] = lease
+        }
+        
+        let builder = GridBuilder()
+        builder.setMeta(gridMeta)
+        try builder.addCol(name: "id")
+        for id in ids {
+            try builder.addRow([id])
+        }
+        
+        return try await post(path: "watchSub", grid: builder.toGrid())
+    }
+    
+    public func watchSubAdd(
+        watchId: String,
+        lease: Number? = nil,
+        ids: [Ref]
+    ) async throws -> Grid {
+        var gridMeta: [String: any Val] = ["watchId": watchId]
+        if let lease = lease {
+            gridMeta["lease"] = lease
+        }
+        
+        let builder = GridBuilder()
+        builder.setMeta(gridMeta)
+        try builder.addCol(name: "id")
+        for id in ids {
+            try builder.addRow([id])
+        }
+        
+        return try await post(path: "watchSub", grid: builder.toGrid())
+    }
+    
+    public func watchUnsub(
+        watchId: String,
+        ids: [Ref]
+    ) async throws -> Grid {
+        var gridMeta: [String: any Val] = ["watchId": watchId]
+        if ids.isEmpty {
+            gridMeta["close"] = marker
+        }
+        
+        let builder = GridBuilder()
+        builder.setMeta(gridMeta)
+        try builder.addCol(name: "id")
+        for id in ids {
+            try builder.addRow([id])
+        }
+        
+        return try await post(path: "watchUnsub", grid: builder.toGrid())
+    }
+    
+    public func watchPoll(
+        watchId: String,
+        refresh: Bool = false
+    ) async throws -> Grid {
+        var gridMeta: [String: any Val] = ["watchId": watchId]
+        if refresh {
+            gridMeta["refresh"] = marker
+        }
+        
+        let builder = GridBuilder()
+        builder.setMeta(gridMeta)
+        
+        return try await post(path: "watchPoll", grid: builder.toGrid())
+    }
+    
     @discardableResult
     private func post(path: String, args: [String: any Val] = [:]) async throws -> Grid {
         let grid: Grid
