@@ -170,6 +170,17 @@ public class HaystackClient {
         return try await post(path: "hisRead", args: ["id": id, "range": range.toRequestString()])
     }
     
+    public func hisWrite(id: Ref, items: [HisItem]) async throws -> Grid {
+        let builder = GridBuilder()
+        builder.setMeta(["id": id])
+        try builder.addCol(name: "ts")
+        try builder.addCol(name: "val")
+        for item in items {
+            try builder.addRow([item.ts, item.val])
+        }
+        return try await post(path: "hisWrite", grid: builder.toGrid())
+    }
+    
     
     public func watchSubCreate(
         watchDis: String,
@@ -418,5 +429,15 @@ public enum HisReadRange {
         case let .dateTimeRange(fromDateTime, toDateTime): return "\(fromDateTime.toZinc()),\(toDateTime.toZinc())"
         case let .after(dateTime): return "\(dateTime.toZinc())"
         }
+    }
+}
+
+public struct HisItem {
+    let ts: DateTime
+    let val: any Val
+    
+    public init(ts: DateTime, val: any Val) {
+        self.ts = ts
+        self.val = val
     }
 }
