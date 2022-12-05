@@ -291,6 +291,23 @@ public class HaystackClient {
         return try await post(path: "watchPoll", grid: builder.toGrid())
     }
     
+    public func invokeAction(id: Ref, action: String, args: [String: any Val]) async throws -> Grid {
+        let gridMeta: [String: any Val] = [
+            "id": id,
+            "action": action
+        ]
+        let builder = GridBuilder()
+        builder.setMeta(gridMeta)
+        var row = [any Val]()
+        for (argName, argVal) in args {
+            try builder.addCol(name: argName)
+            row.append(argVal)
+        }
+        try builder.addRow(row)
+        
+        return try await post(path: "invokeAction", grid: builder.toGrid())
+    }
+    
     @discardableResult
     private func post(path: String, args: [String: any Val] = [:]) async throws -> Grid {
         let grid: Grid
