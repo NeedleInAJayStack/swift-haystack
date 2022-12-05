@@ -308,6 +308,10 @@ public class HaystackClient {
         return try await post(path: "invokeAction", grid: builder.toGrid())
     }
     
+    public func eval(expression: String) async throws -> Grid {
+        return try await post(path: "eval", args: ["expr": expression])
+    }
+    
     @discardableResult
     private func post(path: String, args: [String: any Val] = [:]) async throws -> Grid {
         let grid: Grid
