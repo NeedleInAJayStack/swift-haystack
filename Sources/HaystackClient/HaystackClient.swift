@@ -181,6 +181,41 @@ public class HaystackClient {
         return try await post(path: "hisWrite", grid: builder.toGrid())
     }
     
+    public func pointWrite(
+        id: Ref,
+        level: Number,
+        val: any Val,
+        who: String? = nil,
+        duration: Number? = nil
+    ) async throws -> Grid {
+        // level must be int between 1 & 17, check duration is duration unit and is present when level is 8
+        guard
+            level.isInt,
+            1 <= level.val,
+            level.val <= 17
+        else {
+            throw HaystackClientError.pointWriteLevelIsNotIntBetween1And17
+        }
+        
+        var args: [String: any Val] = [
+            "id": id,
+            "level": level,
+            "val": val
+        ]
+        if let who = who {
+            args["who"] = who
+        }
+        if level.val == 8, let duration = duration {
+            // TODO: Check that duration has time units
+            args["duration"] = duration
+        }
+        
+        return try await post(path: "pointWrite", args: args)
+    }
+    
+    public func pointWriteStatus(id: Ref) async throws -> Grid {
+        return try await post(path: "pointWrite", args: ["id": id])
+    }
     
     public func watchSubCreate(
         watchDis: String,
@@ -382,6 +417,7 @@ enum HaystackClientError: Error {
     case baseUrlCannotBeFile
     case responseIsNotZinc
     case requestFailed(httpCode: Int, message: String?)
+    case pointWriteLevelIsNotIntBetween1And17
 }
 
 enum AuthMechanism: String {
