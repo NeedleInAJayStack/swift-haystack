@@ -51,6 +51,10 @@ public struct Number: Val {
         }
         return zinc
     }
+    
+    public var isInt: Bool {
+        return val == val.rounded()
+    }
 }
 
 // Number + Codable
