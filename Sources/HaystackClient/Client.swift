@@ -3,7 +3,7 @@ import Haystack
 import Foundation
 
 @available(macOS 13.0, *)
-public class HaystackClient {
+public class Client {
     private let userAgentHeaderValue = "swift-haystack-client"
     
     public let baseUrl: URL
@@ -407,26 +407,6 @@ public class HaystackClient {
     }
 }
 
-public enum DataFormat: String {
-    case json
-    case zinc
-    
-    // See Content Negotiation: https://haxall.io/doc/docHaystack/HttpApi.html#contentNegotiation
-    var acceptHeaderValue: String {
-        switch self {
-        case .json: return "application/json"
-        case .zinc: return "text/zinc"
-        }
-    }
-    
-    var contentTypeHeaderValue: String {
-        switch self {
-        case .json: return "application/json"
-        case .zinc: return "text/zinc; charset=utf-8"
-        }
-    }
-}
-
 enum HaystackClientError: Error {
     case authHelloNoWwwAuthenticateHeader
     case authHelloHandshakeTokenNotPresent
@@ -434,30 +414,15 @@ enum HaystackClientError: Error {
     case authHashFunctionNotRecognized(String)
     case authMechanismNotRecognized(String)
     case authMechanismNotImplemented(AuthMechanism)
-    case notLoggedIn
     case baseUrlCannotBeFile
+    case notLoggedIn
+    case pointWriteLevelIsNotIntBetween1And17
     case responseIsNotZinc
     case requestFailed(httpCode: Int, message: String?)
-    case pointWriteLevelIsNotIntBetween1And17
 }
 
 enum AuthMechanism: String {
     case SCRAM
-}
-
-@available(macOS 10.15, *)
-enum AuthHash: String {
-    case SHA512 = "SHA-512"
-    case SHA256 = "SHA-256"
-    
-    var hash: any HashFunction.Type {
-        switch self {
-        case .SHA256:
-            return CryptoKit.SHA256.self
-        case .SHA512:
-            return CryptoKit.SHA512.self
-        }
-    }
 }
 
 enum HTTPHeader {
@@ -467,34 +432,4 @@ enum HTTPHeader {
     static let contentType = "Content-Type"
     static let userAgent = "User-Agent"
     static let wwwAuthenticate = "Www-Authenticate"
-}
-
-public enum HisReadRange {
-    case today
-    case yesterday
-    case date(Haystack.Date)
-    case dateRange(from: Haystack.Date, to: Haystack.Date)
-    case dateTimeRange(from: DateTime, to: DateTime)
-    case after(DateTime)
-    
-    func toRequestString() -> String {
-        switch self {
-        case .today: return "today"
-        case .yesterday: return "yesterday"
-        case let .date(date): return "\(date.toZinc())"
-        case let .dateRange(fromDate, toDate): return "\(fromDate.toZinc()),\(toDate.toZinc())"
-        case let .dateTimeRange(fromDateTime, toDateTime): return "\(fromDateTime.toZinc()),\(toDateTime.toZinc())"
-        case let .after(dateTime): return "\(dateTime.toZinc())"
-        }
-    }
-}
-
-public struct HisItem {
-    let ts: DateTime
-    let val: any Val
-    
-    public init(ts: DateTime, val: any Val) {
-        self.ts = ts
-        self.val = val
-    }
 }
