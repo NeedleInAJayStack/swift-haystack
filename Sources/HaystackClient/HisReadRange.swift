@@ -1,5 +1,6 @@
 import Haystack
 
+/// Query-able DateTime ranges, which support relative and absolute values.
 public enum HisReadRange {
     case today
     case yesterday

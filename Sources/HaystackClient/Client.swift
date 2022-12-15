@@ -3,21 +3,37 @@ import Haystack
 import Foundation
 
 @available(macOS 13.0, *)
+/// A Haystack API client. Once created, call the `open` method to connect.
+///
+/// ```swift
+/// let client = Client(
+///     baseUrl: "http://localhost:8080/api",
+///     username: "user",
+///     password: "abc123"
+/// )
+/// await try client.open()
+/// let about = await try client.about()
+/// await try client.close()
+/// ```
 public class Client {
-    private let userAgentHeaderValue = "swift-haystack-client"
+    let baseUrl: URL
+    let username: String
+    let password: String
+    let format: DataFormat
+    let session: URLSession
     
-    public let baseUrl: URL
-    private let username: String
-    private let password: String
-    private let format: DataFormat
-    private let session: URLSession
-    
-    /// Set when `login` is called.
+    /// Set when `open` is called.
     private var authToken: String? = nil
     
     private let jsonEncoder = JSONEncoder()
     private let jsonDecoder = JSONDecoder()
     
+    /// Create a client instance.This may be reused across multiple logins if needed.
+    /// - Parameters:
+    ///   - baseUrl: The URL of the Haystack API server
+    ///   - username: The username to authenticate with
+    ///   - password: The password to authenticate with
+    ///   - format: The transfer data format. Defaults to `zinc` to reduce data transfer.
     public init(
         baseUrl: URL,
         username: String,
@@ -42,6 +58,7 @@ public class Client {
         self.session = URLSession(configuration: sessionConfig)
     }
     
+    /// Authenticate the client and store the authentication token
     public func open() async throws {
         let url = baseUrl.appending(path: "about")
         
@@ -93,14 +110,29 @@ public class Client {
         self.authToken = try await authenticator.getAuthToken()
     }
     
+    /// Closes the current authentication session.
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#close
+    public func close() async throws {
+        try await post(path: "close")
+        self.authToken = nil
+    }
+    
+    /// Queries basic information about the server
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#about
     public func about() async throws -> Grid {
         return try await post(path: "about")
     }
     
-    public func close() async throws {
-        try await post(path: "close")
-    }
-    
+    /// Queries def dicts from the current namespace
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#defs
+    ///
+    /// - Parameters:
+    ///   - filter: A string filter
+    ///   - limit: The maximum number of defs to return in response
+    /// - Returns: A grid with the dict representation of each def
     public func defs(filter: String? = nil, limit: Number? = nil) async throws -> Grid {
         var args: [String: any Val] = [:]
         if let filter = filter {
@@ -112,6 +144,14 @@ public class Client {
         return try await post(path: "defs", args: args)
     }
     
+    /// Queries lib defs from current namspace
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#libs
+    ///
+    /// - Parameters:
+    ///   - filter: A string filter
+    ///   - limit: The maximum number of defs to return in response
+    /// - Returns: A grid with the dict representation of each def
     public func libs(filter: String? = nil, limit: Number? = nil) async throws -> Grid {
         var args: [String: any Val] = [:]
         if let filter = filter {
@@ -123,6 +163,14 @@ public class Client {
         return try await post(path: "libs", args: args)
     }
     
+    /// Queries op defs from current namspace
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#ops
+    ///
+    /// - Parameters:
+    ///   - filter: A string filter
+    ///   - limit: The maximum number of defs to return in response
+    /// - Returns: A grid with the dict representation of each def
     public func ops(filter: String? = nil, limit: Number? = nil) async throws -> Grid {
         var args: [String: any Val] = [:]
         if let filter = filter {
@@ -134,6 +182,14 @@ public class Client {
         return try await post(path: "ops", args: args)
     }
     
+    /// Queries filetype defs from current namspace
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#filetypes
+    ///
+    /// - Parameters:
+    ///   - filter: A string filter
+    ///   - limit: The maximum number of defs to return in response
+    /// - Returns: A grid with the dict representation of each def
     public func filetypes(filter: String? = nil, limit: Number? = nil) async throws -> Grid {
         var args: [String: any Val] = [:]
         if let filter = filter {
@@ -145,6 +201,12 @@ public class Client {
         return try await post(path: "filetypes", args: args)
     }
     
+    /// Read a set of entity records by their unique identifier
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#read
+    ///
+    /// - Parameter ids: Ref identifiers
+    /// - Returns: A grid with a row for each entity read
     public func read(ids: [Ref]) async throws -> Grid {
         let builder = GridBuilder()
         try builder.addCol(name: "id")
@@ -154,6 +216,14 @@ public class Client {
         return try await post(path: "read", grid: builder.toGrid())
     }
     
+    /// Read a set of entity records using a filter
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#read
+    ///
+    /// - Parameters:
+    ///   - filter: A string filter
+    ///   - limit: The maximum number of entities to return in response
+    /// - Returns: A grid with a row for each entity read
     public func readAll(filter: String, limit: Number? = nil) async throws -> Grid {
         var args: [String: any Val] = ["filter": filter]
         if let limit = limit {
@@ -162,14 +232,40 @@ public class Client {
         return try await post(path: "read", args: args)
     }
     
-    public func nav(navId: Ref) async throws -> Grid {
-        return try await post(path: "nav", args: ["navId": navId])
+    /// Navigate a project for learning and discovery
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#nav
+    ///
+    /// - Parameter navId: The ID of the entity to navigate from. If null, the navigation root is used.
+    /// - Returns: A grid of navigation children for the navId specified by the request
+    public func nav(navId: Ref?) async throws -> Grid {
+        if let navId = navId {
+            return try await post(path: "nav", args: ["navId": navId])
+        } else {
+            return try await post(path: "nav", args: [:])
+        }
     }
     
+    /// Reads time-series data from historized point
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#hisRead
+    ///
+    /// - Parameters:
+    ///   - id: Identifier of historized point
+    ///   - range: A date-time range
+    /// - Returns: A grid whose rows represent timetamp/value pairs with a DateTime ts column and a val column for each scalar value
     public func hisRead(id: Ref, range: HisReadRange) async throws -> Grid {
         return try await post(path: "hisRead", args: ["id": id, "range": range.toRequestString()])
     }
     
+    /// Posts new time-series data to a historized point
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#hisWrite
+    ///
+    /// - Parameters:
+    ///   - id: The identifier of the point to write to
+    ///   - items: New timestamp/value samples to write
+    /// - Returns: An empty grid
     public func hisWrite(id: Ref, items: [HisItem]) async throws -> Grid {
         let builder = GridBuilder()
         builder.setMeta(["id": id])
@@ -181,6 +277,17 @@ public class Client {
         return try await post(path: "hisWrite", grid: builder.toGrid())
     }
     
+    /// Write to a given level of a writable point's priority array
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#pointWrite
+    ///
+    /// - Parameters:
+    ///   - id: Identifier of writable point
+    ///   - level: Number from 1-17 for level to write
+    ///   - val: Value to write or null to auto the level
+    ///   - who: Username/application name performing the write, otherwise authenticated user display name is used
+    ///   - duration: Number with duration unit if setting level 8
+    /// - Returns: An empty grid
     public func pointWrite(
         id: Ref,
         level: Number,
@@ -213,10 +320,26 @@ public class Client {
         return try await post(path: "pointWrite", args: args)
     }
     
+    /// Read the current status of a writable point's priority array
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#pointWrite
+    ///
+    /// - Parameter id: Identifier of writable point
+    /// - Returns: A grid with current priority array state
     public func pointWriteStatus(id: Ref) async throws -> Grid {
         return try await post(path: "pointWrite", args: ["id": id])
     }
     
+    /// Used to create new watches.
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#watchSub
+    ///
+    /// - Parameters:
+    ///   - watchDis: Debug/display string
+    ///   - lease: Number with duration unit for desired lease period
+    ///   - ids: The identifiers of the entities to subscribe to
+    /// - Returns: A grid where rows correspond to the current entity state of the requested identifiers.  Grid metadata contains
+    /// `watchId` and `lease`.
     public func watchSubCreate(
         watchDis: String,
         lease: Number? = nil,
@@ -237,6 +360,16 @@ public class Client {
         return try await post(path: "watchSub", grid: builder.toGrid())
     }
     
+    /// Used to add entities to an existing watch.
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#watchSub
+    ///
+    /// - Parameters:
+    ///   - watchId: Debug/display string
+    ///   - lease: Number with duration unit for desired lease period
+    ///   - ids: The identifiers of the entities to subscribe to
+    /// - Returns: A grid where rows correspond to the current entity state of the requested identifiers.  Grid metadata contains
+    /// `watchId` and `lease`.
     public func watchSubAdd(
         watchId: String,
         lease: Number? = nil,
@@ -257,6 +390,14 @@ public class Client {
         return try await post(path: "watchSub", grid: builder.toGrid())
     }
     
+    /// Used to close a watch entirely or remove entities from a watch
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#watchUnsub
+    ///
+    /// - Parameters:
+    ///   - watchId: Watch identifier
+    ///   - ids: Ref values for each entity to unsubscribe. If empty the entire watch is closed.
+    /// - Returns: An empty grid
     public func watchUnsub(
         watchId: String,
         ids: [Ref]
@@ -276,6 +417,14 @@ public class Client {
         return try await post(path: "watchUnsub", grid: builder.toGrid())
     }
     
+    /// Used to poll a watch for changes to the subscribed entity records
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#watchPoll
+    ///
+    /// - Parameters:
+    ///   - watchId: Watch identifier
+    ///   - refresh: Whether a full refresh should occur
+    /// - Returns: A grid where each row correspondes to a watched entity
     public func watchPoll(
         watchId: String,
         refresh: Bool = false
@@ -291,7 +440,17 @@ public class Client {
         return try await post(path: "watchPoll", grid: builder.toGrid())
     }
     
-    public func invokeAction(id: Ref, action: String, args: [String: any Val]) async throws -> Grid {
+    /// https://project-haystack.org/doc/docHaystack/Ops#invokeAction
+    /// - Parameters:
+    ///   - id: Identifier of target rec
+    ///   - action: The name of the action func
+    ///   - args: The arguments to the action
+    /// - Returns: A grid of undefined shape
+    public func invokeAction(
+        id: Ref,
+        action: String,
+        args: [String: any Val]
+    ) async throws -> Grid {
         let gridMeta: [String: any Val] = [
             "id": id,
             "action": action
@@ -308,6 +467,12 @@ public class Client {
         return try await post(path: "invokeAction", grid: builder.toGrid())
     }
     
+    /// Evaluate an Axon expression
+    ///
+    /// https://haxall.io/doc/lib-hx/op~eval
+    ///
+    /// - Parameter expression: A string Axon expression
+    /// - Returns: A grid of undefined shape
     public func eval(expression: String) async throws -> Grid {
         return try await post(path: "eval", args: ["expr": expression])
     }
@@ -406,6 +571,8 @@ public class Client {
         case POST
     }
 }
+
+private let userAgentHeaderValue = "swift-haystack-client"
 
 enum HaystackClientError: Error {
     case authHelloNoWwwAuthenticateHeader
