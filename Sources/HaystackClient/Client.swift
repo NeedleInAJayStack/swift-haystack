@@ -224,7 +224,7 @@ public class Client {
     ///   - filter: A string filter
     ///   - limit: The maximum number of entities to return in response
     /// - Returns: A grid with a row for each entity read
-    public func readAll(filter: String, limit: Number? = nil) async throws -> Grid {
+    public func read(filter: String, limit: Number? = nil) async throws -> Grid {
         var args: [String: any Val] = ["filter": filter]
         if let limit = limit {
             args["limit"] = limit
