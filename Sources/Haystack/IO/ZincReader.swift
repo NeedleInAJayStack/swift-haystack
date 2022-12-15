@@ -127,10 +127,10 @@ public class ZincReader {
     private func parseLiteral() throws -> any Val {
         var val = self.curVal
         if cur == .ref, peek == .str {
-            guard let refVal = curVal as? String, let dis = peekVal as? String else {
+            guard let refVal = curVal as? Ref, let dis = peekVal as? String else {
                 throw ZincReaderError.invalidRef
             }
-            val = try Ref(refVal, dis: dis)
+            val = try Ref(refVal.val, dis: dis)
             try consume(.ref)
         }
         try consume()
@@ -139,6 +139,7 @@ public class ZincReader {
     
     private func parseList() throws -> List {
         var elements = [any Val]()
+        try consume(.lbracket)
         while cur != .rbracket, cur != .eof {
             try elements.append(parseVal())
             guard cur == .comma else {

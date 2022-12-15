@@ -2,6 +2,13 @@ import XCTest
 import Haystack
 
 final class NumberTests: XCTestCase {
+    func testIsInt() throws {
+        XCTAssertTrue(Number(5).isInt)
+        XCTAssertFalse(Number(5.5).isInt)
+        XCTAssertTrue(Number(-1).isInt)
+        XCTAssertFalse(Number(-1.99999).isInt)
+    }
+    
     func testJsonCoding() throws {
         let value = Number(12.199, unit: "kWh")
         let jsonString = #"{"_kind":"number","val":12.199,"unit":"kWh"}"#
