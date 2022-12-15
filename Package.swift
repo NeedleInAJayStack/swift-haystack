@@ -32,5 +32,9 @@ let package = Package(
             name: "HaystackClientTests",
             dependencies: ["HaystackClient"]
         ),
+        .testTarget(
+            name: "HaystackClientIntegrationTests",
+            dependencies: ["HaystackClient"]
+        ),
     ]
 )
