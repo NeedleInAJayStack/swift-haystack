@@ -1,22 +1,25 @@
 import Crypto
 import Foundation
 
-@available(macOS 13.0, *)
 struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
-    let url: URL
+    let url: String
     let username: String
     let password: String
     let handshakeToken: String
     let session: URLSession
     
     init(
-        url: URL,
+        url: String,
         username: String,
         password: String,
         handshakeToken: String,
         session: URLSession
     ) {
-        self.url = url
+        var urlWithSlash = url
+        if !urlWithSlash.hasSuffix("/") {
+            urlWithSlash += "/"
+        }
+        self.url = urlWithSlash
         self.username = username
         self.password = password
         self.handshakeToken = handshakeToken
@@ -24,7 +27,9 @@ struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
     }
     
     func getAuthToken() async throws -> String {
-        let aboutUrl = url.appending(path: "about")
+        guard let aboutUrl = URL(string: url + "about") else {
+            throw HaystackClientError.invalidUrl(url + "about")
+        }
         
         let scram = ScramClient(
             hash: Hash.self,

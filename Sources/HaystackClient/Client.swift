@@ -2,7 +2,6 @@ import Crypto
 import Haystack
 import Foundation
 
-@available(macOS 13.0, *)
 /// A Haystack API client. Once created, call the `open` method to connect.
 ///
 /// ```swift
@@ -16,7 +15,7 @@ import Foundation
 /// await try client.close()
 /// ```
 public class Client {
-    let baseUrl: URL
+    let baseUrl: String
     let username: String
     let password: String
     let format: DataFormat
@@ -35,15 +34,16 @@ public class Client {
     ///   - password: The password to authenticate with
     ///   - format: The transfer data format. Defaults to `zinc` to reduce data transfer.
     public init(
-        baseUrl: URL,
+        baseUrl: String,
         username: String,
         password: String,
         format: DataFormat = .zinc
     ) throws {
-        guard !baseUrl.isFileURL else {
-            throw HaystackClientError.baseUrlCannotBeFile
+        var urlWithSlash = baseUrl
+        if !urlWithSlash.hasSuffix("/") {
+            urlWithSlash += "/"
         }
-        self.baseUrl = baseUrl
+        self.baseUrl = urlWithSlash
         self.username = username
         self.password = password
         self.format = format
@@ -60,7 +60,9 @@ public class Client {
     
     /// Authenticate the client and store the authentication token
     public func open() async throws {
-        let url = baseUrl.appending(path: "about")
+        guard let url = URL(string: baseUrl + "about") else {
+            throw HaystackClientError.invalidUrl(baseUrl + "about")
+        }
         
         // Hello
         let helloRequestAuth = AuthMessage(scheme: "hello", attributes: ["username": username.encodeBase64UrlSafe()])
@@ -499,22 +501,26 @@ public class Client {
     
     @discardableResult
     private func post(path: String, grid: Grid) async throws -> Grid {
-        let url = baseUrl.appending(path: path)
+        guard let url = URL(string: baseUrl + path) else {
+            throw HaystackClientError.invalidUrl(baseUrl + path)
+        }
         return try await execute(url: url, method: .POST, grid: grid)
     }
     
     @discardableResult
     private func get(path: String, args: [String: any Val] = [:]) async throws -> Grid {
-        var url = baseUrl.appending(path: path)
+        var url = baseUrl + path
         // Adjust url based on GET args
         if !args.isEmpty {
-            var queryItems = [URLQueryItem]()
-            for (argName, argValue) in args {
-                queryItems.append(.init(name: argName, value: argValue.toZinc()))
+            let argStrings = args.map { (argName, argValue) in
+                "\(argName)=\(argValue.toZinc())"
             }
-            url = url.appending(queryItems: queryItems)
+            url += "?\(argStrings.joined(separator: "&"))"
         }
-        return try await execute(url: url, method: .GET)
+        guard let finalUrl = URL(string: url) else {
+            throw HaystackClientError.invalidUrl(url)
+        }
+        return try await execute(url: finalUrl, method: .GET)
     }
     
     private func execute(url: URL, method: HttpMethod, grid: Grid? = nil) async throws -> Grid {
@@ -582,6 +588,7 @@ enum HaystackClientError: Error {
     case authMechanismNotRecognized(String)
     case authMechanismNotImplemented(AuthMechanism)
     case baseUrlCannotBeFile
+    case invalidUrl(String)
     case notLoggedIn
     case pointWriteLevelIsNotIntBetween1And17
     case responseIsNotZinc

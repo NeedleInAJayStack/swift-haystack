@@ -1,6 +1,5 @@
 import Crypto
 
-@available(macOS 10.15, *)
 enum AuthHash: String {
     case SHA512 = "SHA-512"
     case SHA256 = "SHA-256"

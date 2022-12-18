@@ -2,12 +2,11 @@ import XCTest
 import Haystack
 import HaystackClient
 
-@available(macOS 13.0, *)
 /// To use these tests, run a [Haxall](https://github.com/haxall/haxall) server and set the username and password
 /// in the `HAYSTACK_USER` and `HAYSTACK_PASSWORD` environment variables
 final class HaystackClientIntegrationTests: XCTestCase {
     var client: Client = try! Client(
-        baseUrl: URL(string: "http://localhost:8080/api/")!,
+        baseUrl: "http://localhost:8080/api/",
         username: ProcessInfo.processInfo.environment["HAYSTACK_USER"] ?? "su",
         password: ProcessInfo.processInfo.environment["HAYSTACK_PASSWORD"] ?? "su"
     )
