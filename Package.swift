@@ -4,6 +4,12 @@ import PackageDescription
 
 let package = Package(
     name: "Haystack",
+    platforms: [
+        .macOS(.v10_15),
+        .iOS(.v13),
+        .watchOS(.v6),
+        .tvOS(.v13),
+    ],
     products: [
         .library(
             name: "Haystack",
@@ -14,7 +20,9 @@ let package = Package(
             targets: ["HaystackClient"]
         ),
     ],
-    dependencies: [],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "3.0.0"),
+    ],
     targets: [
         .target(
             name: "Haystack",
@@ -22,7 +30,10 @@ let package = Package(
         ),
         .target(
             name: "HaystackClient",
-            dependencies: ["Haystack"]
+            dependencies: [
+                "Haystack",
+                .product(name: "Crypto", package: "swift-crypto")
+            ]
         ),
         .testTarget(
             name: "HaystackTests",

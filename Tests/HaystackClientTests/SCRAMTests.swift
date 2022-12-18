@@ -1,4 +1,4 @@
-import CryptoKit
+import Crypto
 import XCTest
 @testable import HaystackClient
 

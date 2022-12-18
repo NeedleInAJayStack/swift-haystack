@@ -1,4 +1,4 @@
-import CryptoKit
+import Crypto
 
 @available(macOS 10.15, *)
 enum AuthHash: String {
@@ -8,9 +8,9 @@ enum AuthHash: String {
     var hash: any HashFunction.Type {
         switch self {
         case .SHA256:
-            return CryptoKit.SHA256.self
+            return Crypto.SHA256.self
         case .SHA512:
-            return CryptoKit.SHA512.self
+            return Crypto.SHA512.self
         }
     }
 }
