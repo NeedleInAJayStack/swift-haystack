@@ -19,7 +19,7 @@ public class Client {
     let username: String
     let password: String
     let format: DataFormat
-    let session: URLSession
+    let fetcher: Fetcher
     
     /// Set when `open` is called.
     private var authToken: String? = nil
@@ -47,29 +47,23 @@ public class Client {
         self.username = username
         self.password = password
         self.format = format
-        
-        // Disable all cookies, otherwise haystack thinks we're a browser client
-        // and asks for an Attest-Key header
-        let sessionConfig = URLSessionConfiguration.ephemeral
-        sessionConfig.httpCookieAcceptPolicy = .never
-        sessionConfig.httpShouldSetCookies = false
-        sessionConfig.httpCookieStorage = nil
-        
-        self.session = URLSession(configuration: sessionConfig)
+        self.fetcher = URLSessionFetcher()
     }
     
     /// Authenticate the client and store the authentication token
     public func open() async throws {
-        guard let url = URL(string: baseUrl + "about") else {
-            throw HaystackClientError.invalidUrl(baseUrl + "about")
-        }
+        let url = baseUrl + "about"
         
         // Hello
-        let helloRequestAuth = AuthMessage(scheme: "hello", attributes: ["username": username.encodeBase64UrlSafe()])
-        var helloRequest = URLRequest(url: url)
-        helloRequest.addValue(helloRequestAuth.description, forHTTPHeaderField: HTTPHeader.authorization)
-        let (_, helloResponse) = try await session.data(for: helloRequest)
-        guard let helloHeaderString = (helloResponse as! HTTPURLResponse).value(forHTTPHeaderField: HTTPHeader.wwwAuthenticate) else {
+        let helloRequest = Request(
+            url: url,
+            headerAuthorization: AuthMessage(
+                scheme: "hello",
+                attributes: ["username": username.encodeBase64UrlSafe()]
+            ).description
+        )
+        let helloResponse = try await fetcher.fetch(helloRequest)
+        guard let helloHeaderString = helloResponse.headerWwwAuthenticate else {
             throw HaystackClientError.authHelloNoWwwAuthenticateHeader
         }
         let helloResponseAuth = try AuthMessage.from(helloHeaderString)
@@ -96,7 +90,7 @@ public class Client {
                     username: username,
                     password: password,
                     handshakeToken: handshakeToken,
-                    session: session
+                    fetcher: fetcher
                 )
             case .SHA512:
                 authenticator = ScramAuthenticator<SHA512>(
@@ -104,7 +98,7 @@ public class Client {
                     username: username,
                     password: password,
                     handshakeToken: handshakeToken,
-                    session: session
+                    fetcher: fetcher
                 )
             }
         // TODO: Implement PLAINTEXT auth scheme
@@ -501,10 +495,7 @@ public class Client {
     
     @discardableResult
     private func post(path: String, grid: Grid) async throws -> Grid {
-        guard let url = URL(string: baseUrl + path) else {
-            throw HaystackClientError.invalidUrl(baseUrl + path)
-        }
-        return try await execute(url: url, method: .POST, grid: grid)
+        return try await execute(url: baseUrl + path, method: .POST, grid: grid)
     }
     
     @discardableResult
@@ -517,64 +508,55 @@ public class Client {
             }
             url += "?\(argStrings.joined(separator: "&"))"
         }
-        guard let finalUrl = URL(string: url) else {
-            throw HaystackClientError.invalidUrl(url)
-        }
-        return try await execute(url: finalUrl, method: .GET)
+        return try await execute(url: url, method: .GET)
     }
     
-    private func execute(url: URL, method: HttpMethod, grid: Grid? = nil) async throws -> Grid {
-        var request = URLRequest(url: url)
-        request.httpMethod = method.rawValue
-        
+    private func execute(url: String, method: HttpMethod, grid: Grid? = nil) async throws -> Grid {
+        var data: Data? = nil
+        var headerContentType: String? = nil
         if method == .POST, let grid = grid {
-            let requestData: Data
             switch format {
             case .json:
-                requestData = try jsonEncoder.encode(grid)
+                data = try jsonEncoder.encode(grid)
             case .zinc:
-                requestData = grid.toZinc().data(using: .utf8)! // Unwrap is safe b/c zinc is always UTF8 compatible
+                data = grid.toZinc().data(using: .utf8)! // Unwrap is safe b/c zinc is always UTF8 compatible
             }
-            request.addValue(format.contentTypeHeaderValue, forHTTPHeaderField: HTTPHeader.contentType)
-            request.httpBody = requestData
+            headerContentType = format.contentTypeHeaderValue
         }
         
         // Set auth token header
         guard let authToken = authToken else {
             throw HaystackClientError.notLoggedIn
         }
-        request.addValue(
-            AuthMessage(scheme: "Bearer", attributes: ["authToken": authToken]).description,
-            forHTTPHeaderField: HTTPHeader.authorization
+        let headerAuthorization = AuthMessage(scheme: "Bearer", attributes: ["authToken": authToken]).description
+        
+        let request = Request(
+            method: method,
+            url: url,
+            headerAuthorization: headerAuthorization,
+            headerAccept: format.acceptHeaderValue,
+            headerContentType: headerContentType,
+            data: data
         )
-        // See Content Negotiation: https://haxall.io/doc/docHaystack/HttpApi.html#contentNegotiation
-        request.addValue(format.acceptHeaderValue, forHTTPHeaderField: HTTPHeader.accept)
-        request.addValue(userAgentHeaderValue, forHTTPHeaderField: HTTPHeader.userAgent)
-        let (data, responseGen) = try await session.data(for: request)
-        let response = (responseGen as! HTTPURLResponse)
+        let response = try await fetcher.fetch(request)
         guard response.statusCode == 200 else {
             throw HaystackClientError.requestFailed(
                 httpCode: response.statusCode,
-                message: String(data: data, encoding: .utf8)
+                message: String(data: response.data, encoding: .utf8)
             )
         }
         guard
-            let contentType = response.value(forHTTPHeaderField: HTTPHeader.contentType),
+            let contentType = response.headerContentType,
             contentType.hasPrefix(format.acceptHeaderValue)
         else {
             throw HaystackClientError.responseIsNotZinc
         }
         switch format {
         case .json:
-            return try jsonDecoder.decode(Grid.self, from: data)
+            return try jsonDecoder.decode(Grid.self, from: response.data)
         case .zinc:
-            return try ZincReader(data).readGrid()
+            return try ZincReader(response.data).readGrid()
         }
-    }
-    
-    private enum HttpMethod: String {
-        case GET
-        case POST
     }
 }
 
