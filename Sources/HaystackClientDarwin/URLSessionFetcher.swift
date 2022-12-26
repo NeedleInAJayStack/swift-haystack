@@ -1,7 +1,7 @@
 import Foundation
 import HaystackClient
 
-// URLSession IS NOT AVAILABLE ON LINUX!
+/// A Haystack API Client fetcher based on `URLSession`. This is only available on Darwin platforms.
 struct URLSessionFetcher: Fetcher {
     let session: URLSession
     

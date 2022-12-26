@@ -9,7 +9,8 @@ extension HTTPClient {
     }
 }
 
-// HTTPClient is available on all platforms but includes many more dependencies
+/// A Haystack API Client fetcher based on a NIO `HTTPClient`. This is only available on all platforms,
+/// but includes many more dependencies than Foundation's `URLSession`
 struct HTTPClientFetcher: Fetcher {
     let client: HTTPClient
     
