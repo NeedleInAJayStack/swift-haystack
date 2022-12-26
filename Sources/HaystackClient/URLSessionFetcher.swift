@@ -20,15 +20,15 @@ struct URLSessionFetcher: Fetcher {
         }
         
         var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = request.method.rawValue
         
-        if request.method == .POST,
-           let data = request.data,
-           let conentType = request.headerContentType {
-            urlRequest.addValue(conentType, forHTTPHeaderField: HTTPHeader.contentType)
+        switch request.method {
+        case .GET:
+            urlRequest.httpMethod = "GET"
+        case let .POST(contentType, data):
+            urlRequest.httpMethod = "POST"
+            urlRequest.addValue(contentType, forHTTPHeaderField: HTTPHeader.contentType)
             urlRequest.httpBody = data
         }
-        
         urlRequest.addValue(request.headerAuthorization, forHTTPHeaderField: HTTPHeader.authorization)
         
         // See Content Negotiation: https://haxall.io/doc/docHaystack/HttpApi.html#contentNegotiation

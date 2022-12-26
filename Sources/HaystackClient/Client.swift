@@ -2,6 +2,8 @@ import Crypto
 import Haystack
 import Foundation
 
+import AsyncHTTPClient
+
 /// A Haystack API client. Once created, call the `open` method to connect.
 ///
 /// ```swift
@@ -47,7 +49,7 @@ public class Client {
         self.username = username
         self.password = password
         self.format = format
-        self.fetcher = URLSessionFetcher()
+        self.fetcher = HTTPClient(eventLoopGroupProvider: .createNew).haystackFetcher()
     }
     
     /// Authenticate the client and store the authentication token
@@ -495,7 +497,18 @@ public class Client {
     
     @discardableResult
     private func post(path: String, grid: Grid) async throws -> Grid {
-        return try await execute(url: baseUrl + path, method: .POST, grid: grid)
+        let data: Data
+        switch format {
+        case .json:
+            data = try jsonEncoder.encode(grid)
+        case .zinc:
+            data = grid.toZinc().data(using: .utf8)! // Unwrap is safe b/c zinc is always UTF8 compatible
+        }
+        let headerContentType = format.contentTypeHeaderValue
+        return try await execute(
+            url: baseUrl + path,
+            method: .POST(contentType: headerContentType, data: data)
+        )
     }
     
     @discardableResult
@@ -511,19 +524,7 @@ public class Client {
         return try await execute(url: url, method: .GET)
     }
     
-    private func execute(url: String, method: HttpMethod, grid: Grid? = nil) async throws -> Grid {
-        var data: Data? = nil
-        var headerContentType: String? = nil
-        if method == .POST, let grid = grid {
-            switch format {
-            case .json:
-                data = try jsonEncoder.encode(grid)
-            case .zinc:
-                data = grid.toZinc().data(using: .utf8)! // Unwrap is safe b/c zinc is always UTF8 compatible
-            }
-            headerContentType = format.contentTypeHeaderValue
-        }
-        
+    private func execute(url: String, method: HaystackHttpMethod) async throws -> Grid {
         // Set auth token header
         guard let authToken = authToken else {
             throw HaystackClientError.notLoggedIn
@@ -534,9 +535,7 @@ public class Client {
             method: method,
             url: url,
             headerAuthorization: headerAuthorization,
-            headerAccept: format.acceptHeaderValue,
-            headerContentType: headerContentType,
-            data: data
+            headerAccept: format.acceptHeaderValue
         )
         let response = try await fetcher.fetch(request)
         guard response.statusCode == 200 else {
