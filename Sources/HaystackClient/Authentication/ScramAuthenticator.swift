@@ -39,7 +39,7 @@ struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
         
         // Client Initiation
         let clientFirstMessage = scram.clientFirstMessage()
-        let firstRequest = Request(
+        let firstRequest = HaystackRequest(
             url: aboutUrl,
             headerAuthorization: AuthMessage(
                     scheme: "scram",
@@ -81,7 +81,7 @@ struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
         
         // Client Continuation
         let clientFinalMessage = try scram.clientFinalMessage(serverFirstMessage: serverFirstMessage)
-        let finalRequest = Request(
+        let finalRequest = HaystackRequest(
             url: aboutUrl,
             headerAuthorization: AuthMessage(
                     scheme: "scram",

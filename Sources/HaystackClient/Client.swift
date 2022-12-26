@@ -2,8 +2,6 @@ import Crypto
 import Haystack
 import Foundation
 
-import AsyncHTTPClient
-
 /// A Haystack API client. Once created, call the `open` method to connect.
 ///
 /// ```swift
@@ -39,7 +37,8 @@ public class Client {
         baseUrl: String,
         username: String,
         password: String,
-        format: DataFormat = .zinc
+        format: DataFormat = .zinc,
+        fetcher: Fetcher
     ) throws {
         var urlWithSlash = baseUrl
         if !urlWithSlash.hasSuffix("/") {
@@ -49,7 +48,7 @@ public class Client {
         self.username = username
         self.password = password
         self.format = format
-        self.fetcher = HTTPClient(eventLoopGroupProvider: .createNew).haystackFetcher()
+        self.fetcher = fetcher
     }
     
     /// Authenticate the client and store the authentication token
@@ -57,7 +56,7 @@ public class Client {
         let url = baseUrl + "about"
         
         // Hello
-        let helloRequest = Request(
+        let helloRequest = HaystackRequest(
             url: url,
             headerAuthorization: AuthMessage(
                 scheme: "hello",
@@ -531,7 +530,7 @@ public class Client {
         }
         let headerAuthorization = AuthMessage(scheme: "Bearer", attributes: ["authToken": authToken]).description
         
-        let request = Request(
+        let request = HaystackRequest(
             method: method,
             url: url,
             headerAuthorization: headerAuthorization,
@@ -580,11 +579,11 @@ enum AuthMechanism: String {
     case SCRAM
 }
 
-enum HTTPHeader {
-    static let accept = "Accept"
-    static let authenticationInfo = "Authentication-Info"
-    static let authorization = "Authorization"
-    static let contentType = "Content-Type"
-    static let userAgent = "User-Agent"
-    static let wwwAuthenticate = "Www-Authenticate"
+public enum HTTPHeader {
+    public static let accept = "Accept"
+    public static let authenticationInfo = "Authentication-Info"
+    public static let authorization = "Authorization"
+    public static let contentType = "Content-Type"
+    public static let userAgent = "User-Agent"
+    public static let wwwAuthenticate = "Www-Authenticate"
 }

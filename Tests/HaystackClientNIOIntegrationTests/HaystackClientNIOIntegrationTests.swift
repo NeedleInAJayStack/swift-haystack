@@ -1,14 +1,16 @@
 import XCTest
 import Haystack
-import HaystackClient
+import HaystackClientNIO
+import NIO
 
 /// To use these tests, run a [Haxall](https://github.com/haxall/haxall) server and set the username and password
 /// in the `HAYSTACK_USER` and `HAYSTACK_PASSWORD` environment variables
-final class HaystackClientIntegrationTests: XCTestCase {
+final class HaystackClientNIOIntegrationTests: XCTestCase {
     var client: Client = try! Client(
         baseUrl: "http://localhost:8080/api/",
         username: ProcessInfo.processInfo.environment["HAYSTACK_USER"] ?? "su",
-        password: ProcessInfo.processInfo.environment["HAYSTACK_PASSWORD"] ?? "su"
+        password: ProcessInfo.processInfo.environment["HAYSTACK_PASSWORD"] ?? "su",
+        eventLoopGroup: MultiThreadedEventLoopGroup(numberOfThreads: 1)
     )
     
     override func setUp() async throws {

@@ -16,8 +16,18 @@ let package = Package(
             targets: ["Haystack"]
         ),
         .library(
-            name: "HaystackClient",
-            targets: ["HaystackClient"]
+            name: "HaystackClientDarwin",
+            targets: [
+                "HaystackClient",
+                "HaystackClientDarwin"
+            ]
+        ),
+        .library(
+            name: "HaystackClientNIO",
+            targets: [
+                "HaystackClient",
+                "HaystackClientNIO"
+            ]
         ),
     ],
     dependencies: [
@@ -34,6 +44,20 @@ let package = Package(
             dependencies: [
                 "Haystack",
                 .product(name: "Crypto", package: "swift-crypto"),
+            ]
+        ),
+        .target(
+            name: "HaystackClientDarwin",
+            dependencies: [
+                "Haystack",
+                "HaystackClient",
+            ]
+        ),
+        .target(
+            name: "HaystackClientNIO",
+            dependencies: [
+                "Haystack",
+                "HaystackClient",
                 .product(name: "AsyncHTTPClient", package: "async-http-client"),
             ]
         ),
@@ -46,8 +70,12 @@ let package = Package(
             dependencies: ["HaystackClient"]
         ),
         .testTarget(
-            name: "HaystackClientIntegrationTests",
-            dependencies: ["HaystackClient"]
+            name: "HaystackClientNIOIntegrationTests",
+            dependencies: ["HaystackClientNIO"]
+        ),
+        .testTarget(
+            name: "HaystackClientDarwinIntegrationTests",
+            dependencies: ["HaystackClientDarwin"]
         ),
     ]
 )

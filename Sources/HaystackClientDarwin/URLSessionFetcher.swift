@@ -1,4 +1,5 @@
 import Foundation
+import HaystackClient
 
 // URLSession IS NOT AVAILABLE ON LINUX!
 struct URLSessionFetcher: Fetcher {
@@ -14,9 +15,9 @@ struct URLSessionFetcher: Fetcher {
         self.session = URLSession(configuration: sessionConfig)
     }
     
-    func fetch(_ request: Request) async throws -> Response {
+    func fetch(_ request: HaystackRequest) async throws -> HaystackResponse {
         guard let url = URL(string: request.url) else {
-            throw HaystackClientError.invalidUrl(request.url)
+            throw URLSessionFetcherError.invalidUrl(request.url)
         }
         
         var urlRequest = URLRequest(url: url)
@@ -36,7 +37,7 @@ struct URLSessionFetcher: Fetcher {
         urlRequest.addValue(request.headerUserAgent, forHTTPHeaderField: HTTPHeader.userAgent)
         let (data, responseGen) = try await session.data(for: urlRequest)
         let response = (responseGen as! HTTPURLResponse)
-        return Response(
+        return HaystackResponse(
             statusCode: response.statusCode,
             headerAuthenticationInfo: response.value(forHTTPHeaderField: HTTPHeader.authenticationInfo),
             headerContentType: response.value(forHTTPHeaderField: HTTPHeader.contentType),
@@ -44,4 +45,8 @@ struct URLSessionFetcher: Fetcher {
             data: data
         )
     }
+}
+
+public enum URLSessionFetcherError: Error {
+    case invalidUrl(String)
 }

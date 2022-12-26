@@ -1,22 +1,23 @@
-import Foundation
 import AsyncHTTPClient
+import HaystackClient
+import Foundation
 import NIO
 
-public extension HTTPClient {
+extension HTTPClient {
     func haystackFetcher() -> HTTPClientFetcher {
         return HTTPClientFetcher(self)
     }
 }
 
 // HTTPClient is available on all platforms but includes many more dependencies
-public struct HTTPClientFetcher: Fetcher {
+struct HTTPClientFetcher: Fetcher {
     let client: HTTPClient
     
     init(_ client: HTTPClient) {
         self.client = client
     }
     
-    func fetch(_ request: Request) async throws -> Response {
+    func fetch(_ request: HaystackRequest) async throws -> HaystackResponse {
         var httpClientRequest = HTTPClientRequest(url: request.url)
         
         switch request.method {
@@ -39,7 +40,7 @@ public struct HTTPClientFetcher: Fetcher {
             partialResult.append(byteBuffer.getData(at: 0, length: byteBuffer.readableBytes)!)
         })
         
-        return Response(
+        return HaystackResponse(
             statusCode: Int(response.status.code),
             headerAuthenticationInfo: response.headers.first(name: HTTPHeader.authenticationInfo),
             headerContentType: response.headers.first(name: HTTPHeader.contentType),
