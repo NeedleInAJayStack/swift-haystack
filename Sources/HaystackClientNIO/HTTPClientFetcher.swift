@@ -2,6 +2,7 @@ import AsyncHTTPClient
 import HaystackClient
 import Foundation
 import NIO
+import NIOFoundationCompat
 
 extension HTTPClient {
     func haystackFetcher() -> HTTPClientFetcher {
