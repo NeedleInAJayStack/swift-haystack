@@ -5,10 +5,10 @@ import PackageDescription
 let package = Package(
     name: "Haystack",
     platforms: [
-        .macOS(.v10_15),
-        .iOS(.v13),
-        .watchOS(.v6),
-        .tvOS(.v13),
+        .macOS(.v12),
+        .iOS(.v15),
+        .tvOS(.v15),
+        .watchOS(.v8)
     ],
     products: [
         .library(
@@ -61,6 +61,8 @@ let package = Package(
                 .product(name: "AsyncHTTPClient", package: "async-http-client"),
             ]
         ),
+        
+        // Tests
         .testTarget(
             name: "HaystackTests",
             dependencies: ["Haystack"]
