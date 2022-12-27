@@ -4,13 +4,17 @@ on:
   push: { branches: [ main ] }
 
 jobs:
-  test:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+  darwin-test:
+    runs-on: macos-latest
     steps:
       - uses: fwal/setup-swift@v1
       - uses: actions/checkout@v2
-      - name: Run tests
-        run: swift test
+      - name: Darwin build & test
+        run: swift test --skip IntegrationTests
+  linux-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: fwal/setup-swift@v1
+      - uses: actions/checkout@v2
+      - name: Linux build
+        run: swift build --target HaystackClientNIO
