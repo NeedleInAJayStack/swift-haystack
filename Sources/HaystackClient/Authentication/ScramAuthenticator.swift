@@ -1,30 +1,33 @@
-import CryptoKit
+import Crypto
 import Foundation
 
-@available(macOS 13.0, *)
 struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
-    let url: URL
+    let url: String
     let username: String
     let password: String
     let handshakeToken: String
-    let session: URLSession
+    let fetcher: Fetcher
     
     init(
-        url: URL,
+        url: String,
         username: String,
         password: String,
         handshakeToken: String,
-        session: URLSession
+        fetcher: Fetcher
     ) {
-        self.url = url
+        var urlWithSlash = url
+        if !urlWithSlash.hasSuffix("/") {
+            urlWithSlash += "/"
+        }
+        self.url = urlWithSlash
         self.username = username
         self.password = password
         self.handshakeToken = handshakeToken
-        self.session = session
+        self.fetcher = fetcher
     }
     
     func getAuthToken() async throws -> String {
-        let aboutUrl = url.appending(path: "about")
+        let aboutUrl = url + "about"
         
         let scram = ScramClient(
             hash: Hash.self,
@@ -36,25 +39,23 @@ struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
         
         // Client Initiation
         let clientFirstMessage = scram.clientFirstMessage()
-        var firstRequest = URLRequest(url: aboutUrl)
-        firstRequest.addValue(
-            AuthMessage(
-                scheme: "scram",
-                attributes: [
-                    "handshakeToken": handshakeToken,
-                    "data": clientFirstMessage.encodeBase64UrlSafe()
-                ]
-            ).description,
-            forHTTPHeaderField: HTTPHeader.authorization
+        let firstRequest = HaystackRequest(
+            url: aboutUrl,
+            headerAuthorization: AuthMessage(
+                    scheme: "scram",
+                    attributes: [
+                        "handshakeToken": handshakeToken,
+                        "data": clientFirstMessage.encodeBase64UrlSafe()
+                    ]
+                ).description
         )
-        let (_, firstResponseGen) = try await session.data(for: firstRequest)
-        let firstResponse = (firstResponseGen as! HTTPURLResponse)
+        let firstResponse = try await fetcher.fetch(firstRequest)
         
         // Server Initiation Response
         guard firstResponse.statusCode == 401 else {
             throw ScramAuthenticatorError.FirstResponseStatusIsNot401(firstResponse.statusCode)
         }
-        guard let firstResponseHeaderString = firstResponse.value(forHTTPHeaderField: HTTPHeader.wwwAuthenticate) else {
+        guard let firstResponseHeaderString = firstResponse.headerWwwAuthenticate else {
             throw ScramAuthenticatorError.FirstResponseNoHeaderWwwAuthenticate
         }
         let firstResponseAuth = try AuthMessage.from(firstResponseHeaderString)
@@ -80,25 +81,23 @@ struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
         
         // Client Continuation
         let clientFinalMessage = try scram.clientFinalMessage(serverFirstMessage: serverFirstMessage)
-        var finalRequest = URLRequest(url: aboutUrl)
-        finalRequest.addValue(
-            AuthMessage(
-                scheme: "scram",
-                attributes: [
-                    "handshakeToken": handshakeToken2,
-                    "data": clientFinalMessage.encodeBase64UrlSafe()
-                ]
-            ).description,
-            forHTTPHeaderField: HTTPHeader.authorization
+        let finalRequest = HaystackRequest(
+            url: aboutUrl,
+            headerAuthorization: AuthMessage(
+                    scheme: "scram",
+                    attributes: [
+                        "handshakeToken": handshakeToken2,
+                        "data": clientFinalMessage.encodeBase64UrlSafe()
+                    ]
+                ).description
         )
-        let (_, finalResponseGen) = try await session.data(for: finalRequest)
-        let finalResponse = (finalResponseGen as! HTTPURLResponse)
+        let finalResponse = try await fetcher.fetch(finalRequest)
         
         // Final Server Message
         guard finalResponse.statusCode == 200 else {
             throw ScramAuthenticatorError.authFailedWithHttpCode(finalResponse.statusCode)
         }
-        guard let finalResponseHeaderString = finalResponse.value(forHTTPHeaderField: HTTPHeader.authenticationInfo) else {
+        guard let finalResponseHeaderString = finalResponse.headerAuthenticationInfo else {
             throw ScramAuthenticatorError.SecondResponseNoHeaderAuthenticationInfo
         }
         let finalResponseAttributes = extractNameValuePairs(from: finalResponseHeaderString)

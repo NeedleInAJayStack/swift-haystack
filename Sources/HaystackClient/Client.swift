@@ -1,8 +1,7 @@
-import CryptoKit
+import Crypto
 import Haystack
 import Foundation
 
-@available(macOS 13.0, *)
 /// A Haystack API client. Once created, call the `open` method to connect.
 ///
 /// ```swift
@@ -16,11 +15,11 @@ import Foundation
 /// await try client.close()
 /// ```
 public class Client {
-    let baseUrl: URL
+    let baseUrl: String
     let username: String
     let password: String
     let format: DataFormat
-    let session: URLSession
+    let fetcher: Fetcher
     
     /// Set when `open` is called.
     private var authToken: String? = nil
@@ -35,39 +34,37 @@ public class Client {
     ///   - password: The password to authenticate with
     ///   - format: The transfer data format. Defaults to `zinc` to reduce data transfer.
     public init(
-        baseUrl: URL,
+        baseUrl: String,
         username: String,
         password: String,
-        format: DataFormat = .zinc
+        format: DataFormat = .zinc,
+        fetcher: Fetcher
     ) throws {
-        guard !baseUrl.isFileURL else {
-            throw HaystackClientError.baseUrlCannotBeFile
+        var urlWithSlash = baseUrl
+        if !urlWithSlash.hasSuffix("/") {
+            urlWithSlash += "/"
         }
-        self.baseUrl = baseUrl
+        self.baseUrl = urlWithSlash
         self.username = username
         self.password = password
         self.format = format
-        
-        // Disable all cookies, otherwise haystack thinks we're a browser client
-        // and asks for an Attest-Key header
-        let sessionConfig = URLSessionConfiguration.ephemeral
-        sessionConfig.httpCookieAcceptPolicy = .never
-        sessionConfig.httpShouldSetCookies = false
-        sessionConfig.httpCookieStorage = nil
-        
-        self.session = URLSession(configuration: sessionConfig)
+        self.fetcher = fetcher
     }
     
     /// Authenticate the client and store the authentication token
     public func open() async throws {
-        let url = baseUrl.appending(path: "about")
+        let url = baseUrl + "about"
         
         // Hello
-        let helloRequestAuth = AuthMessage(scheme: "hello", attributes: ["username": username.encodeBase64UrlSafe()])
-        var helloRequest = URLRequest(url: url)
-        helloRequest.addValue(helloRequestAuth.description, forHTTPHeaderField: HTTPHeader.authorization)
-        let (_, helloResponse) = try await session.data(for: helloRequest)
-        guard let helloHeaderString = (helloResponse as! HTTPURLResponse).value(forHTTPHeaderField: HTTPHeader.wwwAuthenticate) else {
+        let helloRequest = HaystackRequest(
+            url: url,
+            headerAuthorization: AuthMessage(
+                scheme: "hello",
+                attributes: ["username": username.encodeBase64UrlSafe()]
+            ).description
+        )
+        let helloResponse = try await fetcher.fetch(helloRequest)
+        guard let helloHeaderString = helloResponse.headerWwwAuthenticate else {
             throw HaystackClientError.authHelloNoWwwAuthenticateHeader
         }
         let helloResponseAuth = try AuthMessage.from(helloHeaderString)
@@ -94,7 +91,7 @@ public class Client {
                     username: username,
                     password: password,
                     handshakeToken: handshakeToken,
-                    session: session
+                    fetcher: fetcher
                 )
             case .SHA512:
                 authenticator = ScramAuthenticator<SHA512>(
@@ -102,7 +99,7 @@ public class Client {
                     username: username,
                     password: password,
                     handshakeToken: handshakeToken,
-                    session: session
+                    fetcher: fetcher
                 )
             }
         // TODO: Implement PLAINTEXT auth scheme
@@ -499,76 +496,65 @@ public class Client {
     
     @discardableResult
     private func post(path: String, grid: Grid) async throws -> Grid {
-        let url = baseUrl.appending(path: path)
-        return try await execute(url: url, method: .POST, grid: grid)
+        let data: Data
+        switch format {
+        case .json:
+            data = try jsonEncoder.encode(grid)
+        case .zinc:
+            data = grid.toZinc().data(using: .utf8)! // Unwrap is safe b/c zinc is always UTF8 compatible
+        }
+        let headerContentType = format.contentTypeHeaderValue
+        return try await execute(
+            url: baseUrl + path,
+            method: .POST(contentType: headerContentType, data: data)
+        )
     }
     
     @discardableResult
     private func get(path: String, args: [String: any Val] = [:]) async throws -> Grid {
-        var url = baseUrl.appending(path: path)
+        var url = baseUrl + path
         // Adjust url based on GET args
         if !args.isEmpty {
-            var queryItems = [URLQueryItem]()
-            for (argName, argValue) in args {
-                queryItems.append(.init(name: argName, value: argValue.toZinc()))
+            let argStrings = args.map { (argName, argValue) in
+                "\(argName)=\(argValue.toZinc())"
             }
-            url = url.appending(queryItems: queryItems)
+            url += "?\(argStrings.joined(separator: "&"))"
         }
         return try await execute(url: url, method: .GET)
     }
     
-    private func execute(url: URL, method: HttpMethod, grid: Grid? = nil) async throws -> Grid {
-        var request = URLRequest(url: url)
-        request.httpMethod = method.rawValue
-        
-        if method == .POST, let grid = grid {
-            let requestData: Data
-            switch format {
-            case .json:
-                requestData = try jsonEncoder.encode(grid)
-            case .zinc:
-                requestData = grid.toZinc().data(using: .utf8)! // Unwrap is safe b/c zinc is always UTF8 compatible
-            }
-            request.addValue(format.contentTypeHeaderValue, forHTTPHeaderField: HTTPHeader.contentType)
-            request.httpBody = requestData
-        }
-        
+    private func execute(url: String, method: HaystackHttpMethod) async throws -> Grid {
         // Set auth token header
         guard let authToken = authToken else {
             throw HaystackClientError.notLoggedIn
         }
-        request.addValue(
-            AuthMessage(scheme: "Bearer", attributes: ["authToken": authToken]).description,
-            forHTTPHeaderField: HTTPHeader.authorization
+        let headerAuthorization = AuthMessage(scheme: "Bearer", attributes: ["authToken": authToken]).description
+        
+        let request = HaystackRequest(
+            method: method,
+            url: url,
+            headerAuthorization: headerAuthorization,
+            headerAccept: format.acceptHeaderValue
         )
-        // See Content Negotiation: https://haxall.io/doc/docHaystack/HttpApi.html#contentNegotiation
-        request.addValue(format.acceptHeaderValue, forHTTPHeaderField: HTTPHeader.accept)
-        request.addValue(userAgentHeaderValue, forHTTPHeaderField: HTTPHeader.userAgent)
-        let (data, responseGen) = try await session.data(for: request)
-        let response = (responseGen as! HTTPURLResponse)
+        let response = try await fetcher.fetch(request)
         guard response.statusCode == 200 else {
             throw HaystackClientError.requestFailed(
                 httpCode: response.statusCode,
-                message: String(data: data, encoding: .utf8)
+                message: String(data: response.data, encoding: .utf8)
             )
         }
         guard
-            let contentType = response.value(forHTTPHeaderField: HTTPHeader.contentType),
+            let contentType = response.headerContentType,
             contentType.hasPrefix(format.acceptHeaderValue)
         else {
             throw HaystackClientError.responseIsNotZinc
         }
         switch format {
         case .json:
-            return try jsonDecoder.decode(Grid.self, from: data)
+            return try jsonDecoder.decode(Grid.self, from: response.data)
         case .zinc:
-            return try ZincReader(data).readGrid()
+            return try ZincReader(response.data).readGrid()
         }
-    }
-    
-    private enum HttpMethod: String {
-        case GET
-        case POST
     }
 }
 
@@ -582,6 +568,7 @@ enum HaystackClientError: Error {
     case authMechanismNotRecognized(String)
     case authMechanismNotImplemented(AuthMechanism)
     case baseUrlCannotBeFile
+    case invalidUrl(String)
     case notLoggedIn
     case pointWriteLevelIsNotIntBetween1And17
     case responseIsNotZinc
@@ -592,11 +579,11 @@ enum AuthMechanism: String {
     case SCRAM
 }
 
-enum HTTPHeader {
-    static let accept = "Accept"
-    static let authenticationInfo = "Authentication-Info"
-    static let authorization = "Authorization"
-    static let contentType = "Content-Type"
-    static let userAgent = "User-Agent"
-    static let wwwAuthenticate = "Www-Authenticate"
+public enum HTTPHeader {
+    public static let accept = "Accept"
+    public static let authenticationInfo = "Authentication-Info"
+    public static let authorization = "Authorization"
+    public static let contentType = "Content-Type"
+    public static let userAgent = "User-Agent"
+    public static let wwwAuthenticate = "Www-Authenticate"
 }
