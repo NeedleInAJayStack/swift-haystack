@@ -10,7 +10,7 @@ import Foundation
 public struct Dict: Val {
     public static var valType: ValType { .Dict }
     
-    public static func empty() -> Dict {
+    public static var empty: Dict {
         return Dict([:])
     }
     

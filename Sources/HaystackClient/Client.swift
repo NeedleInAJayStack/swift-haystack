@@ -120,7 +120,7 @@ public class Client: API {
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#about
     public func about() async throws -> Dict {
-        return try await post(path: "about").first ?? Dict.empty()
+        return try await post(path: "about").first ?? Dict.empty
     }
     
     /// Queries def dicts from the current namespace
