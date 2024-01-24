@@ -11,6 +11,10 @@ import Foundation
 public struct Grid: Val {
     public static var valType: ValType { .Grid }
     
+    public static var empty: Grid {
+        return Self(meta: .empty, cols: [], rows: [])
+    }
+    
     public let meta: Dict
     public let cols: [Col]
     public let rows: [Dict]
