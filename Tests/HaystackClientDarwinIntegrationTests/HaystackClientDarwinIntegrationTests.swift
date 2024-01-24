@@ -1,5 +1,6 @@
 import XCTest
 import Haystack
+import HaystackAPI
 import HaystackClientDarwin
 
 /// To use these tests, run a [Haxall](https://github.com/haxall/haxall) server and set the username and password

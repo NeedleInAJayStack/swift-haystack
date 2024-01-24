@@ -1,4 +1,5 @@
 import Foundation
+import HaystackAPI
 import HaystackClient
 
 public extension Client {

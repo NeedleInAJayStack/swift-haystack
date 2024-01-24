@@ -1,5 +1,6 @@
 import XCTest
 import Haystack
+import HaystackAPI
 import HaystackClientNIO
 import NIO
 

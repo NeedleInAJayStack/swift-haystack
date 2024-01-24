@@ -1,4 +1,5 @@
 import Foundation
+import HaystackAPI
 
 /// A protocol that abstracts HTTP data retrieval for Haystack.
 public protocol Fetcher {

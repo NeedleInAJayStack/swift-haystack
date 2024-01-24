@@ -1,4 +1,5 @@
 import AsyncHTTPClient
+import HaystackAPI
 import HaystackClient
 import Foundation
 import NIO

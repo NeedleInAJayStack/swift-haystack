@@ -1,5 +1,6 @@
 import Crypto
 import Haystack
+import HaystackAPI
 import Foundation
 
 /// A Haystack API client. Once created, call the `open` method to connect.
@@ -252,7 +253,7 @@ public class Client {
     ///   - range: A date-time range
     /// - Returns: A grid whose rows represent timetamp/value pairs with a DateTime ts column and a val column for each scalar value
     public func hisRead(id: Ref, range: HisReadRange) async throws -> Grid {
-        return try await post(path: "hisRead", args: ["id": id, "range": range.toRequestString()])
+        return try await post(path: "hisRead", args: ["id": id, "range": range.toString()])
     }
     
     /// Posts new time-series data to a historized point

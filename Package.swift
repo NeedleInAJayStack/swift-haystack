@@ -40,9 +40,16 @@ let package = Package(
             dependencies: []
         ),
         .target(
+            name: "HaystackAPI",
+            dependencies: [
+                "Haystack",
+            ]
+        ),
+        .target(
             name: "HaystackClient",
             dependencies: [
                 "Haystack",
+                "HaystackAPI",
                 .product(name: "Crypto", package: "swift-crypto"),
             ]
         ),
@@ -50,6 +57,7 @@ let package = Package(
             name: "HaystackClientDarwin",
             dependencies: [
                 "Haystack",
+                "HaystackAPI",
                 "HaystackClient",
             ]
         ),
@@ -57,6 +65,7 @@ let package = Package(
             name: "HaystackClientNIO",
             dependencies: [
                 "Haystack",
+                "HaystackAPI",
                 "HaystackClient",
                 .product(name: "AsyncHTTPClient", package: "async-http-client"),
             ]

@@ -1,9 +1,6 @@
-/// Haystack data serialization formats. For more information, see
-/// https://project-haystack.org/doc/docHaystack/HttpApi#contentNegotiation
-public enum DataFormat: String {
-    case json
-    case zinc
-    
+import HaystackAPI
+
+extension DataFormat {
     // See Content Negotiation: https://haxall.io/doc/docHaystack/HttpApi.html#contentNegotiation
     var acceptHeaderValue: String {
         switch self {

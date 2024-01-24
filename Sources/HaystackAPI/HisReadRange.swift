@@ -9,7 +9,7 @@ public enum HisReadRange {
     case dateTimeRange(from: DateTime, to: DateTime)
     case after(DateTime)
     
-    func toRequestString() -> String {
+    public func toString() -> String {
         switch self {
         case .today: return "today"
         case .yesterday: return "yesterday"
