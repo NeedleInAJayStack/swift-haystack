@@ -75,12 +75,12 @@ final class HaystackClientDarwinIntegrationTests: XCTestCase {
     }
     
     func testHisWrite() async throws {
-        print(try await client.hisWrite(
+        try await client.hisWrite(
             id: Ref("28e7fb7d-e20316e0"),
             items: [
                 HisItem(ts: DateTime("2022-01-01T00:00:00-07:00 Denver"), val: Number(14))
             ]
-        ).toZinc())
+        )
     }
     
     func testEval() async throws {

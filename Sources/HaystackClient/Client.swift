@@ -15,7 +15,7 @@ import Foundation
 /// let about = await try client.about()
 /// await try client.close()
 /// ```
-public class Client {
+public class Client: API {
     let baseUrl: String
     let username: String
     let password: String
@@ -119,8 +119,8 @@ public class Client {
     /// Queries basic information about the server
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#about
-    public func about() async throws -> Grid {
-        return try await post(path: "about")
+    public func about() async throws -> Dict {
+        return try await post(path: "about").first ?? Dict.empty()
     }
     
     /// Queries def dicts from the current namespace
@@ -263,8 +263,7 @@ public class Client {
     /// - Parameters:
     ///   - id: The identifier of the point to write to
     ///   - items: New timestamp/value samples to write
-    /// - Returns: An empty grid
-    public func hisWrite(id: Ref, items: [HisItem]) async throws -> Grid {
+    public func hisWrite(id: Ref, items: [HisItem]) async throws {
         let builder = GridBuilder()
         builder.setMeta(["id": id])
         try builder.addCol(name: "ts")
@@ -272,7 +271,7 @@ public class Client {
         for item in items {
             try builder.addRow([item.ts, item.val])
         }
-        return try await post(path: "hisWrite", grid: builder.toGrid())
+        try await post(path: "hisWrite", grid: builder.toGrid())
     }
     
     /// Write to a given level of a writable point's priority array
@@ -285,14 +284,13 @@ public class Client {
     ///   - val: Value to write or null to auto the level
     ///   - who: Username/application name performing the write, otherwise authenticated user display name is used
     ///   - duration: Number with duration unit if setting level 8
-    /// - Returns: An empty grid
     public func pointWrite(
         id: Ref,
         level: Number,
         val: any Val,
         who: String? = nil,
         duration: Number? = nil
-    ) async throws -> Grid {
+    ) async throws {
         // level must be int between 1 & 17, check duration is duration unit and is present when level is 8
         guard
             level.isInt,
@@ -315,7 +313,7 @@ public class Client {
             args["duration"] = duration
         }
         
-        return try await post(path: "pointWrite", args: args)
+        try await post(path: "pointWrite", args: args)
     }
     
     /// Read the current status of a writable point's priority array
@@ -395,11 +393,10 @@ public class Client {
     /// - Parameters:
     ///   - watchId: Watch identifier
     ///   - ids: Ref values for each entity to unsubscribe. If empty the entire watch is closed.
-    /// - Returns: An empty grid
     public func watchUnsub(
         watchId: String,
         ids: [Ref]
-    ) async throws -> Grid {
+    ) async throws {
         var gridMeta: [String: any Val] = ["watchId": watchId]
         if ids.isEmpty {
             gridMeta["close"] = marker
@@ -412,7 +409,7 @@ public class Client {
             try builder.addRow([id])
         }
         
-        return try await post(path: "watchUnsub", grid: builder.toGrid())
+        try await post(path: "watchUnsub", grid: builder.toGrid())
     }
     
     /// Used to poll a watch for changes to the subscribed entity records
@@ -447,7 +444,7 @@ public class Client {
     public func invokeAction(
         id: Ref,
         action: String,
-        args: [String: any Val]
+        args: Dict
     ) async throws -> Grid {
         let gridMeta: [String: any Val] = [
             "id": id,
@@ -456,7 +453,7 @@ public class Client {
         let builder = GridBuilder()
         builder.setMeta(gridMeta)
         var row = [any Val]()
-        for (argName, argVal) in args {
+        for (argName, argVal) in args.elements {
             try builder.addCol(name: argName)
             row.append(argVal)
         }
