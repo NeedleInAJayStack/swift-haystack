@@ -111,4 +111,19 @@ final class GridTests: XCTestCase {
             builder2.toGrid()
         )
     }
+    
+    func testCollection() throws {
+        let grid = try GridBuilder()
+            .setMeta(["ver": "3.0", "foo": "bar"])
+            .addCol(name: "dis", meta: ["dis": "Equip Name"])
+            .addCol(name: "equip")
+            .addCol(name: "siteRef")
+            .addCol(name: "managed")
+            .addRow(["RTU-1", marker, Ref("153c-699a", dis: "HQ"), true])
+            .addRow(["RTU-2", marker, Ref("153c-699b", dis: "Library"), false])
+            .toGrid()
+        
+        try XCTAssertEqual(grid[0], Dict(["dis": "RTU-1", "equip": marker, "siteRef": Ref("153c-699a", dis: "HQ"), "managed": true]))
+        try XCTAssertEqual(grid[1], Dict(["dis": "RTU-2", "equip": marker, "siteRef": Ref("153c-699b", dis: "Library"), "managed": false]))
+    }
 }

@@ -15,10 +15,17 @@ public struct Grid: Val {
     public let cols: [Col]
     public let rows: [Dict]
     
+    // Collection conformance
+    public var startIndex: Int
+    public var endIndex: Int
+    
     init(meta: Dict, cols: [Col], rows: [Dict]) {
         self.meta = meta
         self.cols = cols
         self.rows = rows
+        
+        self.startIndex = 0
+        self.endIndex = rows.count - 1
     }
     
     /// Converts to Zinc formatted string.
@@ -76,6 +83,10 @@ extension Grid {
     /// Read from decodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#grid)
     public init(from decoder: Decoder) throws {
+        let meta: Dict
+        let cols: [Col]
+        let rows: [Dict]
+        
         if let container = try? decoder.container(keyedBy: Self.CodingKeys) {
             guard try container.decode(String.self, forKey: ._kind) == Self.kindValue else {
                 throw DecodingError.typeMismatch(
@@ -87,14 +98,14 @@ extension Grid {
                 )
             }
             
-            self.meta = try container.decode(Dict.self, forKey: .meta)
-            let cols = try container.decode([Col].self, forKey: .cols)
-            if cols.map(\.name) == ["empty"] {
-                self.cols = []
-                self.rows = []
+            meta = try container.decode(Dict.self, forKey: .meta)
+            let decodedCols = try container.decode([Col].self, forKey: .cols)
+            if decodedCols.map(\.name) == ["empty"] {
+                cols = []
+                rows = []
             } else {
-                self.cols = cols
-                self.rows = try container.decode([Dict].self, forKey: .rows)
+                cols = decodedCols
+                rows = try container.decode([Dict].self, forKey: .rows)
             }
         } else {
             throw DecodingError.typeMismatch(
@@ -105,6 +116,8 @@ extension Grid {
                 )
             )
         }
+        
+        self.init(meta: meta, cols: cols, rows: rows)
     }
     
     /// Write to encodable data
@@ -174,5 +187,16 @@ public struct Col: Codable {
     public init(name: String, meta: Dict? = nil) {
         self.name = name
         self.meta = meta
+    }
+}
+
+extension Grid: Collection {
+    public subscript(position: Int) -> Dict {
+        get {
+            rows[position]
+        }
+    }
+    public func index(after i: Int) -> Int {
+        return i + 1
     }
 }
