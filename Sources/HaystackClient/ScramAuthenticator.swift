@@ -1,5 +1,6 @@
 import Crypto
 import Foundation
+import HaystackAPI
 
 struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
     let url: String

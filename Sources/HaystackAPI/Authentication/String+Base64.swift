@@ -1,6 +1,6 @@
 import Foundation
 
-extension String {
+public extension String {
     func encodeBase64Standard() -> String {
         return Data(self.utf8).base64EncodedString()
     }

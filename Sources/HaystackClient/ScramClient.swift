@@ -1,5 +1,6 @@
 import Crypto
 import Foundation
+import HaystackAPI
 
 @available(macOS 10.15, *)
 /// A Salted Challenge Response Authentication Mechanism (SCRAM) Client that is compatible with
@@ -163,24 +164,6 @@ class ScramClient<Hash: HashFunction> {
         clientNonce = clientNonce.encodeBase64UrlSafe()
         return clientNonce
     }
-}
-
-func extractNameValuePairs(from fieldsString: String) -> [String: String] {
-    // Example input: "hash=SHA-256, handshakeToken=aabbcc"
-    var attributes = [String: String]()
-    for pair in fieldsString.split(separator: ",") {
-        // If "=" does not exist, just parse the entire section as the name, and the value is ""
-        let assnIndex = pair.firstIndex(of: "=") ?? pair.endIndex
-        let name = String(pair[..<assnIndex]).trimmingCharacters(in: .whitespaces)
-        var value = String(pair[assnIndex...]).trimmingCharacters(in: .whitespaces)
-        if value.count > 0 {
-            // Remove "=" prefix
-            value.removeFirst()
-        }
-        
-        attributes[name] = value
-    }
-    return attributes
 }
 
 enum ScramClientError: Error {
