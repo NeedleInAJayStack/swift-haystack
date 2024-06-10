@@ -12,10 +12,11 @@ final class RefTests: XCTestCase {
         let value = try Ref("123-abc", dis: "Name")
         let jsonString = #"{"_kind":"ref","val":"123-abc","dis":"Name"}"#
         
+        // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
-            String(data: encodedData, encoding: .utf8),
-            jsonString
+            try JSONDecoder().decode(Ref.self, from: encodedData),
+            value
         )
         
         let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))

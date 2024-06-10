@@ -12,10 +12,11 @@ final class SymbolTests: XCTestCase {
         let value = try Symbol("tagName")
         let jsonString = #"{"_kind":"symbol","val":"tagName"}"#
         
+        // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
-            String(data: encodedData, encoding: .utf8),
-            jsonString
+            try JSONDecoder().decode(Symbol.self, from: encodedData),
+            value
         )
         
         let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))

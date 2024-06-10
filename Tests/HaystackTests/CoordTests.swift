@@ -13,10 +13,11 @@ final class CoordTests: XCTestCase {
         let value = try Coord(latitude: 40, longitude: -111.84)
         let jsonString = #"{"_kind":"coord","lat":40,"lng":-111.84}"#
         
+        // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
-            String(data: encodedData, encoding: .utf8),
-            jsonString
+            try JSONDecoder().decode(Coord.self, from: encodedData),
+            value
         )
         
         let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))

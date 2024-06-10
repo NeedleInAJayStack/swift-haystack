@@ -16,10 +16,11 @@ final class DateTimeTests: XCTestCase {
         )
         let jsonString = #"{"_kind":"dateTime","val":"1988-04-01T10:05:43.458-05:00","tz":"New_York"}"#
         
+        // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
-            String(data: encodedData, encoding: .utf8),
-            jsonString
+            try JSONDecoder().decode(DateTime.self, from: encodedData),
+            value
         )
         
         let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))
@@ -42,10 +43,11 @@ final class DateTimeTests: XCTestCase {
         )
         let jsonString = #"{"_kind":"dateTime","val":"1988-04-01T10:05:43-05:00","tz":"New_York"}"#
         
+        // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
-            String(data: encodedData, encoding: .utf8),
-            jsonString
+            try JSONDecoder().decode(DateTime.self, from: encodedData),
+            value
         )
         
         let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))
