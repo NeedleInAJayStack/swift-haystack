@@ -18,9 +18,9 @@ public extension Client {
         username: String,
         password: String,
         format: DataFormat = .zinc,
-        eventLoopGroup: EventLoopGroup
+        httpClient: HTTPClient
     ) throws {
-        let fetcher = HTTPClient(eventLoopGroupProvider: .shared(eventLoopGroup)).haystackFetcher()
+        let fetcher = httpClient.haystackFetcher()
         try self.init(
             baseUrl: baseUrl,
             username: username,
