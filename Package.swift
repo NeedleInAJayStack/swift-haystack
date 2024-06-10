@@ -2,6 +2,7 @@
 
 import PackageDescription
 
+#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(visionOS)
 let package = Package(
     name: "Haystack",
     platforms: [
@@ -81,3 +82,60 @@ let package = Package(
         ),
     ]
 )
+#else
+let package = Package(
+    name: "Haystack",
+    products: [
+        .library(
+            name: "Haystack",
+            targets: ["Haystack"]
+        ),
+        .library(
+            name: "HaystackClientNIO",
+            targets: [
+                "HaystackClient",
+                "HaystackClientNIO"
+            ]
+        ),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "3.0.0"),
+        .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.9.0")
+    ],
+    targets: [
+        .target(
+            name: "Haystack",
+            dependencies: []
+        ),
+        .target(
+            name: "HaystackClient",
+            dependencies: [
+                "Haystack",
+                .product(name: "Crypto", package: "swift-crypto"),
+            ]
+        ),
+        .target(
+            name: "HaystackClientNIO",
+            dependencies: [
+                "Haystack",
+                "HaystackClient",
+                .product(name: "AsyncHTTPClient", package: "async-http-client"),
+            ]
+        ),
+        
+        // Tests
+        .testTarget(
+            name: "HaystackTests",
+            dependencies: ["Haystack"]
+        ),
+        .testTarget(
+            name: "HaystackClientTests",
+            dependencies: ["HaystackClient"]
+        ),
+        .testTarget(
+            name: "HaystackClientNIOIntegrationTests",
+            dependencies: ["HaystackClientNIO"]
+        ),
+    ]
+)
+#endif
