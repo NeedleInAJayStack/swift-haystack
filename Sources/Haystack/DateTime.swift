@@ -206,7 +206,7 @@ extension DateTime {
     /// Read from decodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#dateTime)
     public init(from decoder: Decoder) throws {
-        guard let container = try? decoder.container(keyedBy: Self.CodingKeys) else {
+        guard let container = try? decoder.container(keyedBy: Self.CodingKeys.self) else {
             throw DecodingError.typeMismatch(
                 Self.self,
                 .init(
@@ -248,7 +248,7 @@ extension DateTime {
     /// Write to encodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#dateTime)
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: Self.CodingKeys)
+        var container = encoder.container(keyedBy: Self.CodingKeys.self)
         try container.encode(Self.kindValue, forKey: ._kind)
         let isoString: String
         if hasMilliseconds {
