@@ -81,11 +81,12 @@ Here's an example of how to use it:
 import HaystackClientNIO
 
 func client() throws -> Client {
+    let httpClient = HTTPClient(eventLoopGroupProvider: .createNew)
     return try Client(
         baseUrl: "http://mydomain.com/api/",
         username: "username",
         password: "password",
-        eventLoopGroup: MultiThreadedEventLoopGroup(numberOfThreads: 1)
+        httpClient: httpClient
     )
 }
 ```
