@@ -6,10 +6,11 @@ final class TimeTests: XCTestCase {
         let value = try Time(hour: 7, minute: 7, second: 7, millisecond: 7)
         let jsonString = #"{"_kind":"time","val":"07:07:07.007"}"#
         
+        // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
-            String(data: encodedData, encoding: .utf8),
-            jsonString
+            try JSONDecoder().decode(Haystack.Time.self, from: encodedData),
+            value
         )
         
         let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))
@@ -23,10 +24,11 @@ final class TimeTests: XCTestCase {
         let value = try Time(hour: 7, minute: 7, second: 7, millisecond: 0)
         let jsonString = #"{"_kind":"time","val":"07:07:07"}"#
         
+        // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
-            String(data: encodedData, encoding: .utf8),
-            jsonString
+            try JSONDecoder().decode(Haystack.Time.self, from: encodedData),
+            value
         )
         
         let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))

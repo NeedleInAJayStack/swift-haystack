@@ -39,7 +39,7 @@ extension Coord: Codable {
     /// Read from decodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#coord)
     public init(from decoder: Decoder) throws {
-        if let container = try? decoder.container(keyedBy: Self.CodingKeys) {
+        if let container = try? decoder.container(keyedBy: Self.CodingKeys.self) {
             guard try container.decode(String.self, forKey: ._kind) == Self.kindValue else {
                 throw DecodingError.typeMismatch(
                     Self.self,
@@ -68,7 +68,7 @@ extension Coord: Codable {
     /// Write to encodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#coord)
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: Self.CodingKeys)
+        var container = encoder.container(keyedBy: Self.CodingKeys.self)
         try container.encode(Self.kindValue, forKey: ._kind)
         try container.encode(latitude, forKey: .lat)
         try container.encode(longitude, forKey: .lng)

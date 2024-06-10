@@ -15,8 +15,7 @@ final class DictTests: XCTestCase {
         
         let jsonString = #"{"bool":true,"str":"abc","number":{"_kind":"number","val":42,"unit":"furloghs"},"dict":{"bool":false,"str":"xyz"}}"#
         
-        // Since Swift doesn't guarantee JSON attribute ordering, we must round-trip this instead of
-        // comparing to the string
+        // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
             try JSONDecoder().decode(Dict.self, from: encodedData),

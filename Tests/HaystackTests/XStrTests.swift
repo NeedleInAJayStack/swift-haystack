@@ -12,10 +12,11 @@ final class XStrTests: XCTestCase {
         let value = try XStr(type: "Span", val: "today")
         let jsonString = #"{"_kind":"xstr","type":"Span","val":"today"}"#
         
+        // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
-            String(data: encodedData, encoding: .utf8),
-            jsonString
+            try JSONDecoder().decode(XStr.self, from: encodedData),
+            value
         )
         
         let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))

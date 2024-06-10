@@ -14,8 +14,7 @@ final class GridTests: XCTestCase {
             .toGrid()
         let jsonString = #"{"_kind":"grid","meta":{"ver":"3.0","foo":"bar"},"cols":[{"name":"dis","meta":{"dis":"Equip Name"}},{"name":"equip"},{"name":"siteRef"},{"name":"installed"}],"rows":[{"dis":"RTU-1","equip":{"_kind":"marker"},"siteRef":{"_kind":"ref","val":"153c-699a","dis":"HQ"},"installed":{"_kind":"date","val":"2005-06-01"}},{"dis": "RTU-2","equip":{"_kind":"marker"},"siteRef":{"_kind":"ref","val":"153c-699b","dis":"Library"},"installed":{"_kind":"date","val":"1997-07-12"}}]}"#
         
-        // Since Swift doesn't guarantee JSON attribute ordering, we must round-trip this instead of
-        // comparing to the string
+        // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
             try JSONDecoder().decode(Grid.self, from: encodedData),
@@ -33,8 +32,7 @@ final class GridTests: XCTestCase {
         let value = GridBuilder().toGrid()
         let jsonString = #"{"_kind":"grid","meta":{"ver":"3.0"},"cols":[{"name":"empty"}],"rows":[]}"#
         
-        // Since Swift doesn't guarantee JSON attribute ordering, we must round-trip this instead of
-        // comparing to the string
+        // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
             try JSONDecoder().decode(Grid.self, from: encodedData),

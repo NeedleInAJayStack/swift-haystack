@@ -14,10 +14,11 @@ final class ListTests: XCTestCase {
         ]
         let jsonString = #"[true,"abc",{"_kind":"number","val":42,"unit":"furloghs"},[false,"xyz"]]"#
         
+        // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
-            String(data: encodedData, encoding: .utf8),
-            jsonString
+            try JSONDecoder().decode(List.self, from: encodedData),
+            value
         )
         
         let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))

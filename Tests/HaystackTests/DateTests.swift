@@ -10,10 +10,11 @@ final class DateTests: XCTestCase {
         )
         let jsonString = #"{"_kind":"date","val":"1991-06-07"}"#
         
+        // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
-            String(data: encodedData, encoding: .utf8),
-            jsonString
+            try JSONDecoder().decode(Date.self, from: encodedData),
+            value
         )
         
         let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))

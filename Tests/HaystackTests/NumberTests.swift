@@ -13,10 +13,11 @@ final class NumberTests: XCTestCase {
         let value = Number(12.199, unit: "kWh")
         let jsonString = #"{"_kind":"number","val":12.199,"unit":"kWh"}"#
         
+        // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
-            String(data: encodedData, encoding: .utf8),
-            jsonString
+            try JSONDecoder().decode(Number.self, from: encodedData),
+            value
         )
         
         let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))
@@ -46,11 +47,12 @@ final class NumberTests: XCTestCase {
     func testJsonCoding_infinity() throws {
         let value = Number(.infinity)
         let jsonString = #"{"_kind":"number","val":"INF"}"#
-
+        
+        // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
-            String(data: encodedData, encoding: .utf8),
-            jsonString
+            try JSONDecoder().decode(Number.self, from: encodedData),
+            value
         )
 
         let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))
