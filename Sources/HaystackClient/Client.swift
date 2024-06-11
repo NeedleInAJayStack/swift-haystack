@@ -587,3 +587,16 @@ public enum HTTPHeader {
     public static let userAgent = "User-Agent"
     public static let wwwAuthenticate = "Www-Authenticate"
 }
+
+extension HisReadRange {
+    func toRequestString() -> String {
+        switch self {
+        case .today: return "today"
+        case .yesterday: return "yesterday"
+        case let .date(date): return "\(date.toZinc())"
+        case let .dateRange(fromDate, toDate): return "\(fromDate.toZinc()),\(toDate.toZinc())"
+        case let .dateTimeRange(fromDateTime, toDateTime): return "\(fromDateTime.toZinc()),\(toDateTime.toZinc())"
+        case let .after(dateTime): return "\(dateTime.toZinc())"
+        }
+    }
+}
