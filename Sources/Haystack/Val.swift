@@ -15,6 +15,13 @@ extension Val {
         
         return self == otherAsMyType
     }
+    
+    func coerce<T: Val>(to: T.Type) throws -> T {
+        guard let coercedSelf = self as? T else {
+            throw ValError.cannotBeCoerced(self.toZinc(), T.valType)
+        }
+        return coercedSelf
+    }
 }
 
 

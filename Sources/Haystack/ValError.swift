@@ -1,5 +1,6 @@
 
 public enum ValError: Error {
+    case cannotBeCoerced(String, ValType)
     case invalidDateDefinition
     case invalidDateFormat(String)
     case invalidDateTimeDefinition
