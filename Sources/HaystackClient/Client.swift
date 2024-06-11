@@ -14,7 +14,7 @@ import Foundation
 /// let about = await try client.about()
 /// await try client.close()
 /// ```
-public class Client {
+public class Client: API {
     let baseUrl: String
     let username: String
     let password: String
