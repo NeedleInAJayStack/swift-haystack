@@ -437,6 +437,8 @@ public class Client: API {
         return try await post(path: "watchPoll", grid: builder.toGrid())
     }
     
+    /// Used to invoke a user action on a target record
+    ///
     /// https://project-haystack.org/doc/docHaystack/Ops#invokeAction
     /// - Parameters:
     ///   - id: Identifier of target rec
