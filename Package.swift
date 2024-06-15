@@ -30,10 +30,17 @@ let package = Package(
                 "HaystackClientNIO"
             ]
         ),
+        .library(
+            name: "HaystackServer",
+            targets: [
+                "HaystackServer"
+            ]
+        ),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "3.0.0"),
-        .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.9.0")
+        .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.9.0"),
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
     ],
     targets: [
         .target(
@@ -60,6 +67,13 @@ let package = Package(
                 "Haystack",
                 "HaystackClient",
                 .product(name: "AsyncHTTPClient", package: "async-http-client"),
+            ]
+        ),
+        .target(
+            name: "HaystackServer",
+            dependencies: [
+                "Haystack",
+                .product(name: "Vapor", package: "vapor")
             ]
         ),
         
@@ -97,10 +111,17 @@ let package = Package(
                 "HaystackClientNIO"
             ]
         ),
+        .library(
+            name: "HaystackServer",
+            targets: [
+                "HaystackServer"
+            ]
+        ),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-crypto.git", "1.0.0" ..< "3.0.0"),
-        .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.9.0")
+        .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.9.0"),
+        .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
     ],
     targets: [
         .target(
@@ -120,6 +141,13 @@ let package = Package(
                 "Haystack",
                 "HaystackClient",
                 .product(name: "AsyncHTTPClient", package: "async-http-client"),
+            ]
+        ),
+        .target(
+            name: "HaystackServer",
+            dependencies: [
+                "Haystack",
+                .product(name: "Vapor", package: "vapor")
             ]
         ),
         
