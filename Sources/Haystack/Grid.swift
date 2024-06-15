@@ -167,9 +167,9 @@ extension Grid {
     }
 }
 
-public struct Col: Codable {
-    let name: String
-    let meta: Dict?
+public struct Col: Codable, Sendable {
+    public let name: String
+    public let meta: Dict?
     
     public init(name: String, meta: Dict? = nil) {
         self.name = name
