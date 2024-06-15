@@ -2,7 +2,7 @@ import Foundation
 
 /// Val represents the core functionality of Haystack types, specifically
 /// hashability, equatability, JSON coding, and zinc coding.
-public protocol Val: Codable, Hashable {
+public protocol Val: Codable, Hashable, Sendable {
     static var valType: ValType { get }
     func toZinc() -> String
 }
