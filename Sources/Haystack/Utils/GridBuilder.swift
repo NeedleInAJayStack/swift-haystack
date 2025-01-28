@@ -120,6 +120,21 @@ public class GridBuilder {
     }
     
     @discardableResult
+    /// Append a new row to the grid. Newly seen columns are added automatically with no metadata, although column ordering is not guaranteed.
+    /// - Parameter vals: The values of the row, in the same order as the columns.
+    /// - Returns: This instance for chaining
+    public func addRow(_ row: [String: any Val]) throws -> Self {
+        for (colName, _) in row {
+            if !colNames.contains(colName) {
+                try self.addCol(name: colName)
+            }
+        }
+        rows.append(row)
+        
+        return self
+    }
+    
+    @discardableResult
     /// Append a new row to the grid.
     /// - Parameter vals: The values of the row, in the same order as the columns.
     /// - Returns: This instance for chaining

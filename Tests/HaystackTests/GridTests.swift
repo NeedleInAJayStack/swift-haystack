@@ -9,8 +9,8 @@ final class GridTests: XCTestCase {
             .addCol(name: "equip")
             .addCol(name: "siteRef")
             .addCol(name: "installed")
-            .addRow(["RTU-1", marker, Ref("153c-699a", dis: "HQ"), Date(year: 2005, month: 6, day: 1)])
-            .addRow(["RTU-2", marker, Ref("153c-699b", dis: "Library"), Date(year: 1997, month: 7, day: 12)])
+            .addRow(["dis": "RTU-1", "equip": marker, "siteRef": Ref("153c-699a", dis: "HQ"), "installed": Date(year: 2005, month: 6, day: 1)])
+            .addRow(["dis": "RTU-2", "equip": marker, "siteRef": Ref("153c-699b", dis: "Library"), "installed": Date(year: 1997, month: 7, day: 12)])
             .toGrid()
         let jsonString = #"{"_kind":"grid","meta":{"ver":"3.0","foo":"bar"},"cols":[{"name":"dis","meta":{"dis":"Equip Name"}},{"name":"equip"},{"name":"siteRef"},{"name":"installed"}],"rows":[{"dis":"RTU-1","equip":{"_kind":"marker"},"siteRef":{"_kind":"ref","val":"153c-699a","dis":"HQ"},"installed":{"_kind":"date","val":"2005-06-01"}},{"dis": "RTU-2","equip":{"_kind":"marker"},"siteRef":{"_kind":"ref","val":"153c-699b","dis":"Library"},"installed":{"_kind":"date","val":"1997-07-12"}}]}"#
         
@@ -54,8 +54,8 @@ final class GridTests: XCTestCase {
                 .addCol(name: "equip")
                 .addCol(name: "siteRef")
                 .addCol(name: "installed")
-                .addRow(["RTU-1", marker, Ref("153c-699a", dis: "HQ"), Date(year: 2005, month: 6, day: 1)])
-                .addRow(["RTU-2", marker, Ref("153c-699b", dis: "Library"), Date(year: 1997, month: 7, day: 12)])
+                .addRow(["dis": "RTU-1", "equip": marker, "siteRef": Ref("153c-699a", dis: "HQ"), "installed": Date(year: 2005, month: 6, day: 1)])
+                .addRow(["dis": "RTU-2", "equip": marker, "siteRef": Ref("153c-699b", dis: "Library"), "installed": Date(year: 1997, month: 7, day: 12)])
                 .toGrid()
                 .toZinc(),
             """
@@ -86,8 +86,8 @@ final class GridTests: XCTestCase {
             .addCol(name: "equip")
             .addCol(name: "siteRef")
             .addCol(name: "managed")
-            .addRow(["RTU-1", marker, Ref("153c-699a", dis: "HQ"), true])
-            .addRow(["RTU-2", marker, Ref("153c-699b", dis: "Library"), false])
+            .addRow(["dis": "RTU-1", "equip": marker, "siteRef": Ref("153c-699a", dis: "HQ"), "managed": true])
+            .addRow(["dis": "RTU-2", "equip": marker, "siteRef": Ref("153c-699b", dis: "Library"), "managed": false])
         
         let builder2 = try GridBuilder()
             .setMeta(["ver": "3.0", "foo": "bar"])
@@ -95,8 +95,8 @@ final class GridTests: XCTestCase {
             .addCol(name: "equip")
             .addCol(name: "siteRef")
             .addCol(name: "managed")
-            .addRow(["RTU-1", marker, Ref("153c-699a", dis: "HQ"), false])
-            .addRow(["RTU-2", marker, Ref("153c-699b", dis: "Library"), false])
+            .addRow(["dis": "RTU-1", "equip": marker, "siteRef": Ref("153c-699a", dis: "HQ"), "managed": false])
+            .addRow(["dis": "RTU-2", "equip": marker, "siteRef": Ref("153c-699b", dis: "Library"), "managed": false])
         
         
         // Test basic
