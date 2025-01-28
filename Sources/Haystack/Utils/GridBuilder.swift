@@ -59,7 +59,7 @@ public class GridBuilder {
     }
     
     @discardableResult
-    /// Append a new column to the grid. New columns may not be added if the builder contains rows.
+    /// Append a new column to the grid.
     /// - Parameters:
     ///   - name: The name of the new column
     ///   - meta: Column-level metadata for the new column
@@ -77,11 +77,17 @@ public class GridBuilder {
             colMeta[name] = meta
         }
         
+        rows = rows.map { row in
+            var newRow = row
+            newRow[name] = Null.val
+            return newRow
+        }
+        
         return self
     }
     
     @discardableResult
-    /// Append a list of new columns to the grid. New columns may not be added if the builder contains rows.
+    /// Append a list of new columns to the grid.
     /// - Parameters:
     ///   - names: The names of the new columns
     /// - Returns: This instance for chaining
@@ -114,7 +120,7 @@ public class GridBuilder {
     }
     
     @discardableResult
-    /// Append a new row to the grid. No new columns may be defined on the builder after calling this function.
+    /// Append a new row to the grid.
     /// - Parameter vals: The values of the row, in the same order as the columns.
     /// - Returns: This instance for chaining
     public func addRow(_ vals: [any Val]) throws -> Self {
@@ -131,7 +137,7 @@ public class GridBuilder {
     }
     
     @discardableResult
-    /// Append new rows to the grid. No new columns may be defined on the builder after calling this function.
+    /// Append new rows to the grid.
     /// - Parameter vals: The values of the rows, in the same order as the columns.
     /// - Returns: This instance for chaining
     public func addRows(_ rows: [[any Val]]) throws -> Self {
