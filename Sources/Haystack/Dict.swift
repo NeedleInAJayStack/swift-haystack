@@ -20,6 +20,34 @@ public struct Dict: Val {
         self.elements = elements
     }
     
+    public func trap(_ name: String) throws -> any Val {
+        guard let fieldVal = self.elements[name], !(fieldVal is Null) else {
+            throw DictError.tagNotFound(name)
+        }
+        return fieldVal
+    }
+    
+    public func trap<T: Val>(_ name: String, as: T.Type) throws -> T {
+        guard let fieldVal = self.elements[name], !(fieldVal is Null) else {
+            throw DictError.tagNotFound(name)
+        }
+        return try fieldVal.coerce(to: T.self)
+    }
+    
+    public func get(_ name: String) throws -> (any Val)? {
+        guard let fieldVal = self.elements[name], !(fieldVal is Null) else {
+            return nil
+        }
+        return fieldVal
+    }
+    
+    public func get<T: Val>(_ name: String, as: T.Type) throws -> T? {
+        guard let fieldVal = self.elements[name], !(fieldVal is Null) else {
+            return nil
+        }
+        return try fieldVal.coerce(to: T.self)
+    }
+    
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
@@ -166,4 +194,8 @@ extension Dict: ExpressibleByDictionaryLiteral {
         }
         self.elements = elements
     }
+}
+
+public enum DictError: Error {
+    case tagNotFound(String)
 }

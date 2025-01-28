@@ -130,4 +130,24 @@ final class DictTests: XCTestCase {
             ])
         )
     }
+    
+    func testTrap() {
+        let dict: Dict = ["a": "abc", "b": null]
+        
+        try XCTAssertNoThrow(dict.trap("a"))
+        try XCTAssertEqual(dict.trap("a", as: String.self), "abc")
+        try XCTAssertThrowsError(dict.trap("a", as: Number.self))
+        try XCTAssertThrowsError(dict.trap("b"))
+        try XCTAssertThrowsError(dict.trap("c"))
+    }
+    
+    func testGet() {
+        let dict: Dict = ["a": "abc", "b": null]
+        
+        try XCTAssertNotNil(dict.get("a"))
+        try XCTAssertEqual(dict.get("a", as: String.self), "abc")
+        try XCTAssertThrowsError(dict.get("a", as: Number.self))
+        try XCTAssertNil(dict.get("b"))
+        try XCTAssertNil(dict.get("c"))
+    }
 }
