@@ -81,6 +81,18 @@ public class GridBuilder {
     }
     
     @discardableResult
+    /// Append a list of new columns to the grid. New columns may not be added if the builder contains rows.
+    /// - Parameters:
+    ///   - names: The names of the new columns
+    /// - Returns: This instance for chaining
+    public func addCols(names: [String]) throws -> Self {
+        for name in names {
+            try self.addCol(name: name)
+        }
+        return self
+    }
+    
+    @discardableResult
     /// Set column-level metadata for an existing column
     /// - Parameters:
     ///   - name: The name of the existing column
@@ -115,6 +127,17 @@ public class GridBuilder {
             row[key] = val
         }
         rows.append(row)
+        return self
+    }
+    
+    @discardableResult
+    /// Append new rows to the grid. No new columns may be defined on the builder after calling this function.
+    /// - Parameter vals: The values of the rows, in the same order as the columns.
+    /// - Returns: This instance for chaining
+    public func addRows(_ rows: [[any Val]]) throws -> Self {
+        for row in rows {
+            try self.addRow(row)
+        }
         return self
     }
 }
