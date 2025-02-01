@@ -47,6 +47,20 @@ public struct Date: Val {
         )
     }
     
+    public func startOfDay(timezone: TimeZone?) -> Foundation.Date {
+        return DateComponents(
+            calendar: .current,
+            timeZone: timezone ?? .current,
+            year: year,
+            month: month,
+            day: day
+        ).date!
+    }
+    
+    public func endOfDay(timezone: TimeZone?) -> Foundation.Date {
+        return Calendar.current.date(byAdding: .day, value: 1, to: startOfDay(timezone: timezone))!
+    }
+    
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
