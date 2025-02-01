@@ -48,6 +48,10 @@ public struct Dict: Val {
         return try fieldVal.coerce(to: T.self)
     }
     
+    public func has(_ name: String) -> Bool {
+        return self.elements.keys.contains(name)
+    }
+    
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {

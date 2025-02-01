@@ -7,4 +7,8 @@ public struct HisItem {
         self.ts = ts
         self.val = val
     }
+    
+    public func toDict() -> Dict {
+        return ["ts": ts, "val": val]
+    }
 }
