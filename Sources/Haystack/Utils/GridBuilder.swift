@@ -161,6 +161,26 @@ public class GridBuilder {
         }
         return self
     }
+    
+    @discardableResult
+    /// Append a new row to the grid. Newly seen columns are added automatically with no metadata, although column ordering is not guaranteed.
+    /// - Parameter vals: The values of the row, in the same order as the columns.
+    /// - Returns: This instance for chaining
+    public func addRow(_ dict: Dict) throws -> Self {
+        try self.addRow(dict.elements)
+        return self
+    }
+    
+    @discardableResult
+    /// Append a new row to the grid. Newly seen columns are added automatically with no metadata, although column ordering is not guaranteed.
+    /// - Parameter vals: The values of the row, in the same order as the columns.
+    /// - Returns: This instance for chaining
+    public func addRows(_ dicts: [Dict]) throws -> Self {
+        for dict in dicts {
+            try self.addRow(dict)
+        }
+        return self
+    }
 }
 
 enum GridBuilderError: Error {
