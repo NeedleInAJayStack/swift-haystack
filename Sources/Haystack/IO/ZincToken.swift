@@ -45,7 +45,7 @@ enum ZincToken: String, Equatable, Hashable {
     
     var isLiteral: Bool {
         switch self {
-        case .id, .num, .str, .ref, .symbol, .uri, .date, .time, .datetime:
+        case .num, .str, .ref, .symbol, .uri, .date, .time, .datetime:
             return true
         default:
             return false
