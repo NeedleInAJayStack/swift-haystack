@@ -21,6 +21,24 @@ public struct Grid: Val {
         self.rows = rows
     }
     
+    /// Create a Grid with no column metadata from a list of Dicts.
+    ///
+    /// There is no guarantee on the column ordering.
+    /// - Parameters:
+    ///   - meta: Grid metadata
+    ///   - rows: The rows of the grid
+    public init(meta: Dict = [:], rowsAndColumns: [Dict]) {
+        self.meta = meta
+        var colNames = Set<String>()
+        for row in rowsAndColumns {
+            for (key, _) in row {
+                colNames.insert(key)
+            }
+        }
+        self.cols = colNames.map { Col(name: $0) }
+        self.rows = rowsAndColumns
+    }
+    
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
@@ -59,6 +77,21 @@ public struct Grid: Val {
         }
         
         return zinc
+    }
+    
+    /// Returns a grid that is the same as the existing one, but with its columns reordered according to the input names.
+    /// - Parameter newOrder: The names of the columns, in the desired order
+    /// - Returns: self for chaining
+    public mutating func reorderCols(to newOrder: [String]) throws -> Self {
+        var newCols: [Col] = []
+        for name in newOrder {
+            guard let colIndex = cols.firstIndex(where: { $0.name == name }) else {
+                throw GridError.columnNotFound(name)
+            }
+            newCols.append(cols[colIndex])
+        }
+        self.cols = newCols
+        return self
     }
 }
 
@@ -190,6 +223,19 @@ extension Grid: Collection {
     }
 }
 
+extension Grid: ExpressibleByArrayLiteral {
+    /// Create a grid from the provided literals. The grid will have no grid or column-level metadata
+    public init(arrayLiteral: Dict...) {
+        self.init(meta: [:], rowsAndColumns: arrayLiteral)
+    }
+}
+
+extension Grid: CustomStringConvertible {
+    public var description: String {
+        return self.toZinc()
+    }
+}
+
 public struct Col: Codable, Sendable {
     public let name: String
     public let meta: Dict?
@@ -198,4 +244,8 @@ public struct Col: Codable, Sendable {
         self.name = name
         self.meta = meta
     }
+}
+
+public enum GridError: Error {
+    case columnNotFound(String)
 }
