@@ -14,7 +14,7 @@ public struct Dict: Val {
         return Dict([:])
     }
     
-    public let elements: [String: any Val]
+    public private(set) var elements: [String: any Val]
     
     public init(_ elements: [String: any Val]) {
         self.elements = elements
@@ -212,7 +212,14 @@ extension Dict: Collection {
 extension Dict {
     public subscript(key: String) -> (any Val)? {
         get {
-            return elements[key]
+            let val = elements[key]
+            guard !(val is Null) else {
+                return nil
+            }
+            return val
+        }
+        set {
+            elements[key] = newValue
         }
     }
 }

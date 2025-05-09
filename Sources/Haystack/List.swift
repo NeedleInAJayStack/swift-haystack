@@ -7,7 +7,7 @@ import Foundation
 public struct List: Val {
     public static var valType: ValType { .List }
     
-    public let elements: [any Val]
+    public private(set) var elements: [any Val]
     
     public init(_ elements: [any Val]) {
         self.elements = elements
@@ -18,6 +18,10 @@ public struct List: Val {
     public func toZinc() -> String {
         let zincElements = elements.map { $0.toZinc() }
         return "[\(zincElements.joined(separator:", "))]"
+    }
+    
+    public func toSwiftArray() -> [any Val] {
+        return elements
     }
 }
 

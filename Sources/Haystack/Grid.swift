@@ -11,9 +11,9 @@ import Foundation
 public struct Grid: Val {
     public static var valType: ValType { .Grid }
     
-    public let meta: Dict
-    public let cols: [Col]
-    public let rows: [Dict]
+    public private(set) var meta: Dict
+    public private(set) var cols: [Col]
+    public private(set) var rows: [Dict]
     
     init(meta: Dict, cols: [Col], rows: [Dict]) {
         self.meta = meta
@@ -25,13 +25,13 @@ public struct Grid: Val {
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         // Ensure `ver` is listed first in meta
-        let ver = meta.elements["ver"] ?? "3.0"
+        let ver = meta["ver"] ?? "3.0"
         var zinc = "ver:\(ver.toZinc())"
         
-        var metaWithoutVer = meta.elements
+        var metaWithoutVer = meta
         metaWithoutVer["ver"] = nil
         if metaWithoutVer.count > 0 {
-            zinc += " \(Dict(metaWithoutVer).toZinc(withBraces: false))"
+            zinc += " \(metaWithoutVer.toZinc(withBraces: false))"
         }
         zinc += "\n"
         
@@ -40,7 +40,7 @@ public struct Grid: Val {
         } else {
             let zincCols = cols.map { col in
                 var colZinc = col.name
-                if let colMeta = col.meta, colMeta.elements.count > 0 {
+                if let colMeta = col.meta, colMeta.count > 0 {
                     colZinc += " \(colMeta.toZinc(withBraces: false))"
                 }
                 return colZinc
@@ -50,7 +50,7 @@ public struct Grid: Val {
             
             let zincRows = rows.map { row in
                 let rowZincElements = cols.map { col in
-                    let element = row.elements[col.name] ?? null
+                    let element = row[col.name] ?? null
                     return element.toZinc()
                 }
                 return rowZincElements.joined(separator: ", ")
@@ -87,7 +87,9 @@ extension Grid {
                 )
             }
             
-            self.meta = try container.decode(Dict.self, forKey: .meta)
+            var meta = try container.decode(Dict.self, forKey: .meta)
+            meta["ver"] = nil // Remove version
+            self.meta = meta
             let cols = try container.decode([Col].self, forKey: .cols)
             if cols.map(\.name) == ["empty"] {
                 self.cols = []
@@ -111,8 +113,10 @@ extension Grid {
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#grid)
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: Self.CodingKeys.self)
+        var versionedMeta = meta
+        versionedMeta["ver"] = "3.0"
         try container.encode(Self.kindValue, forKey: ._kind)
-        try container.encode(meta, forKey: .meta)
+        try container.encode(versionedMeta, forKey: .meta)
         if cols.isEmpty {
             try container.encode([Col(name: "empty")], forKey: .cols)
             try container.encode([Dict](), forKey: .rows)
