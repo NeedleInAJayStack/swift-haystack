@@ -128,4 +128,30 @@ final class ListTests: XCTestCase {
             ])
         )
     }
+    
+    func testCollection() {
+        let list: List = [
+            true,
+            "abc",
+            Number(42, unit: "furloghs"),
+            List([true, "xyz"])
+        ]
+        
+        // Test index access
+        XCTAssertEqual(list[0] as? Bool, true)
+        XCTAssertEqual(list[1] as? String, "abc")
+        XCTAssertEqual((list[2] as? Number), Number(42, unit: "furloghs"))
+        XCTAssertEqual((list[3] as? List), [true, "xyz"])
+        
+        // Test loop
+        for (i, element) in list.enumerated() {
+            switch i {
+            case 0: XCTAssertEqual(element as? Bool, true)
+            case 1: XCTAssertEqual(element as? String, "abc")
+            case 2: XCTAssertEqual((element as? Number), Number(42, unit: "furloghs"))
+            case 3: XCTAssertEqual((element as? List), [true, "xyz"])
+            default: break
+            }
+        }
+    }
 }

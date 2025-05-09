@@ -150,4 +150,33 @@ final class DictTests: XCTestCase {
         try XCTAssertNil(dict.get("b"))
         try XCTAssertNil(dict.get("c"))
     }
+    
+    func testCollection() {
+        let dict: Dict = [
+            "bool": true,
+            "str": "abc",
+            "number": Number(42, unit: "furloghs"),
+            "dict": Dict([
+                "bool": true,
+                "str": "xyz"
+            ])
+        ]
+        
+        // Test index access
+        XCTAssertEqual(dict["bool"] as? Bool, true)
+        XCTAssertEqual(dict["str"] as? String, "abc")
+        XCTAssertEqual(dict["number"] as? Number, Number(42, unit: "furloghs"))
+        XCTAssertEqual(dict["dict"] as? Dict, ["bool": true, "str": "xyz"])
+        
+        // Test loop
+        for (key, value) in dict {
+            switch key {
+            case "bool": XCTAssertEqual(value as? Bool, true)
+            case "str": XCTAssertEqual(value as? String, "abc")
+            case "number": XCTAssertEqual((value as? Number), Number(42, unit: "furloghs"))
+            case "dict": XCTAssertEqual((value as? Dict), ["bool": true, "str": "xyz"])
+            default: break
+            }
+        }
+    }
 }

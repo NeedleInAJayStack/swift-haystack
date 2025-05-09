@@ -85,6 +85,25 @@ extension List {
     }
 }
 
+// List + Collection
+extension List: Collection {
+    public var startIndex: Int {
+        elements.startIndex
+    }
+    
+    public var endIndex: Int {
+        elements.endIndex
+    }
+    
+    public subscript(position: Int) -> any Val {
+        return elements[position]
+    }
+
+    public func index(after i: Int) -> Int {
+        return i + 1
+    }
+}
+
 extension List: ExpressibleByArrayLiteral {
     /// Creates an instance initialized with the given elements.
     public init(arrayLiteral: any Val...) {

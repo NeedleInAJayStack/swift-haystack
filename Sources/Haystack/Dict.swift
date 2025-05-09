@@ -189,6 +189,34 @@ extension Dict {
     }
 }
 
+// Dict + Collection
+extension Dict: Collection {
+    public var startIndex: Dictionary<String, any Val>.Index {
+        elements.keys.startIndex
+    }
+    
+    public var endIndex: Dictionary<String, any Val>.Index {
+        elements.keys.endIndex
+    }
+    
+    public subscript(position: Dictionary<String, any Val>.Index) -> (key: String, value: any Val) {
+        return elements[position]
+    }
+
+    public func index(after i: Dictionary<String, any Val>.Index) -> Dictionary<String, any Val>.Index {
+        return elements.index(after: i)
+    }
+}
+
+// Convenience string accessor
+extension Dict {
+    public subscript(key: String) -> (any Val)? {
+        get {
+            return elements[key]
+        }
+    }
+}
+
 extension Dict: ExpressibleByDictionaryLiteral {
     /// Creates an instance initialized with the given key-value pairs.
     public init(dictionaryLiteral elementLiterals: (String, any Val)...) {

@@ -109,4 +109,30 @@ final class GridTests: XCTestCase {
             builder2.toGrid()
         )
     }
+    
+    func testCollection() throws {
+        let grid = try GridBuilder()
+            .setMeta(["ver": "3.0", "foo": "bar"])
+            .addCol(name: "dis", meta: ["dis": "Equip Name"])
+            .addCol(name: "equip")
+            .addCol(name: "siteRef")
+            .addCol(name: "managed")
+            .addRow(["dis": "RTU-1", "equip": marker, "siteRef": Ref("153c-699a", dis: "HQ"), "managed": true])
+            .addRow(["dis": "RTU-2", "equip": marker, "siteRef": Ref("153c-699b", dis: "Library"), "managed": false])
+            .toGrid()
+        
+        // Test index access
+        try XCTAssertEqual(grid[0], ["dis": "RTU-1", "equip": marker, "siteRef": Ref("153c-699a", dis: "HQ"), "managed": true])
+        try XCTAssertEqual(grid[1], ["dis": "RTU-2", "equip": marker, "siteRef": Ref("153c-699b", dis: "Library"), "managed": false])
+        XCTAssertEqual(grid[0]["dis"] as? String, "RTU-1")
+        
+        // Test loop
+        for (i, row) in grid.enumerated() {
+            switch i {
+            case 0: try XCTAssertEqual(row, ["dis": "RTU-1", "equip": marker, "siteRef": Ref("153c-699a", dis: "HQ"), "managed": true])
+            case 1: try XCTAssertEqual(row, ["dis": "RTU-2", "equip": marker, "siteRef": Ref("153c-699b", dis: "Library"), "managed": false])
+            default: break
+            }
+        }
+    }
 }

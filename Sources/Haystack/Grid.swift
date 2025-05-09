@@ -167,6 +167,25 @@ extension Grid {
     }
 }
 
+// Grid + Collection
+extension Grid: Collection {
+    public var startIndex: Int {
+        rows.startIndex
+    }
+    
+    public var endIndex: Int {
+        rows.endIndex
+    }
+    
+    public subscript(position: Int) -> Dict {
+        return rows[position]
+    }
+
+    public func index(after i: Int) -> Int {
+        return i + 1
+    }
+}
+
 public struct Col: Codable, Sendable {
     public let name: String
     public let meta: Dict?
