@@ -65,22 +65,12 @@ public class GridBuilder {
     ///   - meta: Column-level metadata for the new column
     /// - Returns: This instance for chaining
     public func addCol(name: String, meta: [String: any Val]? = nil) throws -> Self {
-        guard rows.count == 0 else {
-            throw GridBuilderError.cannotAddColAfterRows
-        }
-        
         guard !colNames.contains(name) else {
             throw GridBuilderError.colAlreadyDefined(name: name)
         }
         colNames.append(name)
         if let meta = meta {
             colMeta[name] = meta
-        }
-        
-        rows = rows.map { row in
-            var newRow = row
-            newRow[name] = Null.val
-            return newRow
         }
         
         return self
