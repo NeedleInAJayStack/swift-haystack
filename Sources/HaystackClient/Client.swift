@@ -387,7 +387,7 @@ public class Client: API {
         return try await post(path: "watchSub", grid: builder.toGrid())
     }
     
-    /// Used to close a watch entirely or remove entities from a watch
+    /// Used to remove entities from a watch
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#watchUnsub
     ///
@@ -395,7 +395,7 @@ public class Client: API {
     ///   - watchId: Watch identifier
     ///   - ids: Ref values for each entity to unsubscribe. If empty the entire watch is closed.
     /// - Returns: An empty grid
-    public func watchUnsub(
+    public func watchUnsubRemove(
         watchId: String,
         ids: [Ref]
     ) async throws -> Grid {
@@ -410,6 +410,26 @@ public class Client: API {
         for id in ids {
             try builder.addRow([id])
         }
+        
+        return try await post(path: "watchUnsub", grid: builder.toGrid())
+    }
+    
+    /// Used to close a watch entirely
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#watchUnsub
+    ///
+    /// - Parameters:
+    ///   - watchId: Watch identifier
+    /// - Returns: An empty grid
+    public func watchUnsubDelete(
+        watchId: String
+    ) async throws -> Grid {
+        var gridMeta: [String: any Val] = ["watchId": watchId]
+        gridMeta["close"] = marker
+        
+        let builder = GridBuilder()
+        builder.setMeta(gridMeta)
+        try builder.addCol(name: "id")
         
         return try await post(path: "watchUnsub", grid: builder.toGrid())
     }

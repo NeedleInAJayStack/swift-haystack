@@ -141,7 +141,7 @@ public protocol API {
     /// `watchId` and `lease`.
     func watchSubAdd(watchId: String, lease: Number?, ids: [Ref]) async throws -> Grid
     
-    /// Used to close a watch entirely or remove entities from a watch
+    /// Used remove entities from a watch
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#watchUnsub
     ///
@@ -149,7 +149,16 @@ public protocol API {
     ///   - watchId: Watch identifier
     ///   - ids: Ref values for each entity to unsubscribe. If empty the entire watch is closed.
     /// - Returns: An empty grid
-    func watchUnsub(watchId: String, ids: [Ref]) async throws -> Grid
+    func watchUnsubRemove(watchId: String, ids: [Ref]) async throws -> Grid
+    
+    /// Used to close a watch entirely
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#watchUnsub
+    ///
+    /// - Parameters:
+    ///   - watchId: Watch identifier
+    /// - Returns: An empty grid
+    func watchUnsubDelete(watchId: String) async throws -> Grid
     
     /// Used to poll a watch for changes to the subscribed entity records
     ///

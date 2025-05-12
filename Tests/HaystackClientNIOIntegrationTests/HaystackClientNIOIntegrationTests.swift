@@ -95,6 +95,6 @@ final class HaystackClientNIOIntegrationTests: XCTestCase {
     }
     
     func testWatchUnsub() async throws {
-        print(try await client.watchUnsub(watchId: "id", ids: [Ref("28e7fb47-d67ab19a")]))
+        print(try await client.watchUnsubRemove(watchId: "id", ids: [Ref("28e7fb47-d67ab19a")]))
     }
 }
