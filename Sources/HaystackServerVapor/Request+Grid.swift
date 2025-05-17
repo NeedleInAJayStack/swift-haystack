@@ -7,21 +7,21 @@ extension Request {
     /// Returns the grid parsed from the request body according to the `content-type` header
     func decodeGrid() throws -> Grid {
         let grid: Grid
-        switch self.headers.contentType {
+        switch headers.contentType {
         case .zinc:
-            guard let body = self.body.string else {
+            guard let body = body.string else {
                 throw Abort(.badRequest, reason: "No request body provided")
             }
             return try ZincReader(body).readGrid()
         default:
-            grid = try self.content.decode(Grid.self)
+            grid = try content.decode(Grid.self)
         }
         return grid
     }
 
     /// Responds with the grid, encoded according to the `accept` header. See https://project-haystack.org/doc/docHaystack/HttpApi#contentNegotiation
     func respond(with grid: Grid) async throws -> Response {
-        let accept = self.headers.accept
+        let accept = headers.accept
         if accept.isEmpty || accept.mediaTypes.contains(.zinc) {
             let response = Response(body: .init(stringLiteral: grid.toZinc()))
             response.headers.contentType = .zinc
@@ -33,7 +33,7 @@ extension Request {
 
     /// Extracts query parameters from the request URL. See https://project-haystack.org/doc/docHaystack/HttpApi#requests
     func queryDict() -> Dict {
-        let queryItems = URLComponents(string: self.url.description)?.queryItems ?? []
+        let queryItems = URLComponents(string: url.description)?.queryItems ?? []
         var dictMap: [String: any Val] = [:]
         for queryItem in queryItems {
             if let value = queryItem.value {

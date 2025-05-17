@@ -8,7 +8,7 @@ public let remove = Remove()
 /// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#remove)
 public struct Remove: Val {
     public static var valType: ValType { .Remove }
-    
+
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
@@ -19,11 +19,11 @@ public struct Remove: Val {
 // Remove + Codable
 extension Remove {
     static let kindValue = "remove"
-    
+
     enum CodingKeys: CodingKey {
         case _kind
     }
-    
+
     /// Read from decodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#remove)
     public init(from decoder: Decoder) throws {
@@ -48,7 +48,7 @@ extension Remove {
             )
         }
     }
-    
+
     /// Write to encodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#remove)
     public func encode(to encoder: Encoder) throws {

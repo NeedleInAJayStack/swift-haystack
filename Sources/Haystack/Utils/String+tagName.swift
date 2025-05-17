@@ -3,7 +3,7 @@ import Foundation
 extension String {
     /// Throws if the string is not a valid [tag name](https://project-haystack.org/doc/docHaystack/Kinds#names)
     func validateTagName() throws {
-        guard let firstChar = self.first else {
+        guard let firstChar = first else {
             throw TagNameError.cannotBeEmptyString
         }
         guard firstChar.isLowercase else {
@@ -22,9 +22,9 @@ extension Character {
     /// character
     var isTagChar: Bool {
         return
-            "a" <= self && self <= "z" ||
-            "A" <= self && self <= "Z" ||
-            "0" <= self && self <= "9" ||
+            self >= "a" && self <= "z" ||
+            self >= "A" && self <= "Z" ||
+            self >= "0" && self <= "9" ||
             self == "_"
     }
 }

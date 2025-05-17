@@ -20,9 +20,9 @@ final class HaystackServerVaporTests: XCTestCase {
             .GET,
             "/read?id=[@a,@b]",
             headers: [
-                HTTPHeaders.Name.accept.description: HTTPMediaType.zinc.description
+                HTTPHeaders.Name.accept.description: HTTPMediaType.zinc.description,
             ]
-         ) { res in
+        ) { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.headers.contentType, .zinc)
             XCTAssertEqual(
@@ -36,9 +36,9 @@ final class HaystackServerVaporTests: XCTestCase {
             .GET,
             "/read?id=[@a,@b]",
             headers: [
-                HTTPHeaders.Name.accept.description: HTTPMediaType.json.description
+                HTTPHeaders.Name.accept.description: HTTPMediaType.json.description,
             ]
-         ) { res in
+        ) { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertEqual(res.headers.contentType, .json)
             try XCTAssertEqual(
@@ -56,7 +56,7 @@ final class HaystackServerVaporTests: XCTestCase {
         try app.test(
             .GET,
             "/read?id=[a,b]" // Invalid because expecting Ref, not String
-         ) { res in
+        ) { res in
             XCTAssertEqual(res.status, .badRequest)
         }
     }
@@ -83,7 +83,7 @@ final class HaystackServerVaporTests: XCTestCase {
             .POST,
             "/read",
             headers: [
-                HTTPHeaders.Name.accept.description: HTTPMediaType.zinc.description
+                HTTPHeaders.Name.accept.description: HTTPMediaType.zinc.description,
             ],
             body: .init(string: requestGrid.toZinc()),
             beforeRequest: { req in
@@ -103,7 +103,7 @@ final class HaystackServerVaporTests: XCTestCase {
             .POST,
             "/read",
             headers: [
-                HTTPHeaders.Name.accept.description: HTTPMediaType.json.description
+                HTTPHeaders.Name.accept.description: HTTPMediaType.json.description,
             ],
             beforeRequest: { req in
                 req.headers.contentType = .json
@@ -157,27 +157,25 @@ final class HaystackServerVaporTests: XCTestCase {
 }
 
 struct HaystackAPIMock: Haystack.API {
-    func close() async throws {
-        return
-    }
+    func close() async throws {}
 
     func about() async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 
-    func defs(filter: String?, limit: Haystack.Number?) async throws -> Haystack.Grid {
+    func defs(filter _: String?, limit _: Haystack.Number?) async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 
-    func libs(filter: String?, limit: Haystack.Number?) async throws -> Haystack.Grid {
+    func libs(filter _: String?, limit _: Haystack.Number?) async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 
-    func ops(filter: String?, limit: Haystack.Number?) async throws -> Haystack.Grid {
+    func ops(filter _: String?, limit _: Haystack.Number?) async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 
-    func filetypes(filter: String?, limit: Haystack.Number?) async throws -> Haystack.Grid {
+    func filetypes(filter _: String?, limit _: Haystack.Number?) async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 
@@ -191,55 +189,55 @@ struct HaystackAPIMock: Haystack.API {
         return gb.toGrid()
     }
 
-    func read(filter: String, limit: Haystack.Number?) async throws -> Haystack.Grid {
+    func read(filter _: String, limit _: Haystack.Number?) async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 
-    func nav(navId: Haystack.Ref?) async throws -> Haystack.Grid {
+    func nav(navId _: Haystack.Ref?) async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 
-    func hisRead(id: Haystack.Ref, range: Haystack.HisReadRange) async throws -> Haystack.Grid {
+    func hisRead(id _: Haystack.Ref, range _: Haystack.HisReadRange) async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 
-    func hisWrite(id: Haystack.Ref, items: [Haystack.HisItem]) async throws -> Haystack.Grid {
+    func hisWrite(id _: Haystack.Ref, items _: [Haystack.HisItem]) async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 
-    func pointWrite(id: Haystack.Ref, level: Haystack.Number, val: any Haystack.Val, who: String?, duration: Haystack.Number?) async throws -> Haystack.Grid {
+    func pointWrite(id _: Haystack.Ref, level _: Haystack.Number, val _: any Haystack.Val, who _: String?, duration _: Haystack.Number?) async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 
-    func pointWriteStatus(id: Haystack.Ref) async throws -> Haystack.Grid {
+    func pointWriteStatus(id _: Haystack.Ref) async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 
-    func watchSubCreate(watchDis: String, lease: Haystack.Number?, ids: [Haystack.Ref]) async throws -> Haystack.Grid {
+    func watchSubCreate(watchDis _: String, lease _: Haystack.Number?, ids _: [Haystack.Ref]) async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 
-    func watchSubAdd(watchId: String, lease: Haystack.Number?, ids: [Haystack.Ref]) async throws -> Haystack.Grid {
+    func watchSubAdd(watchId _: String, lease _: Haystack.Number?, ids _: [Haystack.Ref]) async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 
-    func watchUnsubRemove(watchId: String, ids: [Haystack.Ref]) async throws -> Haystack.Grid {
+    func watchUnsubRemove(watchId _: String, ids _: [Haystack.Ref]) async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 
-    func watchUnsubDelete(watchId: String) async throws -> Haystack.Grid {
+    func watchUnsubDelete(watchId _: String) async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 
-    func watchPoll(watchId: String, refresh: Bool) async throws -> Haystack.Grid {
+    func watchPoll(watchId _: String, refresh _: Bool) async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 
-    func invokeAction(id: Haystack.Ref, action: String, args: [String : any Haystack.Val]) async throws -> Haystack.Grid {
+    func invokeAction(id _: Haystack.Ref, action _: String, args _: [String: any Haystack.Val]) async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 
-    func eval(expression: String) async throws -> Haystack.Grid {
+    func eval(expression _: String) async throws -> Haystack.Grid {
         return GridBuilder().toGrid()
     }
 }

@@ -6,13 +6,13 @@ import Foundation
 /// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#uri)
 public struct Uri: Val {
     public static var valType: ValType { .Uri }
-    
+
     public let val: String
-    
+
     public init(_ val: String) {
         self.val = val
     }
-    
+
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
@@ -23,12 +23,12 @@ public struct Uri: Val {
 // Uri + Codable
 extension Uri {
     static let kindValue = "uri"
-    
+
     enum CodingKeys: CodingKey {
         case _kind
         case val
     }
-    
+
     /// Read from decodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#uri)
     public init(from decoder: Decoder) throws {
@@ -42,8 +42,8 @@ extension Uri {
                     )
                 )
             }
-            
-            self.val = try container.decode(String.self, forKey: .val)
+
+            val = try container.decode(String.self, forKey: .val)
         } else {
             throw DecodingError.typeMismatch(
                 Self.self,
@@ -54,7 +54,7 @@ extension Uri {
             )
         }
     }
-    
+
     /// Write to encodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#uri)
     public func encode(to encoder: Encoder) throws {

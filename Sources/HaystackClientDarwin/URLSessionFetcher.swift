@@ -4,7 +4,7 @@ import HaystackClient
 /// A Haystack API Client fetcher based on `URLSession`. This is only available on Darwin platforms.
 struct URLSessionFetcher: Fetcher {
     let session: URLSession
-    
+
     init() {
         // Disable all cookies, otherwise haystack thinks we're a browser client
         // and asks for an Attest-Key header
@@ -12,16 +12,16 @@ struct URLSessionFetcher: Fetcher {
         sessionConfig.httpCookieAcceptPolicy = .never
         sessionConfig.httpShouldSetCookies = false
         sessionConfig.httpCookieStorage = nil
-        self.session = URLSession(configuration: sessionConfig)
+        session = URLSession(configuration: sessionConfig)
     }
-    
+
     func fetch(_ request: HaystackRequest) async throws -> HaystackResponse {
         guard let url = URL(string: request.url) else {
             throw URLSessionFetcherError.invalidUrl(request.url)
         }
-        
+
         var urlRequest = URLRequest(url: url)
-        
+
         switch request.method {
         case .GET:
             urlRequest.httpMethod = "GET"
@@ -31,7 +31,7 @@ struct URLSessionFetcher: Fetcher {
             urlRequest.httpBody = data
         }
         urlRequest.addValue(request.headerAuthorization, forHTTPHeaderField: HTTPHeader.authorization)
-        
+
         // See Content Negotiation: https://haxall.io/doc/docHaystack/HttpApi.html#contentNegotiation
         urlRequest.addValue(request.headerAccept, forHTTPHeaderField: HTTPHeader.accept)
         urlRequest.addValue(request.headerUserAgent, forHTTPHeaderField: HTTPHeader.userAgent)

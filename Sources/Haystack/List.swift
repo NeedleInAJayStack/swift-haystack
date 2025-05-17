@@ -6,31 +6,30 @@ import Foundation
 /// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#list)
 public struct List: Val {
     public static var valType: ValType { .List }
-    
+
     public private(set) var elements: [any Val]
-    
+
     public init(_ elements: [any Val]) {
         self.elements = elements
     }
-    
+
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         let zincElements = elements.map { $0.toZinc() }
-        return "[\(zincElements.joined(separator:", "))]"
+        return "[\(zincElements.joined(separator: ", "))]"
     }
-    
+
     public func toSwiftArray() -> [any Val] {
         return elements
     }
 }
 
 // List + Codable
-extension List {
-    
+public extension List {
     /// Read from decodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#list)
-    public init(from decoder: Decoder) throws {
+    init(from decoder: Decoder) throws {
         guard var container = try? decoder.unkeyedContainer() else {
             throw DecodingError.typeMismatch(
                 Self.self,
@@ -40,7 +39,7 @@ extension List {
                 )
             )
         }
-        
+
         var elements = [any Val]()
         containerLoop: while !container.isAtEnd {
             typeLoop: for type in ValType.allCases {
@@ -52,10 +51,10 @@ extension List {
         }
         self.elements = elements
     }
-    
+
     /// Write to encodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#list)
-    public func encode(to encoder: Encoder) throws {
+    func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
         for element in elements {
             try container.encode(element)
@@ -64,25 +63,25 @@ extension List {
 }
 
 // List + Equatable
-extension List {
-    public static func == (lhs: List, rhs: List) -> Bool {
+public extension List {
+    static func == (lhs: List, rhs: List) -> Bool {
         guard lhs.elements.count == rhs.elements.count else {
             return false
         }
-        
+
         for (lhsElement, rhsElement) in zip(lhs.elements, rhs.elements) {
             guard lhsElement.equals(rhsElement) else {
                 return false
             }
         }
-        
+
         return true
     }
 }
 
 // List + Hashable
-extension List {
-    public func hash(into hasher: inout Hasher) {
+public extension List {
+    func hash(into hasher: inout Hasher) {
         for element in elements {
             hasher.combine(element)
         }
@@ -94,11 +93,11 @@ extension List: Collection {
     public var startIndex: Int {
         elements.startIndex
     }
-    
+
     public var endIndex: Int {
         elements.endIndex
     }
-    
+
     public subscript(position: Int) -> any Val {
         return elements[position]
     }
@@ -111,6 +110,6 @@ extension List: Collection {
 extension List: ExpressibleByArrayLiteral {
     /// Creates an instance initialized with the given elements.
     public init(arrayLiteral: any Val...) {
-        self.elements = arrayLiteral
+        elements = arrayLiteral
     }
 }

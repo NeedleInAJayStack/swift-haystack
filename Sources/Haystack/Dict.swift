@@ -9,61 +9,61 @@ import Foundation
 /// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#dict)
 public struct Dict: Val {
     public static var valType: ValType { .Dict }
-    
+
     public static func empty() -> Dict {
         return Dict([:])
     }
-    
+
     public private(set) var elements: [String: any Val]
-    
+
     public init(_ elements: [String: any Val]) {
         self.elements = elements
     }
-    
+
     public func trap(_ name: String) throws -> any Val {
-        guard let fieldVal = self.elements[name], !(fieldVal is Null) else {
+        guard let fieldVal = elements[name], !(fieldVal is Null) else {
             throw DictError.tagNotFound(name)
         }
         return fieldVal
     }
-    
-    public func trap<T: Val>(_ name: String, as: T.Type) throws -> T {
-        guard let fieldVal = self.elements[name], !(fieldVal is Null) else {
+
+    public func trap<T: Val>(_ name: String, as _: T.Type) throws -> T {
+        guard let fieldVal = elements[name], !(fieldVal is Null) else {
             throw DictError.tagNotFound(name)
         }
         return try fieldVal.coerce(to: T.self)
     }
-    
+
     public func get(_ name: String) throws -> (any Val)? {
-        guard let fieldVal = self.elements[name], !(fieldVal is Null) else {
+        guard let fieldVal = elements[name], !(fieldVal is Null) else {
             return nil
         }
         return fieldVal
     }
-    
-    public func get<T: Val>(_ name: String, as: T.Type) throws -> T? {
-        guard let fieldVal = self.elements[name], !(fieldVal is Null) else {
+
+    public func get<T: Val>(_ name: String, as _: T.Type) throws -> T? {
+        guard let fieldVal = elements[name], !(fieldVal is Null) else {
             return nil
         }
         return try fieldVal.coerce(to: T.self)
     }
-    
+
     public func has(_ name: String) -> Bool {
-        return self.elements.keys.contains(name)
+        return elements.keys.contains(name)
     }
-    
+
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         return toZinc(withBraces: true)
     }
-    
+
     func toZinc(withBraces: Bool) -> String {
         let zincElements = elements.keys.sorted().map { key in
             "\(key):\(elements[key]!.toZinc())" // unwrap is safe due to immutability
         }
         let zinc = zincElements.joined(separator: " ")
-        
+
         if withBraces {
             return "{\(zinc)}"
         } else {
@@ -73,12 +73,12 @@ public struct Dict: Val {
 }
 
 // Dict + Codable
-extension Dict {
-    static let kindValue = "dateTime"
-    
+public extension Dict {
+    internal static let kindValue = "dateTime"
+
     /// Read from decodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#dict)
-    public init(from decoder: Decoder) throws {
+    init(from decoder: Decoder) throws {
         guard let container = try? decoder.container(keyedBy: DictCodingKey.self) else {
             throw DecodingError.typeMismatch(
                 Self.self,
@@ -88,7 +88,7 @@ extension Dict {
                 )
             )
         }
-        
+
         var elements = [String: any Val]()
         containerLoop: for key in container.allKeys {
             if key.stringValue == "_kind" {
@@ -115,10 +115,10 @@ extension Dict {
         }
         self.elements = elements
     }
-    
+
     /// Write to encodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#dict)
-    public func encode(to encoder: Encoder) throws {
+    func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: DictCodingKey.self)
         for (key, value) in elements {
             guard let codingKey = DictCodingKey(stringValue: key) else {
@@ -130,11 +130,11 @@ extension Dict {
                     )
                 )
             }
-            
+
             try container.encode(value, forKey: codingKey)
         }
     }
-    
+
     private struct DictCodingKey: CodingKey {
         let stringValue: String
         let intValue: Int?
@@ -152,16 +152,16 @@ extension Dict {
 }
 
 // Dict + Equatable
-extension Dict {
-    public static func == (lhs: Dict, rhs: Dict) -> Bool {
+public extension Dict {
+    static func == (lhs: Dict, rhs: Dict) -> Bool {
         guard lhs.elements.count == rhs.elements.count else {
             return false
         }
-        
+
         guard lhs.elements.keys == rhs.elements.keys else {
             return false
         }
-        
+
         for key in lhs.elements.keys {
             guard
                 let lhsValue = lhs.elements[key],
@@ -169,19 +169,19 @@ extension Dict {
             else {
                 return false
             }
-            
+
             guard lhsValue.equals(rhsValue) else {
                 return false
             }
         }
-        
+
         return true
     }
 }
 
 // Dict + Hashable
-extension Dict {
-    public func hash(into hasher: inout Hasher) {
+public extension Dict {
+    func hash(into hasher: inout Hasher) {
         for (key, value) in elements {
             hasher.combine(key)
             hasher.combine(value)
@@ -194,11 +194,11 @@ extension Dict: Collection {
     public var startIndex: Dictionary<String, any Val>.Index {
         elements.keys.startIndex
     }
-    
+
     public var endIndex: Dictionary<String, any Val>.Index {
         elements.keys.endIndex
     }
-    
+
     public subscript(position: Dictionary<String, any Val>.Index) -> (key: String, value: any Val) {
         return elements[position]
     }
@@ -209,8 +209,8 @@ extension Dict: Collection {
 }
 
 // Convenience string accessor
-extension Dict {
-    public subscript(key: String) -> (any Val)? {
+public extension Dict {
+    subscript(key: String) -> (any Val)? {
         get {
             let val = elements[key]
             guard !(val is Null) else {

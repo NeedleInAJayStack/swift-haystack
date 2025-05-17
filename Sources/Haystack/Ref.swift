@@ -7,10 +7,10 @@ import Foundation
 /// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#ref)
 public struct Ref: Val {
     public static var valType: ValType { .Ref }
-    
+
     public let val: String
     public let dis: String?
-    
+
     public init(_ val: String, dis: String? = nil) throws {
         for char in val {
             guard char.isIdChar else {
@@ -20,7 +20,7 @@ public struct Ref: Val {
         self.val = val
         self.dis = dis
     }
-    
+
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
@@ -35,13 +35,13 @@ public struct Ref: Val {
 // Ref + Codable
 extension Ref {
     static let kindValue = "ref"
-    
+
     enum CodingKeys: CodingKey {
         case _kind
         case val
         case dis
     }
-    
+
     /// Read from decodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#ref)
     public init(from decoder: Decoder) throws {
@@ -55,7 +55,7 @@ extension Ref {
                     )
                 )
             }
-            
+
             try self.init(
                 container.decode(String.self, forKey: .val),
                 dis: container.decode(String?.self, forKey: .dis)
@@ -70,7 +70,7 @@ extension Ref {
             )
         }
     }
-    
+
     /// Write to encodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#ref)
     public func encode(to encoder: Encoder) throws {
@@ -84,4 +84,3 @@ extension Ref {
 public enum RefError: Error {
     case invalidCharacterInRef(Character, String)
 }
-

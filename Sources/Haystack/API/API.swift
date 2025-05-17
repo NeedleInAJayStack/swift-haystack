@@ -1,15 +1,14 @@
 public protocol API {
-    
     /// Closes the current authentication session.
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#close
-    func close() async throws -> Void
-    
+    func close() async throws
+
     /// Queries basic information about the server
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#about
     func about() async throws -> Grid
-    
+
     /// Queries def dicts from the current namespace
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#defs
@@ -19,7 +18,7 @@ public protocol API {
     ///   - limit: The maximum number of defs to return in response
     /// - Returns: A grid with the dict representation of each def
     func defs(filter: String?, limit: Number?) async throws -> Grid
-    
+
     /// Queries lib defs from current namspace
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#libs
@@ -29,7 +28,7 @@ public protocol API {
     ///   - limit: The maximum number of defs to return in response
     /// - Returns: A grid with the dict representation of each def
     func libs(filter: String?, limit: Number?) async throws -> Grid
-    
+
     /// Queries op defs from current namspace
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#ops
@@ -39,7 +38,7 @@ public protocol API {
     ///   - limit: The maximum number of defs to return in response
     /// - Returns: A grid with the dict representation of each def
     func ops(filter: String?, limit: Number?) async throws -> Grid
-    
+
     /// Queries filetype defs from current namspace
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#filetypes
@@ -49,7 +48,7 @@ public protocol API {
     ///   - limit: The maximum number of defs to return in response
     /// - Returns: A grid with the dict representation of each def
     func filetypes(filter: String?, limit: Number?) async throws -> Grid
-    
+
     /// Read a set of entity records by their unique identifier
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#read
@@ -57,7 +56,7 @@ public protocol API {
     /// - Parameter ids: Ref identifiers
     /// - Returns: A grid with a row for each entity read
     func read(ids: [Ref]) async throws -> Grid
-    
+
     /// Read a set of entity records using a filter
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#read
@@ -67,7 +66,7 @@ public protocol API {
     ///   - limit: The maximum number of entities to return in response
     /// - Returns: A grid with a row for each entity read
     func read(filter: String, limit: Number?) async throws -> Grid
-    
+
     /// Navigate a project for learning and discovery
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#nav
@@ -75,7 +74,7 @@ public protocol API {
     /// - Parameter navId: The ID of the entity to navigate from. If null, the navigation root is used.
     /// - Returns: A grid of navigation children for the navId specified by the request
     func nav(navId: Ref?) async throws -> Grid
-    
+
     /// Reads time-series data from historized point
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#hisRead
@@ -85,7 +84,7 @@ public protocol API {
     ///   - range: A date-time range
     /// - Returns: A grid whose rows represent timetamp/value pairs with a DateTime ts column and a val column for each scalar value
     func hisRead(id: Ref, range: HisReadRange) async throws -> Grid
-    
+
     /// Posts new time-series data to a historized point
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#hisWrite
@@ -95,7 +94,7 @@ public protocol API {
     ///   - items: New timestamp/value samples to write
     /// - Returns: An empty grid
     func hisWrite(id: Ref, items: [HisItem]) async throws -> Grid
-    
+
     /// Write to a given level of a writable point's priority array
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#pointWrite
@@ -108,7 +107,7 @@ public protocol API {
     ///   - duration: Number with duration unit if setting level 8
     /// - Returns: An empty grid
     func pointWrite(id: Ref, level: Number, val: any Val, who: String?, duration: Number?) async throws -> Grid
-    
+
     /// Read the current status of a writable point's priority array
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#pointWrite
@@ -116,7 +115,7 @@ public protocol API {
     /// - Parameter id: Identifier of writable point
     /// - Returns: A grid with current priority array state
     func pointWriteStatus(id: Ref) async throws -> Grid
-    
+
     /// Used to create new watches.
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#watchSub
@@ -128,7 +127,7 @@ public protocol API {
     /// - Returns: A grid where rows correspond to the current entity state of the requested identifiers.  Grid metadata contains
     /// `watchId` and `lease`.
     func watchSubCreate(watchDis: String, lease: Number?, ids: [Ref]) async throws -> Grid
-    
+
     /// Used to add entities to an existing watch.
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#watchSub
@@ -140,7 +139,7 @@ public protocol API {
     /// - Returns: A grid where rows correspond to the current entity state of the requested identifiers.  Grid metadata contains
     /// `watchId` and `lease`.
     func watchSubAdd(watchId: String, lease: Number?, ids: [Ref]) async throws -> Grid
-    
+
     /// Used remove entities from a watch
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#watchUnsub
@@ -150,7 +149,7 @@ public protocol API {
     ///   - ids: Ref values for each entity to unsubscribe. If empty the entire watch is closed.
     /// - Returns: An empty grid
     func watchUnsubRemove(watchId: String, ids: [Ref]) async throws -> Grid
-    
+
     /// Used to close a watch entirely
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#watchUnsub
@@ -159,7 +158,7 @@ public protocol API {
     ///   - watchId: Watch identifier
     /// - Returns: An empty grid
     func watchUnsubDelete(watchId: String) async throws -> Grid
-    
+
     /// Used to poll a watch for changes to the subscribed entity records
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#watchPoll
@@ -169,7 +168,7 @@ public protocol API {
     ///   - refresh: Whether a full refresh should occur
     /// - Returns: A grid where each row correspondes to a watched entity
     func watchPoll(watchId: String, refresh: Bool) async throws -> Grid
-    
+
     /// https://project-haystack.org/doc/docHaystack/Ops#invokeAction
     /// - Parameters:
     ///   - id: Identifier of target rec
@@ -177,7 +176,7 @@ public protocol API {
     ///   - args: The arguments to the action
     /// - Returns: A grid of undefined shape
     func invokeAction(id: Ref, action: String, args: [String: any Val]) async throws -> Grid
-    
+
     /// Evaluate an Axon expression
     ///
     /// https://haxall.io/doc/lib-hx/op~eval

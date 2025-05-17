@@ -22,7 +22,7 @@ public struct RecordDiff {
         self.old = old
         self.new = new
     }
-    
+
     public let id: Haystack.Ref
     public let old: Haystack.Dict?
     public let new: Haystack.Dict

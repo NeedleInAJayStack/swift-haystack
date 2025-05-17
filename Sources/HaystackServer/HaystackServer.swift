@@ -8,14 +8,14 @@ public class HaystackServer: API {
     let historyStore: HistoryStore
     let watchStore: WatchStore
 
-    let onInvokeAction: (Haystack.Ref, String, [String : any Haystack.Val]) async throws -> Haystack.Grid
+    let onInvokeAction: (Haystack.Ref, String, [String: any Haystack.Val]) async throws -> Haystack.Grid
     let onEval: (String) async throws -> Haystack.Grid
 
     public init(
         recordStore: RecordStore,
         historyStore: HistoryStore,
         watchStore: WatchStore,
-        onInvokeAction: @escaping (Haystack.Ref, String, [String : any Haystack.Val]) async throws -> Haystack.Grid = { _, _, _ in
+        onInvokeAction: @escaping (Haystack.Ref, String, [String: any Haystack.Val]) async throws -> Haystack.Grid = { _, _, _ in
             GridBuilder().toGrid()
         },
         onEval: @escaping (String) async throws -> Haystack.Grid = { _ in
@@ -29,9 +29,7 @@ public class HaystackServer: API {
         self.onEval = onEval
     }
 
-    public func close() async throws {
-        return
-    }
+    public func close() async throws {}
 
     public func about() async throws -> Haystack.Grid {
         let gb = Haystack.GridBuilder()
@@ -108,7 +106,7 @@ public class HaystackServer: API {
         return gb.toGrid()
     }
 
-    public func nav(navId: Haystack.Ref?) async throws -> Haystack.Grid {
+    public func nav(navId _: Haystack.Ref?) async throws -> Haystack.Grid {
         // TODO: Implement
         return GridBuilder().toGrid()
     }
@@ -127,21 +125,21 @@ public class HaystackServer: API {
         return GridBuilder().toGrid()
     }
 
-    public func pointWrite(id: Haystack.Ref, level: Haystack.Number, val: any Haystack.Val, who: String?, duration: Haystack.Number?) async throws -> Haystack.Grid {
+    public func pointWrite(id _: Haystack.Ref, level _: Haystack.Number, val _: any Haystack.Val, who _: String?, duration _: Haystack.Number?) async throws -> Haystack.Grid {
         // TODO: Implement
         return GridBuilder().toGrid()
     }
 
-    public func pointWriteStatus(id: Haystack.Ref) async throws -> Haystack.Grid {
+    public func pointWriteStatus(id _: Haystack.Ref) async throws -> Haystack.Grid {
         // TODO: Implement
         return GridBuilder().toGrid()
     }
 
-    public func watchSubCreate(watchDis: String, lease: Haystack.Number?, ids: [Haystack.Ref]) async throws -> Haystack.Grid {
+    public func watchSubCreate(watchDis _: String, lease: Haystack.Number?, ids: [Haystack.Ref]) async throws -> Haystack.Grid {
         let watchId = try await watchStore.create(ids: ids, lease: lease)
         let builder = GridBuilder().setMeta([
             "watchId": watchId,
-            "lease": lease ?? Haystack.Null.val
+            "lease": lease ?? Haystack.Null.val,
         ])
         let watchRecs = try await recordStore.read(ids: ids)
         try builder.addRows(watchRecs)
@@ -153,7 +151,7 @@ public class HaystackServer: API {
         try await watchStore.addIds(watchId: watchId, ids: ids)
         let builder = GridBuilder().setMeta([
             "watchId": watchId,
-            "lease": lease ?? Haystack.Null.val
+            "lease": lease ?? Haystack.Null.val,
         ])
         let watchRecs = try await recordStore.read(ids: ids)
         try builder.addRows(watchRecs)
@@ -174,14 +172,14 @@ public class HaystackServer: API {
     public func watchPoll(watchId: String, refresh: Bool) async throws -> Haystack.Grid {
         let watch = try await watchStore.read(watchId: watchId)
         let builder = GridBuilder().setMeta([
-            "watchId": watchId
+            "watchId": watchId,
         ])
         var watchRecs = [Dict]()
         if refresh {
             watchRecs = try await recordStore.read(ids: watch.ids)
         } else {
             watchRecs = try await recordStore.read(ids: watch.ids).filter { rec in
-                return try rec.trap("mod", as: DateTime.self).date > watch.lastReported ?? .distantPast
+                try rec.trap("mod", as: DateTime.self).date > watch.lastReported ?? .distantPast
             }
         }
 
@@ -190,12 +188,12 @@ public class HaystackServer: API {
         return builder.toGrid()
     }
 
-    public func invokeAction(id: Haystack.Ref, action: String, args: [String : any Haystack.Val]) async throws -> Haystack.Grid {
-        return try await self.onInvokeAction(id, action, args)
+    public func invokeAction(id: Haystack.Ref, action: String, args: [String: any Haystack.Val]) async throws -> Haystack.Grid {
+        return try await onInvokeAction(id, action, args)
     }
 
     public func eval(expression: String) async throws -> Haystack.Grid {
-        return try await self.onEval(expression)
+        return try await onEval(expression)
     }
 }
 

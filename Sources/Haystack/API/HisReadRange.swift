@@ -38,7 +38,7 @@ public enum HisReadRange {
             return to.endOfDay(timezone: nil)
         case let .dateTimeRange(_, to):
             return to.date
-        case .after(_):
+        case .after:
             return nil
         }
     }

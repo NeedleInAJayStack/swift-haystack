@@ -1,5 +1,5 @@
-import XCTest
 import Haystack
+import XCTest
 
 final class ListTests: XCTestCase {
     func testJsonCoding() throws {
@@ -9,25 +9,25 @@ final class ListTests: XCTestCase {
             Number(42, unit: "furloghs"),
             List([
                 false,
-                "xyz"
-            ])
+                "xyz",
+            ]),
         ]
         let jsonString = #"[true,"abc",{"_kind":"number","val":42,"unit":"furloghs"},[false,"xyz"]]"#
-        
+
         // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
             try JSONDecoder().decode(List.self, from: encodedData),
             value
         )
-        
+
         let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))
         XCTAssertEqual(
             try JSONDecoder().decode(List.self, from: decodedData),
             value
         )
     }
-    
+
     func testToZinc() throws {
         XCTAssertEqual(
             List([
@@ -36,26 +36,26 @@ final class ListTests: XCTestCase {
                 Number(42, unit: "furloghs"),
                 List([
                     false,
-                    "xyz"
-                ])
+                    "xyz",
+                ]),
             ]).toZinc(),
             #"[T, "abc", 42furloghs, [F, "xyz"]]"#
         )
     }
-    
+
     func testEquatable() {
         // Test basic
-        XCTAssertEqual (
+        XCTAssertEqual(
             List(["a"]),
             List(["a"])
         )
-        XCTAssertNotEqual (
+        XCTAssertNotEqual(
             List(["a"]),
             List(["b"])
         )
-        
+
         // Test element count matters
-        XCTAssertNotEqual (
+        XCTAssertNotEqual(
             List([
                 "a",
                 "a",
@@ -64,7 +64,7 @@ final class ListTests: XCTestCase {
                 "a",
             ])
         )
-        XCTAssertNotEqual (
+        XCTAssertNotEqual(
             List([
                 "a",
             ]),
@@ -73,9 +73,9 @@ final class ListTests: XCTestCase {
                 "a",
             ])
         )
-        
+
         // Test order matters
-        XCTAssertNotEqual (
+        XCTAssertNotEqual(
             List([
                 "a",
                 "b",
@@ -85,17 +85,17 @@ final class ListTests: XCTestCase {
                 "a",
             ])
         )
-        
+
         // Test nested
-        XCTAssertEqual (
+        XCTAssertEqual(
             List([
                 true,
                 "abc",
                 Number(42, unit: "furloghs"),
                 List([
                     false,
-                    "xyz"
-                ])
+                    "xyz",
+                ]),
             ]),
             List([
                 true,
@@ -103,19 +103,19 @@ final class ListTests: XCTestCase {
                 Number(42, unit: "furloghs"),
                 List([
                     false,
-                    "xyz"
-                ])
+                    "xyz",
+                ]),
             ])
         )
-        XCTAssertNotEqual (
+        XCTAssertNotEqual(
             List([
                 true,
                 "abc",
                 Number(42, unit: "furloghs"),
                 List([
                     false,
-                    "xyz"
-                ])
+                    "xyz",
+                ]),
             ]),
             List([
                 true,
@@ -123,26 +123,26 @@ final class ListTests: XCTestCase {
                 Number(42, unit: "furloghs"),
                 List([
                     true,
-                    "xyz"
-                ])
+                    "xyz",
+                ]),
             ])
         )
     }
-    
+
     func testCollection() {
         let list: List = [
             true,
             "abc",
             Number(42, unit: "furloghs"),
-            List([true, "xyz"])
+            List([true, "xyz"]),
         ]
-        
+
         // Test index access
         XCTAssertEqual(list[0] as? Bool, true)
         XCTAssertEqual(list[1] as? String, "abc")
         XCTAssertEqual((list[2] as? Number), Number(42, unit: "furloghs"))
         XCTAssertEqual((list[3] as? List), [true, "xyz"])
-        
+
         // Test loop
         for (i, element) in list.enumerated() {
             switch i {

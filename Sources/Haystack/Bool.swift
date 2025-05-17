@@ -5,7 +5,7 @@ import Foundation
 /// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#bool)
 extension Bool: Val {
     public static var valType: ValType { .Bool }
-    
+
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {

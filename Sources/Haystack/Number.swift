@@ -6,25 +6,27 @@ import Foundation
 /// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#number)
 public struct Number: Val {
     public static var valType: ValType { .Number }
-    
+
     public static var infinity: Self {
         return Number(.infinity)
     }
+
     public static var negativeInfinity: Self {
         return Number(-1 * .infinity)
     }
+
     public static var nan: Self {
         return Number(.nan)
     }
-    
+
     public let val: Double
     public let unit: String?
-    
+
     public init(_ val: Double, unit: String? = nil) {
         self.val = val
         self.unit = unit
     }
-    
+
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
@@ -38,20 +40,20 @@ public struct Number: Val {
                 return "-INF"
             }
         }
-        
+
         var zinc: String
         if val.remainder(dividingBy: 1.0) == .zero {
             zinc = String(format: "%.f", val)
         } else {
             zinc = "\(val)"
         }
-        
+
         if let unit = unit {
             zinc += "\(unit.withZincUnicodeEscaping())"
         }
         return zinc
     }
-    
+
     public var isInt: Bool {
         return val == val.rounded()
     }
@@ -60,13 +62,13 @@ public struct Number: Val {
 // Number + Codable
 extension Number {
     static let kindValue = "number"
-    
+
     enum CodingKeys: CodingKey {
         case _kind
         case val
         case unit
     }
-    
+
     /// Read from decodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#number)
     public init(from decoder: Decoder) throws {
@@ -80,12 +82,12 @@ extension Number {
                     )
                 )
             }
-            
+
             if let val = try? container.decode(Double.self, forKey: .val) {
                 self.val = val
-                self.unit = try container.decode(String?.self, forKey: .unit)
+                unit = try container.decode(String?.self, forKey: .unit)
             } else if let val = try? container.decode(String.self, forKey: .val) {
-                self.unit = nil
+                unit = nil
                 switch val {
                 case "INF":
                     self.val = .infinity
@@ -112,8 +114,8 @@ extension Number {
                 )
             }
         } else if let container = try? decoder.singleValueContainer() {
-            self.val = try container.decode(Double.self)
-            self.unit = nil
+            val = try container.decode(Double.self)
+            unit = nil
         } else {
             throw DecodingError.typeMismatch(
                 Self.self,
@@ -124,14 +126,14 @@ extension Number {
             )
         }
     }
-    
+
     /// Write to encodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#number)
     public func encode(to encoder: Encoder) throws {
         if unit != nil || val.isNaN || val.isInfinite {
             var container = encoder.container(keyedBy: Self.CodingKeys.self)
             try container.encode(Self.kindValue, forKey: ._kind)
-            
+
             if val.isNaN {
                 try container.encode("NaN", forKey: .val)
             } else if val.isInfinite {
@@ -152,16 +154,16 @@ extension Number {
 }
 
 // Number + Equatable
-extension Number {
-    public static func == (lhs: Number, rhs: Number) -> Bool {
+public extension Number {
+    static func == (lhs: Number, rhs: Number) -> Bool {
         guard lhs.unit == rhs.unit else {
             return false
         }
-        
+
         if lhs.val.isNaN {
             return rhs.val.isNaN // Consider 2 NaN numbers as equal
         }
-        
+
         return lhs.val == rhs.val
     }
 }

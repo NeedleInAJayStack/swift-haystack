@@ -1,5 +1,5 @@
-import XCTest
 import Haystack
+import XCTest
 
 final class DateTests: XCTestCase {
     func testJsonCoding() throws {
@@ -9,21 +9,21 @@ final class DateTests: XCTestCase {
             day: 7
         )
         let jsonString = #"{"_kind":"date","val":"1991-06-07"}"#
-        
+
         // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
         XCTAssertEqual(
             try JSONDecoder().decode(Date.self, from: encodedData),
             value
         )
-        
+
         let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))
         XCTAssertEqual(
             try JSONDecoder().decode(Haystack.Date.self, from: decodedData),
             value
         )
     }
-    
+
     func testToZinc() throws {
         XCTAssertEqual(
             try Date(

@@ -1,11 +1,11 @@
-import XCTest
 @testable import Haystack
+import XCTest
 
 final class ZincTokenizerTests: XCTestCase {
     func testEmpty() throws {
         try XCTAssertEqualTokensAndVals(zinc: "", expected: [])
     }
-    
+
     func testId() throws {
         try XCTAssertEqualTokensAndVals(zinc: "x", expected: [(.id, "x")])
         try XCTAssertEqualTokensAndVals(zinc: "fooBar", expected: [(.id, "fooBar")])
@@ -13,21 +13,21 @@ final class ZincTokenizerTests: XCTestCase {
         try XCTAssertEqualTokensAndVals(zinc: "foo_23", expected: [(.id, "foo_23")])
         try XCTAssertEqualTokensAndVals(zinc: "Foo", expected: [(.id, "Foo")])
     }
-    
+
     func testNum() throws {
         try XCTAssertEqualTokensAndVals(zinc: "5", expected: [(.num, Number(5))])
-        try XCTAssertEqualTokensAndVals(zinc: "0x1234_abcd", expected: [(.num, Number(0x1234abcd))])
+        try XCTAssertEqualTokensAndVals(zinc: "0x1234_abcd", expected: [(.num, Number(0x1234_ABCD))])
     }
-    
+
     func testFloats() throws {
         try XCTAssertEqualTokensAndVals(zinc: "5.0", expected: [(.num, Number(5))])
         try XCTAssertEqualTokensAndVals(zinc: "5.42", expected: [(.num, Number(5.42))])
         try XCTAssertEqualTokensAndVals(zinc: "123.2e32", expected: [(.num, Number(123.2e32))])
         try XCTAssertEqualTokensAndVals(zinc: "123.2e+32", expected: [(.num, Number(123.2e+32))])
-        try XCTAssertEqualTokensAndVals(zinc: "2_123.2e+32", expected: [(.num, Number(2_123.2e+32))])
+        try XCTAssertEqualTokensAndVals(zinc: "2_123.2e+32", expected: [(.num, Number(2123.2e+32))])
         try XCTAssertEqualTokensAndVals(zinc: "4.2e-7", expected: [(.num, Number(4.2e-7))])
     }
-    
+
     func testNumberWithUnits() throws {
         try XCTAssertEqualTokensAndVals(zinc: "-40ms", expected: [(.num, Number(-40, unit: "ms"))])
         try XCTAssertEqualTokensAndVals(zinc: "1sec", expected: [(.num, Number(1, unit: "sec"))])
@@ -39,18 +39,18 @@ final class ZincTokenizerTests: XCTestCase {
         try XCTAssertEqualTokensAndVals(zinc: #"12kWh/ft\u00B2"#, expected: [(.num, Number(12, unit: "kWh/ft\u{00B2}"))])
         try XCTAssertEqualTokensAndVals(zinc: "3_000.5J/kg_dry", expected: [(.num, Number(3000.5, unit: "J/kg_dry"))])
     }
-    
+
     func testStrings() throws {
         try XCTAssertEqualTokensAndVals(zinc: #""""#, expected: [(.str, "")])
         try XCTAssertEqualTokensAndVals(zinc: #""x y""#, expected: [(.str, "x y")])
         try XCTAssertEqualTokensAndVals(zinc: #""x\"y""#, expected: [(.str, #"x"y"#)])
         try XCTAssertEqualTokensAndVals(zinc: #""_\u012f \n \t \\_""#, expected: [(.str, "_\u{012f} \n \t \\_")])
     }
-    
+
     func testDate() throws {
         try XCTAssertEqualTokensAndVals(zinc: "2016-06-06", expected: [(.date, Date(year: 2016, month: 06, day: 06))])
     }
-    
+
     func testTime() throws {
         try XCTAssertEqualTokensAndVals(zinc: "8:30", expected: [(.time, Time(hour: 8, minute: 30, second: 0))])
         try XCTAssertEqualTokensAndVals(zinc: "20:15", expected: [(.time, Time(hour: 20, minute: 15, second: 0))])
@@ -64,48 +64,48 @@ final class ZincTokenizerTests: XCTestCase {
         try XCTAssertEqualTokensAndVals(zinc: "12:00:12.000", expected: [(.time, Time(hour: 12, minute: 0, second: 12))])
         try XCTAssertEqualTokensAndVals(zinc: "12:00:12.001", expected: [(.time, Time(hour: 12, minute: 0, second: 12, millisecond: 1))])
     }
-    
+
     func testDateTime() throws {
         try XCTAssertEqualTokensAndVals(
             zinc: "2016-01-13T09:51:33-05:00 New_York",
-            expected: [(.datetime, try DateTime(year: 2016, month: 1, day: 13, hour: 9, minute: 51, second: 33, gmtOffset: -5*60*60, timezone: "New_York"))]
+            expected: try [(.datetime, DateTime(year: 2016, month: 1, day: 13, hour: 9, minute: 51, second: 33, gmtOffset: -5 * 60 * 60, timezone: "New_York"))]
         )
         try XCTAssertEqualTokensAndVals(
             zinc: "2016-01-13T09:51:33.352-05:00 New_York",
-            expected: [(.datetime, try DateTime(year: 2016, month: 1, day: 13, hour: 9, minute: 51, second: 33, millisecond: 352, gmtOffset: -5*60*60, timezone: "New_York"))]
+            expected: try [(.datetime, DateTime(year: 2016, month: 1, day: 13, hour: 9, minute: 51, second: 33, millisecond: 352, gmtOffset: -5 * 60 * 60, timezone: "New_York"))]
         )
         try XCTAssertEqualTokensAndVals(
             zinc: "2010-12-18T14:11:30.924Z",
-            expected: [(.datetime, try DateTime(year: 2010, month: 12, day: 18, hour: 14, minute: 11, second: 30, millisecond: 924, timezone: DateTime.utcName))]
+            expected: try [(.datetime, DateTime(year: 2010, month: 12, day: 18, hour: 14, minute: 11, second: 30, millisecond: 924, timezone: DateTime.utcName))]
         )
         try XCTAssertEqualTokensAndVals(
             zinc: "2010-12-18T14:11:30.924Z UTC",
-            expected: [(.datetime, try DateTime(year: 2010, month: 12, day: 18, hour: 14, minute: 11, second: 30, millisecond: 924, timezone: DateTime.utcName))]
+            expected: try [(.datetime, DateTime(year: 2010, month: 12, day: 18, hour: 14, minute: 11, second: 30, millisecond: 924, timezone: DateTime.utcName))]
         )
         try XCTAssertEqualTokensAndVals(
             zinc: "2010-12-18T14:11:30.924Z London",
-            expected: [(.datetime, try DateTime(year: 2010, month: 12, day: 18, hour: 14, minute: 11, second: 30, millisecond: 924, timezone: "London"))]
+            expected: try [(.datetime, DateTime(year: 2010, month: 12, day: 18, hour: 14, minute: 11, second: 30, millisecond: 924, timezone: "London"))]
         )
         try XCTAssertEqualTokensAndVals(
             zinc: "2010-03-01T23:55:00.013-05:00 GMT+5",
-            expected: [(.datetime, try DateTime(year: 2010, month: 3, day: 1, hour: 23, minute: 55, second: 0, millisecond: 13, gmtOffset: -5*60*60, timezone: "GMT+5"))]
+            expected: try [(.datetime, DateTime(year: 2010, month: 3, day: 1, hour: 23, minute: 55, second: 0, millisecond: 13, gmtOffset: -5 * 60 * 60, timezone: "GMT+5"))]
         )
         try XCTAssertEqualTokensAndVals(
             zinc: "2010-03-01T23:55:00.013+10:00 GMT-10",
-            expected: [(.datetime, try DateTime(year: 2010, month: 3, day: 1, hour: 23, minute: 55, second: 0, millisecond: 13, gmtOffset: 10*60*60, timezone: "GMT-10"))]
+            expected: try [(.datetime, DateTime(year: 2010, month: 3, day: 1, hour: 23, minute: 55, second: 0, millisecond: 13, gmtOffset: 10 * 60 * 60, timezone: "GMT-10"))]
         )
     }
-    
+
     func testRef() throws {
         try XCTAssertEqualTokensAndVals(zinc: "@125b780e-0684e169", expected: [(.ref, Ref("125b780e-0684e169"))])
         try XCTAssertEqualTokensAndVals(zinc: "@demo:_:-.~", expected: [(.ref, Ref("demo:_:-.~"))])
     }
-    
+
     func testUri() throws {
         try XCTAssertEqualTokensAndVals(zinc: "`http://foo/`", expected: [(.uri, Uri("http://foo/"))])
         try XCTAssertEqualTokensAndVals(zinc: "`_ \\n \\\\ \\`_`", expected: [(.uri, Uri("_ \n \\\\ `_"))])
     }
-    
+
     func testWhitespace() throws {
         try XCTAssertEqualTokensAndVals(
             zinc: "a\n  b   \rc \r\nd\n\ne",
@@ -123,12 +123,12 @@ final class ZincTokenizerTests: XCTestCase {
             ]
         )
     }
-    
+
     private func XCTAssertEqualTokensAndVals(
         zinc: String,
         expected: [(ZincToken, (any Val)?)],
-        file: StaticString = #filePath,
-        line: UInt = #line
+        file _: StaticString = #filePath,
+        line _: UInt = #line
     ) throws {
         var actual = [(ZincToken, (any Val)?)]()
         let tokenizer = try ZincTokenizer(zinc)
@@ -140,7 +140,7 @@ final class ZincTokenizerTests: XCTestCase {
             }
             actual.append((token, tokenizer.val))
         }
-        
+
         XCTAssertEqual(actual.count, expected.count, "\(actual) does not equal \(expected)")
         for (actualElement, expectedElement) in zip(actual, expected) {
             XCTAssertEqual(actualElement.0, expectedElement.0)

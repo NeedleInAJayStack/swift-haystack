@@ -3,7 +3,7 @@
 public enum DataFormat: String {
     case json
     case zinc
-    
+
     // See Content Negotiation: https://haxall.io/doc/docHaystack/HttpApi.html#contentNegotiation
     var acceptHeaderValue: String {
         switch self {
@@ -11,7 +11,7 @@ public enum DataFormat: String {
         case .zinc: return "text/zinc"
         }
     }
-    
+
     var contentTypeHeaderValue: String {
         switch self {
         case .json: return "application/json"

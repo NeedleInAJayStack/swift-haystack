@@ -10,11 +10,11 @@ public let na = NA()
 /// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#na)
 public struct NA: Val {
     public static var valType: ValType { .NA }
-    
+
     public static var val: Self {
         return na
     }
-    
+
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
@@ -25,11 +25,11 @@ public struct NA: Val {
 // NA + Codable
 extension NA {
     static let kindValue = "na"
-    
+
     enum CodingKeys: CodingKey {
         case _kind
     }
-    
+
     /// Read from decodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#na)
     public init(from decoder: Decoder) throws {
@@ -54,7 +54,7 @@ extension NA {
             )
         }
     }
-    
+
     /// Write to encodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#na)
     public func encode(to encoder: Encoder) throws {
