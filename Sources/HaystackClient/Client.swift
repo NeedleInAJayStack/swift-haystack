@@ -252,7 +252,7 @@ public class Client: API {
     ///   - range: A date-time range
     /// - Returns: A grid whose rows represent timetamp/value pairs with a DateTime ts column and a val column for each scalar value
     public func hisRead(id: Ref, range: HisReadRange) async throws -> Grid {
-        return try await post(path: "hisRead", args: ["id": id, "range": range.toRequestString()])
+        return try await post(path: "hisRead", args: ["id": id, "range": range.toZinc()])
     }
     
     /// Posts new time-series data to a historized point
@@ -608,17 +608,4 @@ public enum HTTPHeader {
     public static let contentType = "Content-Type"
     public static let userAgent = "User-Agent"
     public static let wwwAuthenticate = "Www-Authenticate"
-}
-
-extension HisReadRange {
-    func toRequestString() -> String {
-        switch self {
-        case .today: return "today"
-        case .yesterday: return "yesterday"
-        case let .date(date): return "\(date.toZinc())"
-        case let .dateRange(fromDate, toDate): return "\(fromDate.toZinc()),\(toDate.toZinc())"
-        case let .dateTimeRange(fromDateTime, toDateTime): return "\(fromDateTime.toZinc()),\(toDateTime.toZinc())"
-        case let .after(dateTime): return "\(dateTime.toZinc())"
-        }
-    }
 }

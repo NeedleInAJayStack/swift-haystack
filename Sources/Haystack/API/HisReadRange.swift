@@ -42,4 +42,70 @@ public enum HisReadRange {
             return nil
         }
     }
+
+    public static func fromZinc(_ str: String) throws -> HisReadRange {
+        if str == "today" {
+            return .today
+        }
+        if str == "yesterday" {
+            return .yesterday
+        }
+        if str.contains(",") {
+            let split = str.split(separator: ",")
+            let fromStr = String(split[0])
+            let fromVal = try? ZincReader(fromStr).readVal()
+            let toStr = String(split[1])
+            let toVal = try? ZincReader(toStr).readVal()
+
+            switch fromVal {
+            case let fromDate as Haystack.Date:
+                switch toVal {
+                case let toDate as Haystack.Date:
+                    return .dateRange(from: fromDate, to: toDate)
+                default:
+                    throw HisReadRangeError.fromAndToDontMatch(fromStr, toStr)
+                }
+            case let fromDateTime as DateTime:
+                switch toVal {
+                case let toDateTime as DateTime:
+                    return .dateTimeRange(from: fromDateTime, to: toDateTime)
+                default:
+                    throw HisReadRangeError.fromAndToDontMatch(fromStr, toStr)
+                }
+            default:
+                throw HisReadRangeError.formatNotRecognized(str)
+            }
+        }
+        let val = try? ZincReader(str).readVal()
+        switch val {
+        case let date as Haystack.Date:
+            return .date(date)
+        case let dateTime as DateTime:
+            return .after(dateTime)
+        default:
+            throw HisReadRangeError.formatNotRecognized(str)
+        }
+    }
+
+    public func toZinc() throws -> String {
+        switch self {
+        case .today:
+            return "today"
+        case .yesterday:
+            return "yesterday"
+        case let .date(date):
+            return date.toZinc()
+        case let .dateRange(from, to):
+            return "\(from.toZinc()),\(to.toZinc())"
+        case let .dateTimeRange(from, to):
+            return "\(from.toZinc()),\(to.toZinc())"
+        case let .after(dateTime):
+            return dateTime.toZinc()
+        }
+    }
+}
+
+enum HisReadRangeError: Error {
+    case fromAndToDontMatch(String, String)
+    case formatNotRecognized(String)
 }
