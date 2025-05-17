@@ -2,7 +2,7 @@ import Foundation
 
 enum ZincToken: String, Equatable, Hashable {
     case eof
-    
+
     // literals
     case id = "identifier"
     case num = "Number"
@@ -13,7 +13,7 @@ enum ZincToken: String, Equatable, Hashable {
     case date = "Date"
     case time = "Time"
     case datetime = "DateTime"
-    
+
     // syntax
     case colon = ":"
     case comma = ","
@@ -38,11 +38,11 @@ enum ZincToken: String, Equatable, Hashable {
     case assign = "="
     case bang = "!"
     case nl = "newline"
-    
+
     var dis: String {
-        return self.rawValue
+        return rawValue
     }
-    
+
     var isLiteral: Bool {
         switch self {
         case .num, .str, .ref, .symbol, .uri, .date, .time, .datetime:

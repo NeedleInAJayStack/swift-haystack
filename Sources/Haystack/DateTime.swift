@@ -10,17 +10,17 @@ import Foundation
 public struct DateTime: Val {
     public static var valType: ValType { .DateTime }
     public static let utcName = "UTC"
-    
+
     public let date: Foundation.Date
     public let gmtOffset: Int
     public let timezone: String
-    
+
     public init(date: Foundation.Date) {
         self.date = date
-        self.gmtOffset = 0
-        self.timezone = Self.utcName
+        gmtOffset = 0
+        timezone = Self.utcName
     }
-    
+
     public init(
         year: Int,
         month: Int,
@@ -50,7 +50,7 @@ public struct DateTime: Val {
         self.gmtOffset = gmtOffset
         self.timezone = timezone
     }
-    
+
     public init(
         date: Date,
         time: Time,
@@ -75,7 +75,7 @@ public struct DateTime: Val {
         self.gmtOffset = gmtOffset
         self.timezone = timezone
     }
-    
+
     public init(_ string: String) throws {
         let splits = string.split(separator: " ")
         let isoString = String(splits[0])
@@ -83,12 +83,12 @@ public struct DateTime: Val {
         self.date = date
         self.gmtOffset = gmtOffset
         if splits.count > 1 {
-            self.timezone = String(splits[1])
+            timezone = String(splits[1])
         } else {
-            self.timezone = Self.utcName
+            timezone = Self.utcName
         }
     }
-    
+
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
@@ -103,17 +103,17 @@ public struct DateTime: Val {
         }
         return zinc
     }
-    
+
     static func dateFromString(_ isoString: String) throws -> (Foundation.Date, Int) {
         // Must use Regex so we can preserve GMT offset details. dateFormatter doesn't give us this
         let expr = try NSRegularExpression(pattern: #"(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2}\.?\d*)([+-]\d{2}:\d{2}|Z)"#)
         guard let match = expr.firstMatch(
             in: isoString,
-            range: NSRange(isoString.startIndex..<isoString.endIndex, in: isoString)
+            range: NSRange(isoString.startIndex ..< isoString.endIndex, in: isoString)
         ) else {
             throw ValError.invalidDateTimeFormat(isoString)
         }
-        
+
         guard
             let dateRange = Range(match.range(at: 1), in: isoString),
             let timeRange = Range(match.range(at: 2), in: isoString),
@@ -121,11 +121,11 @@ public struct DateTime: Val {
         else {
             throw ValError.invalidDateTimeFormat(isoString)
         }
-        
+
         let date = try Date(String(isoString[dateRange]))
         let time = try Time(String(isoString[timeRange]))
         let offsetStr = String(isoString[offsetRange])
-        
+
         let gmtOffset: Int
         if offsetStr == "Z" {
             gmtOffset = 0
@@ -133,11 +133,11 @@ public struct DateTime: Val {
             let offsetExpr = try NSRegularExpression(pattern: #"([+-])(\d{2}):(\d{2})"#)
             guard let offsetMatch = offsetExpr.firstMatch(
                 in: offsetStr,
-                range: NSRange(offsetStr.startIndex..<offsetStr.endIndex, in: offsetStr)
+                range: NSRange(offsetStr.startIndex ..< offsetStr.endIndex, in: offsetStr)
             ) else {
                 throw ValError.invalidDateTimeFormat(isoString)
             }
-            
+
             guard
                 let symbolRange = Range(offsetMatch.range(at: 1), in: offsetStr),
                 let hourRange = Range(offsetMatch.range(at: 2), in: offsetStr),
@@ -148,10 +148,10 @@ public struct DateTime: Val {
                 throw ValError.invalidDateTimeFormat(isoString)
             }
             let sign = String(offsetStr[symbolRange]) == "+" ? 1 : -1
-            
+
             gmtOffset = sign * ((hour * 60 * 60) + (minute * 60))
         }
-        
+
         let components = DateComponents(
             calendar: calendar,
             timeZone: .init(secondsFromGMT: gmtOffset),
@@ -166,14 +166,14 @@ public struct DateTime: Val {
         guard let date = components.date else {
             throw ValError.invalidDateTimeDefinition
         }
-        
+
         return (date, gmtOffset)
     }
-    
+
     private var hasMilliseconds: Bool {
         return calendar.component(.nanosecond, from: date) != 0
     }
-    
+
     /// Singleton Haystack DateTime formatter
     var dateTimeFormatter: ISO8601DateFormatter {
         let formatter = ISO8601DateFormatter()
@@ -196,13 +196,13 @@ var calendar = Calendar(identifier: .gregorian)
 // DateTime + Codable
 extension DateTime {
     static let kindValue = "dateTime"
-    
+
     enum CodingKeys: CodingKey {
         case _kind
         case val
         case tz
     }
-    
+
     /// Read from decodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#dateTime)
     public init(from decoder: Decoder) throws {
@@ -215,7 +215,7 @@ extension DateTime {
                 )
             )
         }
-        
+
         guard try container.decode(String.self, forKey: ._kind) == Self.kindValue else {
             throw DecodingError.typeMismatch(
                 Self.self,
@@ -225,7 +225,7 @@ extension DateTime {
                 )
             )
         }
-        
+
         let isoString = try container.decode(String.self, forKey: .val)
         do {
             let (date, gmtOffset) = try Self.dateFromString(isoString)
@@ -240,11 +240,11 @@ extension DateTime {
                 )
             )
         }
-        
+
         let timezone = (try? container.decode(String.self, forKey: .tz)) ?? Self.utcName
         self.timezone = timezone
     }
-    
+
     /// Write to encodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#dateTime)
     public func encode(to encoder: Encoder) throws {
@@ -252,9 +252,9 @@ extension DateTime {
         try container.encode(Self.kindValue, forKey: ._kind)
         let isoString: String
         if hasMilliseconds {
-            isoString = dateTimeWithMillisFormatter.string(from: self.date)
+            isoString = dateTimeWithMillisFormatter.string(from: date)
         } else {
-            isoString = dateTimeFormatter.string(from: self.date)
+            isoString = dateTimeFormatter.string(from: date)
         }
         try container.encode(isoString, forKey: .val)
         if timezone != DateTime.utcName {

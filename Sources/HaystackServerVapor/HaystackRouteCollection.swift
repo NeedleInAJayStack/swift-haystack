@@ -3,7 +3,6 @@ import Vapor
 
 /// A route collection that exposes Haystack API endpoints.
 public struct HaystackRouteCollection: RouteCollection {
-
     /// This instance defines all Haystack API processing that is done server-side.
     let delegate: any API
 
@@ -12,11 +11,10 @@ public struct HaystackRouteCollection: RouteCollection {
     }
 
     public func boot(routes: any Vapor.RoutesBuilder) throws {
-
         /// Closes the current authentication session.
         ///
         /// https://project-haystack.org/doc/docHaystack/Ops#close
-        routes.post("close") { request in
+        routes.post("close") { _ in
             try await delegate.close()
             return ""
         }
@@ -25,14 +23,14 @@ public struct HaystackRouteCollection: RouteCollection {
         ///
         /// https://project-haystack.org/doc/docHaystack/Ops#about
         routes.get("about") { request in
-            return try await request.respond(with: delegate.about())
+            try await request.respond(with: delegate.about())
         }
 
         /// Queries basic information about the server
         ///
         /// https://project-haystack.org/doc/docHaystack/Ops#about
         routes.post("about") { request in
-            return try await request.respond(with: delegate.about())
+            try await request.respond(with: delegate.about())
         }
 
         /// Queries def dicts from the current namespace

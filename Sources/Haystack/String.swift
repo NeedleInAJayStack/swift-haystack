@@ -7,17 +7,17 @@ import Foundation
 /// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#str)
 extension String: Val {
     public static var valType: ValType { .Str }
-    
+
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
-        let zinc = self.withZincUnicodeEscaping()
+        let zinc = withZincUnicodeEscaping()
         return "\"\(zinc)\""
     }
-    
+
     func withZincUnicodeEscaping() -> String {
         var zinc = ""
-        for c in self.unicodeScalars {
+        for c in unicodeScalars {
             if c < " " {
                 switch c {
                 case "\n": zinc.append(#"\n"#)
@@ -41,6 +41,6 @@ extension String: Val {
 
 private extension Unicode.Scalar {
     func haystackUnicodeFormat() -> String {
-        return "\\u\(String(format:"%04x", self.value))"
+        return "\\u\(String(format: "%04x", value))"
     }
 }

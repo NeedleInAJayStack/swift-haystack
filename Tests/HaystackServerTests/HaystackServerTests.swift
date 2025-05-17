@@ -280,7 +280,7 @@ final class HaystackServerTests: XCTestCase {
                     HisItem(ts: DateTime("2025-05-10T00:00:00-07:00"), val: Number(2)),
                     HisItem(ts: DateTime("2025-05-10T12:00:00-07:00"), val: Number(3)),
                     HisItem(ts: DateTime("2025-05-11T00:00:00-07:00"), val: Number(4)),
-                ]
+                ],
             ]),
             watchStore: InMemoryWatchStore()
         )
@@ -330,9 +330,9 @@ final class HaystackServerTests: XCTestCase {
         // Test relative time ranges
 
         let now = Date.now
-        let yesterday = now.addingTimeInterval(-60*60*24)
-        let dayBeforeYesterday = now.addingTimeInterval(-60*60*24*2)
-        let tomorrow = now.addingTimeInterval(60*60*24)
+        let yesterday = now.addingTimeInterval(-60 * 60 * 24)
+        let dayBeforeYesterday = now.addingTimeInterval(-60 * 60 * 24 * 2)
+        let tomorrow = now.addingTimeInterval(60 * 60 * 24)
 
         let relativeServer = try HaystackServer(
             recordStore: InMemoryRecordStore([
@@ -344,7 +344,7 @@ final class HaystackServerTests: XCTestCase {
                     HisItem(ts: DateTime(date: yesterday), val: Number(2)),
                     HisItem(ts: DateTime(date: now), val: Number(3)),
                     HisItem(ts: DateTime(date: tomorrow), val: Number(4)),
-                ]
+                ],
             ]),
             watchStore: InMemoryWatchStore()
         )
@@ -406,7 +406,7 @@ final class HaystackServerTests: XCTestCase {
         var newB = recB
         newB["new"] = Marker.val
         _ = try await recordStore.commitAll(diffs: [
-            .init(id: idB, old: recB, new: newB)
+            .init(id: idB, old: recB, new: newB),
         ])
 
         // Check that subsequent poll picks up B
@@ -428,7 +428,7 @@ final class HaystackServerTests: XCTestCase {
         var newC = recC
         newC["new"] = Marker.val
         _ = try await recordStore.commitAll(diffs: [
-            .init(id: idC, old: recC, new: newC)
+            .init(id: idC, old: recC, new: newC),
         ])
 
         // Validate poll picks up C
@@ -446,7 +446,7 @@ final class HaystackServerTests: XCTestCase {
         var newA = recA
         newA["new"] = Marker.val
         _ = try await recordStore.commitAll(diffs: [
-            .init(id: idA, old: recA, new: newA)
+            .init(id: idA, old: recA, new: newA),
         ])
 
         // Validate poll does not pick up A
@@ -485,7 +485,7 @@ final class HaystackServerTests: XCTestCase {
             recordStore: InMemoryRecordStore(),
             historyStore: InMemoryHistoryStore(),
             watchStore: InMemoryWatchStore(),
-            onEval: { expression in
+            onEval: { _ in
                 let gb = GridBuilder()
                 try gb.addRow(["foo": "bar"])
                 return gb.toGrid()
@@ -510,11 +510,11 @@ class InMemoryRecordStore: RecordStore {
     init() {}
 
     init(_ dicts: [Haystack.Ref: Haystack.Dict]) {
-        self.recs = [:]
+        recs = [:]
         for (k, v) in dicts {
             var dictWithMod = v
             dictWithMod["mod"] = DateTime(date: .now)
-            self.recs[k] = dictWithMod
+            recs[k] = dictWithMod
         }
     }
 
@@ -537,7 +537,7 @@ class InMemoryRecordStore: RecordStore {
             if try filter.include(
                 dict: rec,
                 pather: { ref in
-                    return try? self.recs[Ref(ref)]
+                    try? self.recs[Ref(ref)]
                 }
             ) {
                 dicts.append(rec)
@@ -569,7 +569,7 @@ class InMemoryHistoryStore: HistoryStore {
     var histories: [Ref: [HisItem]]
 
     init() {
-        self.histories = [:]
+        histories = [:]
     }
 
     init(_ histories: [Ref: [HisItem]] = [:]) {
@@ -609,7 +609,7 @@ class InMemoryWatchStore: WatchStore {
     var watches: [String: Watch] = [:]
 
     init() {
-        self.watches = [:]
+        watches = [:]
     }
 
     init(_ watches: [String: Watch] = [:]) {
@@ -669,7 +669,7 @@ class InMemoryWatchStore: WatchStore {
             self.id = id
             self.ids = ids
             self.lease = lease ?? Number(1, unit: "hr")
-            self.lastReported = nil
+            lastReported = nil
         }
     }
 }

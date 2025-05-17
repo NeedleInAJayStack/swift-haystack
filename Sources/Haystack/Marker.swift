@@ -9,12 +9,12 @@ public let marker = Marker()
 /// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#marker)
 public struct Marker: Val {
     public static var valType: ValType { .Marker }
-    
+
     /// Singleton `Marker` instance
     public static var val: Self {
         return marker
     }
-    
+
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
@@ -25,11 +25,11 @@ public struct Marker: Val {
 // Marker + Codable
 extension Marker {
     static let kindValue = "marker"
-    
+
     enum CodingKeys: CodingKey {
         case _kind
     }
-    
+
     /// Read from decodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#marker)
     public init(from decoder: Decoder) throws {
@@ -54,7 +54,7 @@ extension Marker {
             )
         }
     }
-    
+
     /// Write to encodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#marker)
     public func encode(to encoder: Encoder) throws {

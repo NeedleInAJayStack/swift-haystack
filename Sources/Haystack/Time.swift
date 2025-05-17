@@ -5,28 +5,28 @@ import Foundation
 /// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#time)
 public struct Time: Val {
     public static var valType: ValType { .Time }
-    
+
     public let hour: Int
     public let minute: Int
     public let second: Int
     public let millisecond: Int
-    
+
     public init(hour: Int, minute: Int, second: Int, millisecond: Int = 0) throws {
         guard
-            0 <= hour, hour < 24,
-            0 <= minute, minute < 60,
-            0 <= second, second < 60,
-            0 <= millisecond, millisecond < 1000
+            hour >= 0, hour < 24,
+            minute >= 0, minute < 60,
+            second >= 0, second < 60,
+            millisecond >= 0, millisecond < 1000
         else {
             throw ValError.invalidTimeDefinition
         }
-        
+
         self.hour = hour
         self.minute = minute
         self.second = second
         self.millisecond = millisecond
     }
-    
+
     public init(_ isoString: String) throws {
         let colonSplit = isoString.split(separator: ":")
         guard colonSplit.count == 3 else {
@@ -37,7 +37,7 @@ public struct Time: Val {
         let secondAndMilliStr = colonSplit[2]
         let secondAndMilliSplit = secondAndMilliStr.split(separator: ".")
         let secondStr = secondAndMilliSplit[0]
-        
+
         guard
             let hour = Int(hourStr),
             let minute = Int(minuteStr),
@@ -45,11 +45,11 @@ public struct Time: Val {
         else {
             throw ValError.invalidTimeFormat(isoString)
         }
-        
+
         self.hour = hour
         self.minute = minute
         self.second = second
-        
+
         if secondAndMilliStr.contains(".") {
             var millisecondStr = secondAndMilliSplit[1]
             guard millisecondStr.count <= 3 else {
@@ -64,22 +64,22 @@ public struct Time: Val {
             }
             self.millisecond = millisecond
         } else {
-            self.millisecond = 0
+            millisecond = 0
         }
     }
-    
+
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         return isoString
     }
-    
+
     var isoString: String {
         let hourStr = String(format: "%02d", arguments: [hour])
         let minuteStr = String(format: "%02d", arguments: [minute])
         let secondStr = String(format: "%02d", arguments: [second])
         var isoString = "\(hourStr):\(minuteStr):\(secondStr)"
-        
+
         if millisecond != 0 {
             let millisecondStr = String(format: "%03d", arguments: [millisecond])
             isoString += ".\(millisecondStr)"
@@ -91,12 +91,12 @@ public struct Time: Val {
 // Time + Codable
 extension Time {
     static let kindValue = "time"
-    
+
     enum CodingKeys: CodingKey {
         case _kind
         case val
     }
-    
+
     /// Read from decodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#date)
     public init(from decoder: Decoder) throws {
@@ -110,7 +110,7 @@ extension Time {
                     )
                 )
             }
-            
+
             let isoString = try container.decode(String.self, forKey: .val)
             do {
                 try self.init(isoString)
@@ -133,7 +133,7 @@ extension Time {
             )
         }
     }
-    
+
     /// Write to encodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#time)
     public func encode(to encoder: Encoder) throws {

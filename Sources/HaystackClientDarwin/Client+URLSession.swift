@@ -2,7 +2,6 @@ import Foundation
 import HaystackClient
 
 public extension Client {
-    
     /// Create a Haystack API Client that uses a `URLSession` from `Foundation` that
     /// is only available on Darwin platforms.
     ///

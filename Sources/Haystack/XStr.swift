@@ -9,16 +9,16 @@ import Foundation
 /// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#xstr)
 public struct XStr: Val {
     public static var valType: ValType { .XStr }
-    
+
     public let type: String
     public let val: String
-    
+
     public init(type: String, val: String) throws {
         try type.validateXStrTypeName()
         self.type = type
         self.val = val
     }
-    
+
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
@@ -29,13 +29,13 @@ public struct XStr: Val {
 // XStr + Codable
 extension XStr {
     static let kindValue = "xstr"
-    
+
     enum CodingKeys: CodingKey {
         case _kind
         case type
         case val
     }
-    
+
     /// Read from decodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#xstr)
     public init(from decoder: Decoder) throws {
@@ -49,7 +49,7 @@ extension XStr {
                     )
                 )
             }
-            
+
             try self.init(
                 type: container.decode(String.self, forKey: .type),
                 val: container.decode(String.self, forKey: .val)
@@ -64,7 +64,7 @@ extension XStr {
             )
         }
     }
-    
+
     /// Write to encodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#xstr)
     public func encode(to encoder: Encoder) throws {
@@ -77,7 +77,7 @@ extension XStr {
 
 extension String {
     func validateXStrTypeName() throws {
-        guard let firstChar = self.first else {
+        guard let firstChar = first else {
             throw XStrError.cannotBeEmptyString
         }
         guard firstChar.isUppercase else {
@@ -96,4 +96,3 @@ enum XStrError: Error {
     case leadingCharacterIsNotUpperCase(String)
     case invalidCharacter(Character, String)
 }
-

@@ -10,17 +10,17 @@ import Foundation
 /// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#grid)
 public struct Grid: Val {
     public static var valType: ValType { .Grid }
-    
+
     public private(set) var meta: Dict
     public private(set) var cols: [Col]
     public private(set) var rows: [Dict]
-    
+
     init(meta: Dict, cols: [Col], rows: [Dict]) {
         self.meta = meta
         self.cols = cols
         self.rows = rows
     }
-    
+
     /// Create a Grid with no column metadata from a list of Dicts.
     ///
     /// There is no guarantee on the column ordering.
@@ -35,24 +35,24 @@ public struct Grid: Val {
                 colNames.insert(key)
             }
         }
-        self.cols = colNames.map { Col(name: $0) }
-        self.rows = rowsAndColumns
+        cols = colNames.map { Col(name: $0) }
+        rows = rowsAndColumns
     }
-    
+
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         // Ensure `ver` is listed first in meta
         let ver = meta["ver"] ?? "3.0"
         var zinc = "ver:\(ver.toZinc())"
-        
+
         var metaWithoutVer = meta
         metaWithoutVer["ver"] = nil
         if metaWithoutVer.count > 0 {
             zinc += " \(metaWithoutVer.toZinc(withBraces: false))"
         }
         zinc += "\n"
-        
+
         if cols.isEmpty {
             zinc += "empty\n"
         } else {
@@ -65,7 +65,7 @@ public struct Grid: Val {
             }
             zinc += zincCols.joined(separator: ", ")
             zinc += "\n"
-            
+
             let zincRows = rows.map { row in
                 let rowZincElements = cols.map { col in
                     let element = row[col.name] ?? null
@@ -75,10 +75,10 @@ public struct Grid: Val {
             }
             zinc += zincRows.joined(separator: "\n")
         }
-        
+
         return zinc
     }
-    
+
     /// Returns a grid that is the same as the existing one, but with its columns reordered according to the input names.
     /// - Parameter newOrder: The names of the columns, in the desired order
     /// - Returns: self for chaining
@@ -90,7 +90,7 @@ public struct Grid: Val {
             }
             newCols.append(cols[colIndex])
         }
-        self.cols = newCols
+        cols = newCols
         return self
     }
 }
@@ -98,14 +98,14 @@ public struct Grid: Val {
 // Grid + Codable
 extension Grid {
     static let kindValue = "grid"
-    
+
     enum CodingKeys: CodingKey {
         case _kind
         case meta
         case cols
         case rows
     }
-    
+
     /// Read from decodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#grid)
     public init(from decoder: Decoder) throws {
@@ -119,17 +119,17 @@ extension Grid {
                     )
                 )
             }
-            
+
             var meta = try container.decode(Dict.self, forKey: .meta)
             meta["ver"] = nil // Remove version
             self.meta = meta
             let cols = try container.decode([Col].self, forKey: .cols)
             if cols.map(\.name) == ["empty"] {
                 self.cols = []
-                self.rows = []
+                rows = []
             } else {
                 self.cols = cols
-                self.rows = try container.decode([Dict].self, forKey: .rows)
+                rows = try container.decode([Dict].self, forKey: .rows)
             }
         } else {
             throw DecodingError.typeMismatch(
@@ -141,7 +141,7 @@ extension Grid {
             )
         }
     }
-    
+
     /// Write to encodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#grid)
     public func encode(to encoder: Encoder) throws {
@@ -161,12 +161,12 @@ extension Grid {
 }
 
 // Grid + Equatable
-extension Grid {
-    public static func == (lhs: Grid, rhs: Grid) -> Bool {
+public extension Grid {
+    static func == (lhs: Grid, rhs: Grid) -> Bool {
         guard lhs.meta == rhs.meta else {
             return false
         }
-        
+
         guard lhs.cols.count == rhs.cols.count else {
             return false
         }
@@ -178,7 +178,7 @@ extension Grid {
                 return false
             }
         }
-        
+
         guard lhs.rows.count == rhs.rows.count else {
             return false
         }
@@ -187,14 +187,14 @@ extension Grid {
                 return false
             }
         }
-        
+
         return true
     }
 }
 
 // Grid + Hashable
-extension Grid {
-    public func hash(into hasher: inout Hasher) {
+public extension Grid {
+    func hash(into hasher: inout Hasher) {
         hasher.combine(meta)
         for col in cols {
             hasher.combine(col.name)
@@ -209,11 +209,11 @@ extension Grid: Collection {
     public var startIndex: Int {
         rows.startIndex
     }
-    
+
     public var endIndex: Int {
         rows.endIndex
     }
-    
+
     public subscript(position: Int) -> Dict {
         return rows[position]
     }
@@ -232,14 +232,14 @@ extension Grid: ExpressibleByArrayLiteral {
 
 extension Grid: CustomStringConvertible {
     public var description: String {
-        return self.toZinc()
+        return toZinc()
     }
 }
 
 public struct Col: Codable, Sendable {
     public let name: String
     public let meta: Dict?
-    
+
     public init(name: String, meta: Dict? = nil) {
         self.name = name
         self.meta = meta

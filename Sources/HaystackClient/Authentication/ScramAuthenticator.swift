@@ -7,7 +7,7 @@ struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
     let password: String
     let handshakeToken: String
     let fetcher: Fetcher
-    
+
     init(
         url: String,
         username: String,
@@ -25,32 +25,32 @@ struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
         self.handshakeToken = handshakeToken
         self.fetcher = fetcher
     }
-    
+
     func getAuthToken() async throws -> String {
         let aboutUrl = url + "about"
-        
+
         let scram = ScramClient(
             hash: Hash.self,
             username: username,
             password: password
         )
-        
+
         // Authentication Exchange
-        
+
         // Client Initiation
         let clientFirstMessage = scram.clientFirstMessage()
         let firstRequest = HaystackRequest(
             url: aboutUrl,
             headerAuthorization: AuthMessage(
-                    scheme: "scram",
-                    attributes: [
-                        "handshakeToken": handshakeToken,
-                        "data": clientFirstMessage.encodeBase64UrlSafe()
-                    ]
-                ).description
+                scheme: "scram",
+                attributes: [
+                    "handshakeToken": handshakeToken,
+                    "data": clientFirstMessage.encodeBase64UrlSafe(),
+                ]
+            ).description
         )
         let firstResponse = try await fetcher.fetch(firstRequest)
-        
+
         // Server Initiation Response
         guard firstResponse.statusCode == 401 else {
             throw ScramAuthenticatorError.FirstResponseStatusIsNot401(firstResponse.statusCode)
@@ -78,21 +78,21 @@ struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
             throw ScramAuthenticatorError.FirstResponseInconsistentHash
         }
         let serverFirstMessage = firstResponseData.decodeBase64UrlSafe()
-        
+
         // Client Continuation
         let clientFinalMessage = try scram.clientFinalMessage(serverFirstMessage: serverFirstMessage)
         let finalRequest = HaystackRequest(
             url: aboutUrl,
             headerAuthorization: AuthMessage(
-                    scheme: "scram",
-                    attributes: [
-                        "handshakeToken": handshakeToken2,
-                        "data": clientFinalMessage.encodeBase64UrlSafe()
-                    ]
-                ).description
+                scheme: "scram",
+                attributes: [
+                    "handshakeToken": handshakeToken2,
+                    "data": clientFinalMessage.encodeBase64UrlSafe(),
+                ]
+            ).description
         )
         let finalResponse = try await fetcher.fetch(finalRequest)
-        
+
         // Final Server Message
         guard finalResponse.statusCode == 200 else {
             throw ScramAuthenticatorError.authFailedWithHttpCode(finalResponse.statusCode)
@@ -120,8 +120,7 @@ struct ScramAuthenticator<Hash: HashFunction>: Authenticator {
         try scram.validate(serverFinalMessage: serverFinalMessage)
         return authToken
     }
-    
-    
+
     enum ScramAuthenticatorError: Error {
         case FirstResponseInconsistentMechanism
         case FirstResponseNoAttributeData

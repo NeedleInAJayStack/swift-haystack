@@ -6,9 +6,9 @@ import Foundation
 /// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#symbol)
 public struct Symbol: Val {
     public static var valType: ValType { .Symbol }
-    
+
     public let val: String
-    
+
     public init(_ val: String) throws {
         for char in val {
             guard char.isIdChar else {
@@ -17,7 +17,7 @@ public struct Symbol: Val {
         }
         self.val = val
     }
-    
+
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
@@ -28,12 +28,12 @@ public struct Symbol: Val {
 // Symbol + Codable
 extension Symbol {
     static let kindValue = "symbol"
-    
+
     enum CodingKeys: CodingKey {
         case _kind
         case val
     }
-    
+
     /// Read from decodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#symbol)
     public init(from decoder: Decoder) throws {
@@ -47,7 +47,7 @@ extension Symbol {
                     )
                 )
             }
-            
+
             try self.init(container.decode(String.self, forKey: .val))
         } else {
             throw DecodingError.typeMismatch(
@@ -59,7 +59,7 @@ extension Symbol {
             )
         }
     }
-    
+
     /// Write to encodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#symbol)
     public func encode(to encoder: Encoder) throws {

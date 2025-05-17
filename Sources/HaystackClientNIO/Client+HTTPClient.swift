@@ -1,10 +1,9 @@
 import AsyncHTTPClient
-import HaystackClient
 import Foundation
+import HaystackClient
 import NIO
 
 public extension Client {
-    
     /// Create a Haystack API Client that uses a NIO-based HTTP client.
     ///
     /// - Parameters:
@@ -30,4 +29,3 @@ public extension Client {
         )
     }
 }
-

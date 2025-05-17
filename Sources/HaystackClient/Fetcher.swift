@@ -17,7 +17,7 @@ public struct HaystackRequest {
     public let headerAuthorization: String
     public let headerUserAgent: String = "swift-haystack-client"
     public let headerAccept: String
-    
+
     init(
         method: HaystackHttpMethod = .GET,
         url: String,
@@ -39,7 +39,7 @@ public struct HaystackResponse {
     public let headerContentType: String?
     public let headerWwwAuthenticate: String?
     public let data: Data
-    
+
     public init(
         statusCode: Int,
         headerAuthenticationInfo: String?,

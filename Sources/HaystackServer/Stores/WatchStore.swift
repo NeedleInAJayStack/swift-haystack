@@ -15,11 +15,10 @@ public struct WatchResponse {
     public let ids: [Haystack.Ref]
     public let lease: Haystack.Number
     public let lastReported: Foundation.Date?
-    
+
     public init(ids: [Haystack.Ref], lease: Haystack.Number, lastReported: Foundation.Date?) {
         self.ids = ids
         self.lease = lease
         self.lastReported = lastReported
     }
 }
-

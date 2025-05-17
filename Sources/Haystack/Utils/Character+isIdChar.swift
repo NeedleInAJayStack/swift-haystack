@@ -5,9 +5,9 @@ extension Character {
     /// character
     var isIdChar: Bool {
         return
-            "a" <= self && self <= "z" ||
-            "A" <= self && self <= "Z" ||
-            "0" <= self && self <= "9" ||
+            self >= "a" && self <= "z" ||
+            self >= "A" && self <= "Z" ||
+            self >= "0" && self <= "9" ||
             self == "_" ||
             self == ":" ||
             self == "-" ||

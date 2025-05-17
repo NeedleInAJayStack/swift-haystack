@@ -5,11 +5,11 @@ import Foundation
 /// [Docs](https://project-haystack.org/doc/docHaystack/Kinds#date)
 public struct Date: Val {
     public static var valType: ValType { .Date }
-    
+
     public let year: Int
     public let month: Int
     public let day: Int
-    
+
     public init(
         year: Int,
         month: Int,
@@ -23,12 +23,12 @@ public struct Date: Val {
         guard components.isValidDate(in: calendar) else {
             throw ValError.invalidDateDefinition
         }
-        
+
         self.year = year
         self.month = month
         self.day = day
     }
-    
+
     public init(_ isoString: String) throws {
         let dashSplit = isoString.split(separator: "-")
         guard
@@ -39,14 +39,14 @@ public struct Date: Val {
         else {
             throw ValError.invalidDateFormat(isoString)
         }
-        
+
         try self.init(
             year: year,
             month: month,
             day: day
         )
     }
-    
+
     public func startOfDay(timezone: TimeZone?) -> Foundation.Date {
         return DateComponents(
             calendar: .current,
@@ -56,17 +56,17 @@ public struct Date: Val {
             day: day
         ).date!
     }
-    
+
     public func endOfDay(timezone: TimeZone?) -> Foundation.Date {
         return Calendar.current.date(byAdding: .day, value: 1, to: startOfDay(timezone: timezone))!
     }
-    
+
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         return isoString
     }
-    
+
     var isoString: String {
         let yearStr = String(format: "%04d", arguments: [year])
         let monthStr = String(format: "%02d", arguments: [month])
@@ -78,12 +78,12 @@ public struct Date: Val {
 // Date + Codable
 extension Date {
     static let kindValue = "date"
-    
+
     enum CodingKeys: CodingKey {
         case _kind
         case val
     }
-    
+
     /// Read from decodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#date)
     public init(from decoder: Decoder) throws {
@@ -97,7 +97,7 @@ extension Date {
                     )
                 )
             }
-            
+
             let isoString = try container.decode(String.self, forKey: .val)
             do {
                 try self.init(isoString)
@@ -120,7 +120,7 @@ extension Date {
             )
         }
     }
-    
+
     /// Write to encodable data
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#date)
     public func encode(to encoder: Encoder) throws {

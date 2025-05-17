@@ -12,18 +12,17 @@ extension Val {
         guard let otherAsMyType = other as? Self else {
             return false
         }
-        
+
         return self == otherAsMyType
     }
-    
-    func coerce<T: Val>(to: T.Type) throws -> T {
+
+    func coerce<T: Val>(to _: T.Type) throws -> T {
         guard let coercedSelf = self as? T else {
-            throw ValError.cannotBeCoerced(self.toZinc(), T.valType)
+            throw ValError.cannotBeCoerced(toZinc(), T.valType)
         }
         return coercedSelf
     }
 }
-
 
 public enum ValType: String, CaseIterable {
     case Bool
@@ -44,7 +43,7 @@ public enum ValType: String, CaseIterable {
     case Time
     case Uri
     case XStr
-    
+
     var type: any Val.Type {
         switch self {
         case .Bool: return Swift.Bool.self
