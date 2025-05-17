@@ -1,11 +1,13 @@
 import Foundation
 import Haystack
 
+/// A HaystackServer is a server that implements the Haystack API.
+/// It translates API calls into operations on the underlying data stores.
 public class HaystackServer: API {
     let recordStore: RecordStore
     let historyStore: HistoryStore
     let watchStore: WatchStore
-    
+
     let onInvokeAction: (Haystack.Ref, String, [String : any Haystack.Val]) async throws -> Haystack.Grid
     let onEval: (String) async throws -> Haystack.Grid
 
@@ -163,7 +165,7 @@ public class HaystackServer: API {
         try await watchStore.removeIds(watchId: watchId, ids: ids)
         return GridBuilder().toGrid()
     }
-    
+
     public func watchUnsubDelete(watchId: String) async throws -> Haystack.Grid {
         try await watchStore.delete(watchId: watchId)
         return GridBuilder().toGrid()

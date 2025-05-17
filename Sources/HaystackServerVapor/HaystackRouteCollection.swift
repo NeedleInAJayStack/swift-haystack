@@ -1,6 +1,7 @@
 import Haystack
 import Vapor
 
+/// A route collection that exposes Haystack API endpoints.
 public struct HaystackRouteCollection: RouteCollection {
 
     /// This instance defines all Haystack API processing that is done server-side.
