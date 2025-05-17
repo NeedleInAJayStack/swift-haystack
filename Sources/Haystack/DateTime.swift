@@ -262,3 +262,14 @@ extension DateTime {
         }
     }
 }
+
+// DateTime + Comparable
+extension DateTime: Comparable {
+    public static func < (lhs: DateTime, rhs: DateTime) -> Bool {
+        return lhs.date < rhs.date
+    }
+
+    public static func == (lhs: DateTime, rhs: DateTime) -> Bool {
+        return lhs.date == rhs.date
+    }
+}

@@ -205,11 +205,11 @@ public class ZincReader {
         while cur == .id {
             numCols += 1
             let name = try consumeTagName()
-            var colMeta: [String: any Val]? = nil
+            var colMeta: Dict? = nil
             if cur == .id {
-                colMeta = try parseDict().elements
+                colMeta = try parseDict()
             }
-            try builder.addCol(name: name, meta: colMeta)
+            try builder.addCol(name: name, meta: colMeta?.elements)
             
             guard cur == .comma else {
                 break

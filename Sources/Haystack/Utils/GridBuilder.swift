@@ -8,7 +8,7 @@ public class GridBuilder {
     var rows: [[String: any Val]]
     
     public init() {
-        meta = ["ver":"3.0"] // We don't back-support old grid versions
+        meta = [:]
         colNames = []
         colMeta = [:]
         rows = []
@@ -65,22 +65,12 @@ public class GridBuilder {
     ///   - meta: Column-level metadata for the new column
     /// - Returns: This instance for chaining
     public func addCol(name: String, meta: [String: any Val]? = nil) throws -> Self {
-        guard rows.count == 0 else {
-            throw GridBuilderError.cannotAddColAfterRows
-        }
-        
         guard !colNames.contains(name) else {
             throw GridBuilderError.colAlreadyDefined(name: name)
         }
         colNames.append(name)
         if let meta = meta {
             colMeta[name] = meta
-        }
-        
-        rows = rows.map { row in
-            var newRow = row
-            newRow[name] = Null.val
-            return newRow
         }
         
         return self
@@ -158,6 +148,26 @@ public class GridBuilder {
     public func addRows(_ rows: [[any Val]]) throws -> Self {
         for row in rows {
             try self.addRow(row)
+        }
+        return self
+    }
+    
+    @discardableResult
+    /// Append a new row to the grid. Newly seen columns are added automatically with no metadata, although column ordering is not guaranteed.
+    /// - Parameter vals: The values of the row, in the same order as the columns.
+    /// - Returns: This instance for chaining
+    public func addRow(_ dict: Dict) throws -> Self {
+        try self.addRow(dict.elements)
+        return self
+    }
+    
+    @discardableResult
+    /// Append a new row to the grid. Newly seen columns are added automatically with no metadata, although column ordering is not guaranteed.
+    /// - Parameter vals: The values of the row, in the same order as the columns.
+    /// - Returns: This instance for chaining
+    public func addRows(_ dicts: [Dict]) throws -> Self {
+        for dict in dicts {
+            try self.addRow(dict)
         }
         return self
     }

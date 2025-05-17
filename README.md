@@ -43,7 +43,7 @@ See below for available libraries and descriptions.
 
 ### Haystack
 
-This contains the 
+This contains the
 [Haystack type-system primitives](https://project-haystack.org/doc/docHaystack/Kinds)
 and utilities to interact with them.
 
@@ -101,18 +101,53 @@ Once you create a client, you can use it to make requests:
 ```swift
 func yesterdaysValues() async throws -> Grid {
     let client = ...
-    
+
     // Open and authenticate. This must be called before requests can be made
     try await client.open()
-    
+
     // Request the historical values for @28e7fb7d-e20316e0
     let grid = try await client.hisRead(id: Ref("28e7fb7d-e20316e0"), range: .yesterday)
-    
+
     // Close the client session and log out
     try await client.close()
-    
+
     return grid
 }
+```
+
+### HaystackServerVapor
+
+A server for the [Haystack HTTP API](https://project-haystack.org/doc/docHaystack/HttpApi) that uses
+[Vapor](https://github.com/vapor/vapor). It's separated from the `HaystackServer` package so that clients may use
+alternative server technologies if they choose, including Hummingbird or NIO directly.
+
+It exposes a `HaystackRouteCollection` that can be registered on a Vapor
+application:
+
+```swift
+let app = Application()
+try app.register(collection: HaystackRouteCollection(delegate: ...))
+```
+
+The delegate is a protocol that can be implemented however the user sees fit, although the standard Haystack
+implementation is defined in `HaystackServer`.
+
+### HaystackServer
+
+This defines the standard functionality and data processing of Haystack API servers, based on generic backing data
+stores. In most cases, Haystack servers should use the `HaystackServer` class and customize storage behavior by
+implementing the `RecordStore`, `HistoryStore`, and `WatchStore` protocols.
+
+```swift
+struct InfluxHistoryStore: HistoryStore {
+    // Define storage behavior here
+    ...
+}
+
+let server = HaystackServer(
+    historyStore: InfluxHistoryStore(),
+    ...
+)
 ```
 
 ## License

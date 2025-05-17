@@ -11,9 +11,9 @@ import Foundation
 public struct Grid: Val {
     public static var valType: ValType { .Grid }
     
-    public let meta: Dict
-    public let cols: [Col]
-    public let rows: [Dict]
+    public private(set) var meta: Dict
+    public private(set) var cols: [Col]
+    public private(set) var rows: [Dict]
     
     init(meta: Dict, cols: [Col], rows: [Dict]) {
         self.meta = meta
@@ -21,17 +21,35 @@ public struct Grid: Val {
         self.rows = rows
     }
     
+    /// Create a Grid with no column metadata from a list of Dicts.
+    ///
+    /// There is no guarantee on the column ordering.
+    /// - Parameters:
+    ///   - meta: Grid metadata
+    ///   - rows: The rows of the grid
+    public init(meta: Dict = [:], rowsAndColumns: [Dict]) {
+        self.meta = meta
+        var colNames = Set<String>()
+        for row in rowsAndColumns {
+            for (key, _) in row {
+                colNames.insert(key)
+            }
+        }
+        self.cols = colNames.map { Col(name: $0) }
+        self.rows = rowsAndColumns
+    }
+    
     /// Converts to Zinc formatted string.
     /// See [Zinc Literals](https://project-haystack.org/doc/docHaystack/Zinc#literals)
     public func toZinc() -> String {
         // Ensure `ver` is listed first in meta
-        let ver = meta.elements["ver"] ?? "3.0"
+        let ver = meta["ver"] ?? "3.0"
         var zinc = "ver:\(ver.toZinc())"
         
-        var metaWithoutVer = meta.elements
+        var metaWithoutVer = meta
         metaWithoutVer["ver"] = nil
         if metaWithoutVer.count > 0 {
-            zinc += " \(Dict(metaWithoutVer).toZinc(withBraces: false))"
+            zinc += " \(metaWithoutVer.toZinc(withBraces: false))"
         }
         zinc += "\n"
         
@@ -40,7 +58,7 @@ public struct Grid: Val {
         } else {
             let zincCols = cols.map { col in
                 var colZinc = col.name
-                if let colMeta = col.meta, colMeta.elements.count > 0 {
+                if let colMeta = col.meta, colMeta.count > 0 {
                     colZinc += " \(colMeta.toZinc(withBraces: false))"
                 }
                 return colZinc
@@ -50,7 +68,7 @@ public struct Grid: Val {
             
             let zincRows = rows.map { row in
                 let rowZincElements = cols.map { col in
-                    let element = row.elements[col.name] ?? null
+                    let element = row[col.name] ?? null
                     return element.toZinc()
                 }
                 return rowZincElements.joined(separator: ", ")
@@ -59,6 +77,21 @@ public struct Grid: Val {
         }
         
         return zinc
+    }
+    
+    /// Returns a grid that is the same as the existing one, but with its columns reordered according to the input names.
+    /// - Parameter newOrder: The names of the columns, in the desired order
+    /// - Returns: self for chaining
+    public mutating func reorderCols(to newOrder: [String]) throws -> Self {
+        var newCols: [Col] = []
+        for name in newOrder {
+            guard let colIndex = cols.firstIndex(where: { $0.name == name }) else {
+                throw GridError.columnNotFound(name)
+            }
+            newCols.append(cols[colIndex])
+        }
+        self.cols = newCols
+        return self
     }
 }
 
@@ -87,7 +120,9 @@ extension Grid {
                 )
             }
             
-            self.meta = try container.decode(Dict.self, forKey: .meta)
+            var meta = try container.decode(Dict.self, forKey: .meta)
+            meta["ver"] = nil // Remove version
+            self.meta = meta
             let cols = try container.decode([Col].self, forKey: .cols)
             if cols.map(\.name) == ["empty"] {
                 self.cols = []
@@ -111,8 +146,10 @@ extension Grid {
     /// See [JSON format](https://project-haystack.org/doc/docHaystack/Json#grid)
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: Self.CodingKeys.self)
+        var versionedMeta = meta
+        versionedMeta["ver"] = "3.0"
         try container.encode(Self.kindValue, forKey: ._kind)
-        try container.encode(meta, forKey: .meta)
+        try container.encode(versionedMeta, forKey: .meta)
         if cols.isEmpty {
             try container.encode([Col(name: "empty")], forKey: .cols)
             try container.encode([Dict](), forKey: .rows)
@@ -167,12 +204,48 @@ extension Grid {
     }
 }
 
-public struct Col: Codable {
-    let name: String
-    let meta: Dict?
+// Grid + Collection
+extension Grid: Collection {
+    public var startIndex: Int {
+        rows.startIndex
+    }
+    
+    public var endIndex: Int {
+        rows.endIndex
+    }
+    
+    public subscript(position: Int) -> Dict {
+        return rows[position]
+    }
+
+    public func index(after i: Int) -> Int {
+        return i + 1
+    }
+}
+
+extension Grid: ExpressibleByArrayLiteral {
+    /// Create a grid from the provided literals. The grid will have no grid or column-level metadata
+    public init(arrayLiteral: Dict...) {
+        self.init(meta: [:], rowsAndColumns: arrayLiteral)
+    }
+}
+
+extension Grid: CustomStringConvertible {
+    public var description: String {
+        return self.toZinc()
+    }
+}
+
+public struct Col: Codable, Sendable {
+    public let name: String
+    public let meta: Dict?
     
     public init(name: String, meta: Dict? = nil) {
         self.name = name
         self.meta = meta
     }
+}
+
+public enum GridError: Error {
+    case columnNotFound(String)
 }

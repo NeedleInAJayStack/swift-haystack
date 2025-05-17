@@ -14,7 +14,7 @@ import Foundation
 /// let about = await try client.about()
 /// await try client.close()
 /// ```
-public class Client {
+public class Client: API {
     let baseUrl: String
     let username: String
     let password: String
@@ -252,7 +252,7 @@ public class Client {
     ///   - range: A date-time range
     /// - Returns: A grid whose rows represent timetamp/value pairs with a DateTime ts column and a val column for each scalar value
     public func hisRead(id: Ref, range: HisReadRange) async throws -> Grid {
-        return try await post(path: "hisRead", args: ["id": id, "range": range.toRequestString()])
+        return try await post(path: "hisRead", args: ["id": id, "range": range.toZinc()])
     }
     
     /// Posts new time-series data to a historized point
@@ -387,7 +387,7 @@ public class Client {
         return try await post(path: "watchSub", grid: builder.toGrid())
     }
     
-    /// Used to close a watch entirely or remove entities from a watch
+    /// Used to remove entities from a watch
     ///
     /// https://project-haystack.org/doc/docHaystack/Ops#watchUnsub
     ///
@@ -395,7 +395,7 @@ public class Client {
     ///   - watchId: Watch identifier
     ///   - ids: Ref values for each entity to unsubscribe. If empty the entire watch is closed.
     /// - Returns: An empty grid
-    public func watchUnsub(
+    public func watchUnsubRemove(
         watchId: String,
         ids: [Ref]
     ) async throws -> Grid {
@@ -410,6 +410,26 @@ public class Client {
         for id in ids {
             try builder.addRow([id])
         }
+        
+        return try await post(path: "watchUnsub", grid: builder.toGrid())
+    }
+    
+    /// Used to close a watch entirely
+    ///
+    /// https://project-haystack.org/doc/docHaystack/Ops#watchUnsub
+    ///
+    /// - Parameters:
+    ///   - watchId: Watch identifier
+    /// - Returns: An empty grid
+    public func watchUnsubDelete(
+        watchId: String
+    ) async throws -> Grid {
+        var gridMeta: [String: any Val] = ["watchId": watchId]
+        gridMeta["close"] = marker
+        
+        let builder = GridBuilder()
+        builder.setMeta(gridMeta)
+        try builder.addCol(name: "id")
         
         return try await post(path: "watchUnsub", grid: builder.toGrid())
     }
@@ -437,6 +457,8 @@ public class Client {
         return try await post(path: "watchPoll", grid: builder.toGrid())
     }
     
+    /// Used to invoke a user action on a target record
+    ///
     /// https://project-haystack.org/doc/docHaystack/Ops#invokeAction
     /// - Parameters:
     ///   - id: Identifier of target rec

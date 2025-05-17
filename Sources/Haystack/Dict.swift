@@ -14,7 +14,7 @@ public struct Dict: Val {
         return Dict([:])
     }
     
-    public let elements: [String: any Val]
+    public private(set) var elements: [String: any Val]
     
     public init(_ elements: [String: any Val]) {
         self.elements = elements
@@ -46,6 +46,10 @@ public struct Dict: Val {
             return nil
         }
         return try fieldVal.coerce(to: T.self)
+    }
+    
+    public func has(_ name: String) -> Bool {
+        return self.elements.keys.contains(name)
     }
     
     /// Converts to Zinc formatted string.
@@ -181,6 +185,41 @@ extension Dict {
         for (key, value) in elements {
             hasher.combine(key)
             hasher.combine(value)
+        }
+    }
+}
+
+// Dict + Collection
+extension Dict: Collection {
+    public var startIndex: Dictionary<String, any Val>.Index {
+        elements.keys.startIndex
+    }
+    
+    public var endIndex: Dictionary<String, any Val>.Index {
+        elements.keys.endIndex
+    }
+    
+    public subscript(position: Dictionary<String, any Val>.Index) -> (key: String, value: any Val) {
+        return elements[position]
+    }
+
+    public func index(after i: Dictionary<String, any Val>.Index) -> Dictionary<String, any Val>.Index {
+        return elements.index(after: i)
+    }
+}
+
+// Convenience string accessor
+extension Dict {
+    public subscript(key: String) -> (any Val)? {
+        get {
+            let val = elements[key]
+            guard !(val is Null) else {
+                return nil
+            }
+            return val
+        }
+        set {
+            elements[key] = newValue
         }
     }
 }
