@@ -42,12 +42,8 @@ public extension List {
 
         var elements = [any Val]()
         containerLoop: while !container.isAtEnd {
-            typeLoop: for type in ValType.allCases {
-                if let val = try? container.decode(type.type) {
-                    elements.append(val)
-                    break typeLoop
-                }
-            }
+            let val = try container.decode(AnyVal.self)
+            elements.append(val.val)
         }
         self.elements = elements
     }
