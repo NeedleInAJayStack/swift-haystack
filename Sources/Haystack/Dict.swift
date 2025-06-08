@@ -105,12 +105,8 @@ public extension Dict {
                     )
                 }
             } else {
-                typeLoop: for type in ValType.allCases {
-                    if let val = try? container.decode(type.type, forKey: key) {
-                        elements[key.stringValue] = val
-                        break typeLoop
-                    }
-                }
+                let val = try container.decode(AnyVal.self, forKey: key)
+                elements[key.stringValue] = val.val
             }
         }
         self.elements = elements
