@@ -1,7 +1,7 @@
 import Foundation
 
 /// Query-able DateTime ranges, which support relative and absolute values.
-public enum HisReadRange {
+public enum HisReadRange: Sendable {
     case today
     case yesterday
     case date(Haystack.Date)
