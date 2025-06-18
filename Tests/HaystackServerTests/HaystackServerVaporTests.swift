@@ -7,7 +7,8 @@ import XCTVapor
 final class HaystackServerVaporTests: XCTestCase {
     func testGet() throws {
         let app = Application(.testing)
-        try app.register(collection: HaystackRouteCollection(delegate: HaystackAPIMock()))
+        app.haystack = HaystackAPIMock()
+        try app.register(collection: HaystackRouteCollection())
         defer { app.shutdown() }
 
         let responseGrid = try GridBuilder()
@@ -51,7 +52,8 @@ final class HaystackServerVaporTests: XCTestCase {
 
     func testGetBadQuery() throws {
         let app = Application(.testing)
-        try app.register(collection: HaystackRouteCollection(delegate: HaystackAPIMock()))
+        app.haystack = HaystackAPIMock()
+        try app.register(collection: HaystackRouteCollection())
         defer { app.shutdown() }
 
         try app.test(
@@ -64,7 +66,8 @@ final class HaystackServerVaporTests: XCTestCase {
 
     func testPost() throws {
         let app = Application(.testing)
-        try app.register(collection: HaystackRouteCollection(delegate: HaystackAPIMock()))
+        app.haystack = HaystackAPIMock()
+        try app.register(collection: HaystackRouteCollection())
         defer { app.shutdown() }
 
         let requestGrid = try GridBuilder()
@@ -122,7 +125,8 @@ final class HaystackServerVaporTests: XCTestCase {
 
     func testPostBadQuery() throws {
         let app = Application(.testing)
-        try app.register(collection: HaystackRouteCollection(delegate: HaystackAPIMock()))
+        app.haystack = HaystackAPIMock()
+        try app.register(collection: HaystackRouteCollection())
         defer { app.shutdown() }
 
         let requestGrid = try GridBuilder()
@@ -157,7 +161,7 @@ final class HaystackServerVaporTests: XCTestCase {
     }
 }
 
-struct HaystackAPIMock: Haystack.API {
+struct HaystackAPIMock: Haystack.API, Sendable {
     func close() async throws {}
 
     func about() async throws -> Haystack.Grid {

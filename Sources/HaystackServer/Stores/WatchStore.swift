@@ -2,7 +2,7 @@ import Foundation
 import Haystack
 
 /// Defines a storage system that allows stateful storage of system watches.
-public protocol WatchStore {
+public protocol WatchStore: Sendable {
     func read(watchId: String) async throws -> WatchResponse
     func create(ids: [Haystack.Ref], lease: Haystack.Number?) async throws -> String
     func addIds(watchId: String, ids: [Haystack.Ref]) async throws
@@ -11,7 +11,7 @@ public protocol WatchStore {
     func delete(watchId: String) async throws
 }
 
-public struct WatchResponse {
+public struct WatchResponse: Sendable {
     public let ids: [Haystack.Ref]
     public let lease: Haystack.Number
     public let lastReported: Foundation.Date?

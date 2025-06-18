@@ -4,19 +4,14 @@ import Vapor
 
 /// A route collection that exposes Haystack API endpoints.
 public struct HaystackRouteCollection: RouteCollection {
-    /// This instance defines all Haystack API processing that is done server-side.
-    let delegate: any API
-
-    public init(delegate: any API) {
-        self.delegate = delegate
-    }
+    public init() {}
 
     public func boot(routes: any Vapor.RoutesBuilder) throws {
         /// Closes the current authentication session.
         ///
         /// https://project-haystack.org/doc/docHaystack/Ops#close
-        routes.post("close") { _ in
-            try await delegate.close()
+        routes.post("close") { request in
+            try await request.haystack().close()
             return ""
         }
 
@@ -24,14 +19,14 @@ public struct HaystackRouteCollection: RouteCollection {
         ///
         /// https://project-haystack.org/doc/docHaystack/Ops#about
         routes.get("about") { request in
-            try await request.respond(with: delegate.about())
+            try await request.respond(with: request.haystack().about())
         }
 
         /// Queries basic information about the server
         ///
         /// https://project-haystack.org/doc/docHaystack/Ops#about
         routes.post("about") { request in
-            try await request.respond(with: delegate.about())
+            try await request.respond(with: request.haystack().about())
         }
 
         /// Queries def dicts from the current namespace
@@ -49,7 +44,7 @@ public struct HaystackRouteCollection: RouteCollection {
             }
 
             return try await request.respond(
-                with: delegate.defs(filter: filter, limit: limit)
+                with: request.haystack().defs(filter: filter, limit: limit)
             )
         }
 
@@ -68,7 +63,7 @@ public struct HaystackRouteCollection: RouteCollection {
             }
 
             return try await request.respond(
-                with: delegate.defs(filter: filter, limit: limit)
+                with: request.haystack().defs(filter: filter, limit: limit)
             )
         }
 
@@ -87,7 +82,7 @@ public struct HaystackRouteCollection: RouteCollection {
             }
 
             return try await request.respond(
-                with: delegate.libs(filter: filter, limit: limit)
+                with: request.haystack().libs(filter: filter, limit: limit)
             )
         }
 
@@ -106,7 +101,7 @@ public struct HaystackRouteCollection: RouteCollection {
             }
 
             return try await request.respond(
-                with: delegate.libs(filter: filter, limit: limit)
+                with: request.haystack().libs(filter: filter, limit: limit)
             )
         }
 
@@ -125,7 +120,7 @@ public struct HaystackRouteCollection: RouteCollection {
             }
 
             return try await request.respond(
-                with: delegate.libs(filter: filter, limit: limit)
+                with: request.haystack().libs(filter: filter, limit: limit)
             )
         }
 
@@ -144,7 +139,7 @@ public struct HaystackRouteCollection: RouteCollection {
             }
 
             return try await request.respond(
-                with: delegate.ops(filter: filter, limit: limit)
+                with: request.haystack().ops(filter: filter, limit: limit)
             )
         }
 
@@ -163,7 +158,7 @@ public struct HaystackRouteCollection: RouteCollection {
             }
 
             return try await request.respond(
-                with: delegate.filetypes(filter: filter, limit: limit)
+                with: request.haystack().filetypes(filter: filter, limit: limit)
             )
         }
 
@@ -182,7 +177,7 @@ public struct HaystackRouteCollection: RouteCollection {
             }
 
             return try await request.respond(
-                with: delegate.filetypes(filter: filter, limit: limit)
+                with: request.haystack().filetypes(filter: filter, limit: limit)
             )
         }
 
@@ -209,10 +204,10 @@ public struct HaystackRouteCollection: RouteCollection {
             }
 
             if let ids = ids {
-                return try await request.respond(with: delegate.read(ids: ids))
+                return try await request.respond(with: request.haystack().read(ids: ids))
             } else if let filter = filter {
                 return try await request.respond(
-                    with: delegate.read(filter: filter, limit: limit)
+                    with: request.haystack().read(filter: filter, limit: limit)
                 )
             } else {
                 throw Abort(.badRequest, reason: "Read request must have either 'id' or 'filter'")
@@ -242,10 +237,10 @@ public struct HaystackRouteCollection: RouteCollection {
             }
 
             if let ids = ids {
-                return try await request.respond(with: delegate.read(ids: ids))
+                return try await request.respond(with: request.haystack().read(ids: ids))
             } else if let filter = filter {
                 return try await request.respond(
-                    with: delegate.read(filter: filter, limit: limit)
+                    with: request.haystack().read(filter: filter, limit: limit)
                 )
             } else {
                 throw Abort(.badRequest, reason: "Read request must have either 'id' or 'filter'")
@@ -265,7 +260,7 @@ public struct HaystackRouteCollection: RouteCollection {
             }
 
             return try await request.respond(
-                with: delegate.nav(navId: navId)
+                with: request.haystack().nav(navId: navId)
             )
         }
 
@@ -282,7 +277,7 @@ public struct HaystackRouteCollection: RouteCollection {
             }
 
             return try await request.respond(
-                with: delegate.nav(navId: navId)
+                with: request.haystack().nav(navId: navId)
             )
         }
 
@@ -301,7 +296,7 @@ public struct HaystackRouteCollection: RouteCollection {
             }
 
             return try await request.respond(
-                with: delegate.hisRead(
+                with: request.haystack().hisRead(
                     id: id,
                     range: range
                 )
@@ -326,7 +321,7 @@ public struct HaystackRouteCollection: RouteCollection {
             }
 
             return try await request.respond(
-                with: delegate.hisRead(
+                with: request.haystack().hisRead(
                     id: id,
                     range: range
                 )
@@ -352,7 +347,7 @@ public struct HaystackRouteCollection: RouteCollection {
             }
 
             return try await request.respond(
-                with: delegate.hisWrite(id: id, items: items)
+                with: request.haystack().hisWrite(id: id, items: items)
             )
         }
 
@@ -376,7 +371,7 @@ public struct HaystackRouteCollection: RouteCollection {
             }
             guard let level = level else {
                 return try await request.respond(
-                    with: delegate.pointWriteStatus(id: id)
+                    with: request.haystack().pointWriteStatus(id: id)
                 )
             }
 
@@ -392,7 +387,7 @@ public struct HaystackRouteCollection: RouteCollection {
                 throw Abort(.badRequest, reason: error.localizedDescription)
             }
             return try await request.respond(
-                with: delegate.pointWrite(
+                with: request.haystack().pointWrite(
                     id: id,
                     level: level,
                     val: val,
@@ -425,7 +420,7 @@ public struct HaystackRouteCollection: RouteCollection {
 
             if let watchDis = watchDis {
                 return try await request.respond(
-                    with: delegate.watchSubCreate(
+                    with: request.haystack().watchSubCreate(
                         watchDis: watchDis,
                         lease: lease,
                         ids: ids
@@ -435,7 +430,7 @@ public struct HaystackRouteCollection: RouteCollection {
 
             if let watchId = watchId {
                 return try await request.respond(
-                    with: delegate.watchSubAdd(
+                    with: request.haystack().watchSubAdd(
                         watchId: watchId,
                         lease: lease,
                         ids: ids
@@ -461,7 +456,7 @@ public struct HaystackRouteCollection: RouteCollection {
 
             if grid.meta.has("close") {
                 return try await request.respond(
-                    with: delegate.watchUnsubDelete(
+                    with: request.haystack().watchUnsubDelete(
                         watchId: watchId
                     )
                 )
@@ -476,7 +471,7 @@ public struct HaystackRouteCollection: RouteCollection {
                 }
 
                 return try await request.respond(
-                    with: delegate.watchUnsubRemove(
+                    with: request.haystack().watchUnsubRemove(
                         watchId: watchId,
                         ids: ids
                     )
@@ -499,7 +494,7 @@ public struct HaystackRouteCollection: RouteCollection {
             }
 
             return try await request.respond(
-                with: delegate.watchPoll(
+                with: request.haystack().watchPoll(
                     watchId: watchId,
                     refresh: refresh
                 )
@@ -525,7 +520,7 @@ public struct HaystackRouteCollection: RouteCollection {
             }
 
             return try await request.respond(
-                with: delegate.invokeAction(
+                with: request.haystack().invokeAction(
                     id: id,
                     action: action,
                     args: args
@@ -548,7 +543,7 @@ public struct HaystackRouteCollection: RouteCollection {
                 throw Abort(.badRequest, reason: error.localizedDescription)
             }
 
-            return try await request.respond(with: delegate.eval(expression: expr))
+            return try await request.respond(with: request.haystack().eval(expression: expr))
         }
     }
 }
