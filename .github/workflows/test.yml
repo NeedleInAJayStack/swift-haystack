@@ -12,7 +12,7 @@ jobs:
           xcode-version: latest
       - uses: actions/checkout@v4
       - name: Darwin build & test
-        run: swift test --skip IntegrationTests
+        run: swift test --enable-all-traits --skip IntegrationTests
   linux-test:
     runs-on: ubuntu-latest
     container:
@@ -20,4 +20,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Linux build & test
-        run: swift test --skip IntegrationTests
+        run: swift test --traits ClientNIO,ServerVapor --skip IntegrationTests
