@@ -1,6 +1,7 @@
+#if ClientNIO
 import AsyncHTTPClient
 import Haystack
-import HaystackClientNIO
+import HaystackClient
 import NIO
 import XCTest
 
@@ -24,7 +25,7 @@ final class HaystackClientNIOIntegrationTests: XCTestCase {
 
     override func tearDown() async throws {
         try await client.close()
-        try httpClient.syncShutdown()
+        try await httpClient.shutdown()
     }
 
     func testCloseAndOpen() async throws {
@@ -98,3 +99,4 @@ final class HaystackClientNIOIntegrationTests: XCTestCase {
         try print(await client.watchUnsubRemove(watchId: "id", ids: [Ref("28e7fb47-d67ab19a")]))
     }
 }
+#endif

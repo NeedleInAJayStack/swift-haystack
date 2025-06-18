@@ -1,5 +1,6 @@
+#if ServerVapor
 import Haystack
-import HaystackServerVapor
+import HaystackServer
 import XCTest
 import XCTVapor
 
@@ -241,3 +242,4 @@ struct HaystackAPIMock: Haystack.API {
         return GridBuilder().toGrid()
     }
 }
+#endif

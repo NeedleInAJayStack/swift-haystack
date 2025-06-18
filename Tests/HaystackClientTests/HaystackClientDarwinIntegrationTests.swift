@@ -1,5 +1,6 @@
+#if ClientDarwin
 import Haystack
-import HaystackClientDarwin
+import HaystackClient
 import XCTest
 
 /// To use these tests, run a [Haxall](https://github.com/haxall/haxall) server and set the username and password
@@ -90,3 +91,4 @@ final class HaystackClientDarwinIntegrationTests: XCTestCase {
         try print(await client.watchUnsubRemove(watchId: "id", ids: [Ref("28e7fb47-d67ab19a")]))
     }
 }
+#endif
