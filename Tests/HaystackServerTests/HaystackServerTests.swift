@@ -1,29 +1,29 @@
 import Foundation
 import Haystack
 import HaystackServer
-import XCTest
+import Testing
 
-final class HaystackServerTests: XCTestCase {
-    func testAbout() async throws {
+struct HaystackServerTests {
+    @Test func about() async throws {
         let server = HaystackServer(
             recordStore: InMemoryRecordStore(),
             historyStore: InMemoryHistoryStore(),
             watchStore: InMemoryWatchStore()
         )
         let response = try await server.about()
-        let about = try XCTUnwrap(response.first)
-        XCTAssertNotNil(about["haystackVersion"] as? String)
-        XCTAssertNotNil(about["tz"] as? String)
-        XCTAssertNotNil(about["serverTime"] as? DateTime)
-        XCTAssertNotNil(about["serverBootTime"] as? DateTime)
-        XCTAssertEqual(about["productName"] as? String, "swift-haystack")
-        XCTAssertEqual(about["productUri"] as? Uri, Uri("https://github.com/NeedleInAJayStack/swift-haystack"))
-        XCTAssertNotNil(about["productVersion"] as? String)
-        XCTAssertEqual(about["vendorName"] as? String, "NeedleInAJayStack")
-        XCTAssertEqual(about["vendorUri"] as? Uri, Uri("https://github.com/NeedleInAJayStack"))
+        let about = try #require(response.first)
+        #expect(about["haystackVersion"] as? String != nil)
+        #expect(about["tz"] as? String != nil)
+        #expect(about["serverTime"] as? DateTime != nil)
+        #expect(about["serverBootTime"] as? DateTime != nil)
+        #expect(about["productName"] as? String == "swift-haystack")
+        #expect(about["productUri"] as? Uri == Uri("https://github.com/NeedleInAJayStack/swift-haystack"))
+        #expect(about["productVersion"] as? String != nil)
+        #expect(about["vendorName"] as? String == "NeedleInAJayStack")
+        #expect(about["vendorUri"] as? Uri == Uri("https://github.com/NeedleInAJayStack"))
     }
 
-    func testDefs() async throws {
+    @Test func defs() async throws {
         let server = try HaystackServer(
             recordStore: InMemoryRecordStore([
                 Ref("a"): ["id": Ref("a"), "def": Marker.val],
@@ -36,31 +36,22 @@ final class HaystackServerTests: XCTestCase {
 
         // Test no filter
         var grid = try await server.defs(filter: nil, limit: nil)
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val }.sorted(),
-            ["a", "b"]
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val }.sorted() == ["a", "b"])
 
         // Test filter
         grid = try await server.defs(filter: "foo", limit: nil)
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val },
-            ["b"]
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val } == ["b"])
 
         // Test bad filter
         grid = try await server.defs(filter: "none", limit: nil)
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val },
-            []
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val } == [])
 
         // Test limit
         grid = try await server.defs(filter: nil, limit: Number(0))
-        XCTAssertEqual(grid.count, 0)
+        #expect(grid.count == 0)
     }
 
-    func testLibs() async throws {
+    @Test func libs() async throws {
         let server = try HaystackServer(
             recordStore: InMemoryRecordStore([
                 Ref("a"): ["id": Ref("a"), "lib": Marker.val],
@@ -73,31 +64,22 @@ final class HaystackServerTests: XCTestCase {
 
         // Test no filter
         var grid = try await server.libs(filter: nil, limit: nil)
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val }.sorted(),
-            ["a", "b"]
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val }.sorted() == ["a", "b"])
 
         // Test filter
         grid = try await server.libs(filter: "foo", limit: nil)
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val },
-            ["b"]
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val } == ["b"])
 
         // Test bad filter
         grid = try await server.libs(filter: "none", limit: nil)
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val },
-            []
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val } == [])
 
         // Test limit
         grid = try await server.libs(filter: nil, limit: Number(0))
-        XCTAssertEqual(grid.count, 0)
+        #expect(grid.count == 0)
     }
 
-    func testOps() async throws {
+    @Test func ops() async throws {
         let server = try HaystackServer(
             recordStore: InMemoryRecordStore([
                 Ref("a"): ["id": Ref("a"), "def": Marker.val, "op": Marker.val],
@@ -110,31 +92,22 @@ final class HaystackServerTests: XCTestCase {
 
         // Test no filter
         var grid = try await server.ops(filter: nil, limit: nil)
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val }.sorted(),
-            ["a", "b"]
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val }.sorted() == ["a", "b"])
 
         // Test filter
         grid = try await server.ops(filter: "foo", limit: nil)
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val },
-            ["b"]
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val } == ["b"])
 
         // Test bad filter
         grid = try await server.ops(filter: "none", limit: nil)
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val },
-            []
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val } == [])
 
         // Test limit
         grid = try await server.ops(filter: nil, limit: Number(0))
-        XCTAssertEqual(grid.count, 0)
+        #expect(grid.count == 0)
     }
 
-    func testFiletypes() async throws {
+    @Test func filetypes() async throws {
         let server = try HaystackServer(
             recordStore: InMemoryRecordStore([
                 Ref("a"): ["id": Ref("a"), "def": Marker.val, "filetype": Marker.val],
@@ -147,31 +120,22 @@ final class HaystackServerTests: XCTestCase {
 
         // Test no filter
         var grid = try await server.filetypes(filter: nil, limit: nil)
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val }.sorted(),
-            ["a", "b"]
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val }.sorted() == ["a", "b"])
 
         // Test filter
         grid = try await server.filetypes(filter: "foo", limit: nil)
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val },
-            ["b"]
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val } == ["b"])
 
         // Test bad filter
         grid = try await server.filetypes(filter: "none", limit: nil)
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val },
-            []
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val } == [])
 
         // Test limit
         grid = try await server.filetypes(filter: nil, limit: Number(0))
-        XCTAssertEqual(grid.count, 0)
+        #expect(grid.count == 0)
     }
 
-    func testReadIds() async throws {
+    @Test func readIds() async throws {
         let server = try HaystackServer(
             recordStore: InMemoryRecordStore([
                 Ref("a"): ["id": Ref("a"), "def": Marker.val, "filetype": Marker.val],
@@ -183,13 +147,10 @@ final class HaystackServerTests: XCTestCase {
         )
 
         let grid = try await server.read(ids: [Ref("a"), Ref("b")])
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val }.sorted(),
-            ["a", "b"]
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val }.sorted() == ["a", "b"])
     }
 
-    func testReadFilter() async throws {
+    @Test func readFilter() async throws {
         let server = try HaystackServer(
             recordStore: InMemoryRecordStore([
                 Ref("ahu"): ["id": Ref("ahu"), "equip": Marker.val, "ahu": Marker.val],
@@ -203,45 +164,30 @@ final class HaystackServerTests: XCTestCase {
 
         // Test normal
         var grid = try await server.read(filter: "equip", limit: nil)
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val }.sorted(),
-            ["ahu", "vav"]
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val }.sorted() == ["ahu", "vav"])
 
         // Test limit
         grid = try await server.read(filter: "equip", limit: Number(1))
-        XCTAssertEqual(grid.count, 1)
+        #expect(grid.count == 1)
 
         // Test and
         grid = try await server.read(filter: "equip and ahu", limit: nil)
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val }.sorted(),
-            ["ahu"]
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val }.sorted() == ["ahu"])
 
         // Test or
         grid = try await server.read(filter: "ahu or vav", limit: nil)
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val }.sorted(),
-            ["ahu", "vav"]
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val }.sorted() == ["ahu", "vav"])
 
         // Test path
         grid = try await server.read(filter: "point and equipRef->ahu", limit: nil)
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val }.sorted(),
-            ["supply-air-temp"]
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val }.sorted() == ["supply-air-temp"])
 
         // Test ref equality
         grid = try await server.read(filter: "equipRef == @ahu", limit: nil)
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val }.sorted(),
-            ["supply-air-temp"]
-        )
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val }.sorted() == ["supply-air-temp"])
     }
 
-    func testNav() async throws {
+    @Test func nav() async throws {
         let server = try HaystackServer(
             recordStore: InMemoryRecordStore([
                 Ref("site"): ["id": Ref("site"), "site": Marker.val],
@@ -254,20 +200,14 @@ final class HaystackServerTests: XCTestCase {
 
         var grid = try await server.nav(navId: Ref("site"))
         // TODO: Implement nav
-//        XCTAssertEqual(
-//            grid.compactMap { ($0["id"] as? Ref)?.val }.sorted(),
-//            ["equip"]
-//        )
+//        #expect(grid.compactMap { ($0["id"] as? Ref)?.val }.sorted() == ["equip"])
 
         grid = try await server.nav(navId: Ref("equip"))
         // TODO: Implement nav
-//        XCTAssertEqual(
-//            grid.compactMap { ($0["id"] as? Ref)?.val }.sorted(),
-//            ["point"]
-//        )
+//        #expect(grid.compactMap { ($0["id"] as? Ref)?.val }.sorted() == ["point"])
     }
 
-    func testHisRead() async throws {
+    @Test func hisRead() async throws {
         // Test absolute time ranges
 
         let absoluteServer = try HaystackServer(
@@ -287,9 +227,8 @@ final class HaystackServerTests: XCTestCase {
 
         // After
         var grid = try await absoluteServer.hisRead(id: Ref("point"), range: .after(DateTime("2025-05-09T17:00:00-07:00")))
-        try XCTAssertEqual(
-            grid.rows,
-            [
+        #expect(
+            try grid.rows == [
                 ["ts": DateTime("2025-05-10T00:00:00-07:00"), "val": Number(2)],
                 ["ts": DateTime("2025-05-10T12:00:00-07:00"), "val": Number(3)],
                 ["ts": DateTime("2025-05-11T00:00:00-07:00"), "val": Number(4)],
@@ -298,9 +237,8 @@ final class HaystackServerTests: XCTestCase {
 
         // Date
         grid = try await absoluteServer.hisRead(id: Ref("point"), range: .date(Date("2025-05-10")))
-        try XCTAssertEqual(
-            grid.rows,
-            [
+        #expect(
+            try grid.rows == [
                 ["ts": DateTime("2025-05-10T00:00:00-07:00"), "val": Number(2)],
                 ["ts": DateTime("2025-05-10T12:00:00-07:00"), "val": Number(3)],
             ]
@@ -308,9 +246,8 @@ final class HaystackServerTests: XCTestCase {
 
         // Date Range
         grid = try await absoluteServer.hisRead(id: Ref("point"), range: .dateRange(from: Date("2025-05-10"), to: Date("2025-05-11")))
-        try XCTAssertEqual(
-            grid.rows,
-            [
+        #expect(
+            try grid.rows == [
                 ["ts": DateTime("2025-05-10T00:00:00-07:00"), "val": Number(2)],
                 ["ts": DateTime("2025-05-10T12:00:00-07:00"), "val": Number(3)],
                 ["ts": DateTime("2025-05-11T00:00:00-07:00"), "val": Number(4)],
@@ -319,9 +256,8 @@ final class HaystackServerTests: XCTestCase {
 
         // DateTime Range
         grid = try await absoluteServer.hisRead(id: Ref("point"), range: .dateTimeRange(from: DateTime("2025-05-10T00:00:00-07:00"), to: DateTime("2025-05-11T00:00:00-07:00")))
-        try XCTAssertEqual(
-            grid.rows,
-            [
+        #expect(
+            try grid.rows == [
                 ["ts": DateTime("2025-05-10T00:00:00-07:00"), "val": Number(2)],
                 ["ts": DateTime("2025-05-10T12:00:00-07:00"), "val": Number(3)],
             ]
@@ -350,32 +286,30 @@ final class HaystackServerTests: XCTestCase {
         )
 
         grid = try await relativeServer.hisRead(id: Ref("point"), range: .today)
-        XCTAssertEqual(
-            grid.rows,
-            [
+        #expect(
+            grid.rows == [
                 ["ts": DateTime(date: now), "val": Number(3)],
             ]
         )
 
         grid = try await relativeServer.hisRead(id: Ref("point"), range: .yesterday)
-        XCTAssertEqual(
-            grid.rows,
-            [
+        #expect(
+            grid.rows == [
                 ["ts": DateTime(date: yesterday), "val": Number(2)],
             ]
         )
     }
 
-    func testPointWrite() async throws {
+    @Test func pointWrite() async throws {
         // TODO: Implement
     }
 
-    func testPointWriteStatus() async throws {
+    @Test func pointWriteStatus() async throws {
         // TODO: Implement
     }
 
     // Test all watch methods together to avoid state complexities
-    func testWatch() async throws {
+    @Test func watch() async throws {
         let idA = try Ref("a")
         let idB = try Ref("b")
         let idC = try Ref("c")
@@ -395,12 +329,9 @@ final class HaystackServerTests: XCTestCase {
 
         // Create the watch and validate A and B are returned
         var grid = try await server.watchSubCreate(watchDis: "ab", lease: nil, ids: [idA, idB])
-        let watchId = try XCTUnwrap(grid.meta["watchId"] as? String)
-        XCTAssertEqual(grid.meta, ["watchId": watchId, "lease": null])
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val }.sorted(),
-            ["a", "b"]
-        )
+        let watchId = try #require(grid.meta["watchId"] as? String)
+        #expect(grid.meta == ["watchId": watchId, "lease": null])
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val }.sorted() == ["a", "b"])
 
         // Change B to increment "mod"
         var newB = recB
@@ -411,18 +342,15 @@ final class HaystackServerTests: XCTestCase {
 
         // Check that subsequent poll picks up B
         grid = try await server.watchPoll(watchId: watchId, refresh: false)
-        XCTAssertEqual(grid.meta, ["watchId": watchId])
-        XCTAssertEqual(grid.count, 1)
-        XCTAssertEqual(grid.first?["id"] as? Ref, idB)
-        XCTAssertNotNil(grid.first?["new"])
+        #expect(grid.meta == ["watchId": watchId])
+        #expect(grid.count == 1)
+        #expect(grid.first?["id"] as? Ref == idB)
+        #expect(grid.first?["new"] != nil)
 
         // Add C to the watch and validate C is returned
         grid = try await server.watchSubAdd(watchId: watchId, lease: nil, ids: [idC])
-        XCTAssertEqual(grid.meta, ["watchId": watchId, "lease": null])
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val }.sorted(),
-            ["c"]
-        )
+        #expect(grid.meta == ["watchId": watchId, "lease": null])
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val }.sorted() == ["c"])
 
         // Change C to increment "mod"
         var newC = recC
@@ -433,14 +361,14 @@ final class HaystackServerTests: XCTestCase {
 
         // Validate poll picks up C
         grid = try await server.watchPoll(watchId: watchId, refresh: false)
-        XCTAssertEqual(grid.meta, ["watchId": watchId])
-        XCTAssertEqual(grid.count, 1)
-        XCTAssertEqual(grid.first?["id"] as? Ref, idC)
-        XCTAssertNotNil(grid.first?["new"])
+        #expect(grid.meta == ["watchId": watchId])
+        #expect(grid.count == 1)
+        #expect(grid.first?["id"] as? Ref == idC)
+        #expect(grid.first?["new"] != nil)
 
         // Remove A from watch
         grid = try await server.watchUnsubRemove(watchId: watchId, ids: [Ref("a")])
-        XCTAssertTrue(grid.isEmpty)
+        #expect(grid.isEmpty)
 
         // Change A to increment "mod"
         var newA = recA
@@ -451,19 +379,16 @@ final class HaystackServerTests: XCTestCase {
 
         // Validate poll does not pick up A
         grid = try await server.watchPoll(watchId: watchId, refresh: false)
-        XCTAssertEqual(grid.meta, ["watchId": watchId])
-        XCTAssertEqual(grid.count, 0)
+        #expect(grid.meta == ["watchId": watchId])
+        #expect(grid.count == 0)
 
         // Test that poll with refresh gives B and C
         grid = try await server.watchPoll(watchId: watchId, refresh: true)
-        XCTAssertEqual(grid.meta, ["watchId": watchId])
-        XCTAssertEqual(
-            grid.compactMap { ($0["id"] as? Ref)?.val }.sorted(),
-            ["b", "c"]
-        )
+        #expect(grid.meta == ["watchId": watchId])
+        #expect(grid.compactMap { ($0["id"] as? Ref)?.val }.sorted() == ["b", "c"])
     }
 
-    func testInvokeAction() async throws {
+    @Test func invokeAction() async throws {
         let server = HaystackServer(
             recordStore: InMemoryRecordStore(),
             historyStore: InMemoryHistoryStore(),
@@ -475,12 +400,12 @@ final class HaystackServerTests: XCTestCase {
             }
         )
         let grid = try await server.invokeAction(id: Ref("1"), action: "a", args: ["foo": "bar"])
-        try XCTAssertEqual(grid[0]["id"] as? Ref, Ref("1"))
-        XCTAssertEqual(grid[0]["action"] as? String, "a")
-        XCTAssertEqual(grid[0]["args"] as? Dict, Dict(["foo": "bar"]))
+        #expect(try grid[0]["id"] as? Ref == Ref("1"))
+        #expect(grid[0]["action"] as? String == "a")
+        #expect(grid[0]["args"] as? Dict == Dict(["foo": "bar"]))
     }
 
-    func testEval() async throws {
+    @Test func eval() async throws {
         let server = HaystackServer(
             recordStore: InMemoryRecordStore(),
             historyStore: InMemoryHistoryStore(),
@@ -492,12 +417,7 @@ final class HaystackServerTests: XCTestCase {
             }
         )
         let grid = try await server.eval(expression: "anything")
-        XCTAssertEqual(
-            grid,
-            [
-                ["foo": "bar"],
-            ]
-        )
+        #expect(grid == [["foo": "bar"]])
     }
 }
 

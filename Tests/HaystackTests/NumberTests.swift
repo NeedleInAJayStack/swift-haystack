@@ -1,95 +1,57 @@
+import Foundation
 import Haystack
-import XCTest
+import Testing
 
-final class NumberTests: XCTestCase {
-    func testIsInt() throws {
-        XCTAssertTrue(Number(5).isInt)
-        XCTAssertFalse(Number(5.5).isInt)
-        XCTAssertTrue(Number(-1).isInt)
-        XCTAssertFalse(Number(-1.99999).isInt)
+struct NumberTests {
+    @Test func isInt() throws {
+        #expect(Number(5).isInt)
+        #expect(!Number(5.5).isInt)
+        #expect(Number(-1).isInt)
+        #expect(!Number(-1.99999).isInt)
     }
 
-    func testJsonCoding() throws {
+    @Test func jsonCoding() throws {
         let value = Number(12.199, unit: "kWh")
         let jsonString = #"{"_kind":"number","val":12.199,"unit":"kWh"}"#
 
         // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
-        XCTAssertEqual(
-            try JSONDecoder().decode(Number.self, from: encodedData),
-            value
-        )
+        #expect(try JSONDecoder().decode(Number.self, from: encodedData) == value)
 
-        let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))
-        XCTAssertEqual(
-            try JSONDecoder().decode(Number.self, from: decodedData),
-            value
-        )
+        let decodedData = try #require(jsonString.data(using: .utf8))
+        #expect(try JSONDecoder().decode(Number.self, from: decodedData) == value)
     }
 
-    func testJsonCoding_noUnit() throws {
+    @Test func jsonCoding_noUnit() throws {
         let value = Number(3.899)
         let jsonString = #"3.899"#
 
         let encodedData = try JSONEncoder().encode(value)
-        XCTAssertEqual(
-            String(data: encodedData, encoding: .utf8),
-            jsonString
-        )
+        #expect(String(data: encodedData, encoding: .utf8) == jsonString)
 
-        let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))
-        XCTAssertEqual(
-            try JSONDecoder().decode(Number.self, from: decodedData),
-            value
-        )
+        let decodedData = try #require(jsonString.data(using: .utf8))
+        #expect(try JSONDecoder().decode(Number.self, from: decodedData) == value)
     }
 
-    func testJsonCoding_infinity() throws {
+    @Test func jsonCoding_infinity() throws {
         let value = Number(.infinity)
         let jsonString = #"{"_kind":"number","val":"INF"}"#
 
         // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
-        XCTAssertEqual(
-            try JSONDecoder().decode(Number.self, from: encodedData),
-            value
-        )
+        #expect(try JSONDecoder().decode(Number.self, from: encodedData) == value)
 
-        let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))
-        XCTAssertEqual(
-            try JSONDecoder().decode(Number.self, from: decodedData),
-            value
-        )
+        let decodedData = try #require(jsonString.data(using: .utf8))
+        #expect(try JSONDecoder().decode(Number.self, from: decodedData) == value)
     }
 
-    func testToZinc() throws {
-        XCTAssertEqual(
-            Number(12.199, unit: "kWh").toZinc(),
-            "12.199kWh"
-        )
-        XCTAssertEqual(
-            Number(1, unit: "kWh/ft\u{00b2}").toZinc(),
-            #"1kWh/ft\u00b2"#
-        )
-        XCTAssertEqual(
-            Number(3.899).toZinc(),
-            "3.899"
-        )
-        XCTAssertEqual(
-            Number(4).toZinc(),
-            "4"
-        )
-        XCTAssertEqual(
-            Number.infinity.toZinc(),
-            "INF"
-        )
-        XCTAssertEqual(
-            Number.negativeInfinity.toZinc(),
-            "-INF"
-        )
-        XCTAssertEqual(
-            Number.nan.toZinc(),
-            "NaN"
-        )
+    @Test func toZinc() throws {
+        #expect(Number(12.199, unit: "kWh").toZinc() == "12.199kWh")
+        #expect(Number(1, unit: "kWh/ft\u{00b2}").toZinc() == #"1kWh/ft\u00b2"#)
+        #expect(Number(3.899).toZinc() == "3.899")
+        #expect(Number(4).toZinc() == "4")
+        #expect(Number.infinity.toZinc() == "INF")
+        #expect(Number.negativeInfinity.toZinc() == "-INF")
+        #expect(Number.nan.toZinc() == "NaN")
     }
 }

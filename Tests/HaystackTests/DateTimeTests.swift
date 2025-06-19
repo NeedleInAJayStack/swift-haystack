@@ -1,8 +1,9 @@
+import Foundation
 import Haystack
-import XCTest
+import Testing
 
-final class DateTimeTests: XCTestCase {
-    func testJsonCoding() throws {
+struct DateTimeTests {
+    @Test func jsonCoding() throws {
         let value = try DateTime(
             year: 1988,
             month: 4,
@@ -18,19 +19,13 @@ final class DateTimeTests: XCTestCase {
 
         // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
-        XCTAssertEqual(
-            try JSONDecoder().decode(DateTime.self, from: encodedData),
-            value
-        )
+        #expect(try JSONDecoder().decode(DateTime.self, from: encodedData) == value)
 
-        let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))
-        XCTAssertEqual(
-            try JSONDecoder().decode(DateTime.self, from: decodedData),
-            value
-        )
+        let decodedData = try #require(jsonString.data(using: .utf8))
+        #expect(try JSONDecoder().decode(DateTime.self, from: decodedData) == value)
     }
 
-    func testJsonCoding_noMilliseconds() throws {
+    @Test func jsonCoding_noMilliseconds() throws {
         let value = try DateTime(
             year: 1988,
             month: 4,
@@ -45,20 +40,14 @@ final class DateTimeTests: XCTestCase {
 
         // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
-        XCTAssertEqual(
-            try JSONDecoder().decode(DateTime.self, from: encodedData),
-            value
-        )
+        #expect(try JSONDecoder().decode(DateTime.self, from: encodedData) == value)
 
-        let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))
-        XCTAssertEqual(
-            try JSONDecoder().decode(DateTime.self, from: decodedData),
-            value
-        )
+        let decodedData = try #require(jsonString.data(using: .utf8))
+        #expect(try JSONDecoder().decode(DateTime.self, from: decodedData) == value)
     }
 
-    func testToZinc() throws {
-        XCTAssertEqual(
+    @Test func toZinc() throws {
+        #expect(
             try DateTime(
                 year: 1988,
                 month: 4,
@@ -68,11 +57,10 @@ final class DateTimeTests: XCTestCase {
                 second: 43,
                 gmtOffset: 0,
                 timezone: DateTime.utcName
-            ).toZinc(),
-            "1988-04-01T10:05:43Z"
+            ).toZinc() == "1988-04-01T10:05:43Z"
         )
 
-        XCTAssertEqual(
+        #expect(
             try DateTime(
                 year: 1988,
                 month: 4,
@@ -82,8 +70,7 @@ final class DateTimeTests: XCTestCase {
                 second: 43,
                 gmtOffset: -5 * 60 * 60,
                 timezone: "New_York"
-            ).toZinc(),
-            "1988-04-01T10:05:43-05:00 New_York"
+            ).toZinc() == "1988-04-01T10:05:43-05:00 New_York"
         )
     }
 }
