@@ -1,13 +1,13 @@
 import Haystack
-import XCTest
+import Testing
 
-final class FilterTests: XCTestCase {
-    func testIdentity() throws {
-        try XCTAssertTrue(FilterFactory.has("a").equals(FilterFactory.has("a")))
-        try XCTAssertFalse(FilterFactory.has("a").equals(FilterFactory.has("b")))
+struct FilterTests {
+    @Test func identity() throws {
+        try #expect(FilterFactory.has("a").equals(FilterFactory.has("a")))
+        try #expect(!FilterFactory.has("a").equals(FilterFactory.has("b")))
     }
 
-    func testBasics() throws {
+    @Test func basics() throws {
         try verifyParse("x", FilterFactory.has("x"))
         try verifyParse("foo", FilterFactory.has("foo"))
         try verifyParse("fooBar", FilterFactory.has("fooBar"))
@@ -17,35 +17,35 @@ final class FilterTests: XCTestCase {
         try verifyParse("not foo", FilterFactory.missing("foo"))
     }
 
-    func testZincOnlyLiteralsDontWork() throws {
-        try XCTAssertThrowsError(FilterFactory.make("x==T"))
-        try XCTAssertThrowsError(FilterFactory.make("x==F"))
-        try XCTAssertThrowsError(FilterFactory.make("x==F"))
+    @Test func zincOnlyLiteralsDontWork() throws {
+        #expect(throws: (any Error).self) { try FilterFactory.make("x==T") }
+        #expect(throws: (any Error).self) { try FilterFactory.make("x==F") }
+        #expect(throws: (any Error).self) { try FilterFactory.make("x==F") }
     }
 
-    func testBool() throws {
+    @Test func bool() throws {
         try verifyParse("x->y==true", FilterFactory.eq("x->y", true))
         try verifyParse("x->y!=false", FilterFactory.ne("x->y", false))
     }
 
-    func testStr() throws {
+    @Test func str() throws {
         try verifyParse("x==\"hi\"", FilterFactory.eq("x", "hi"))
         try verifyParse("x!=\"\\\"hi\\\"\"", FilterFactory.ne("x", "\"hi\""))
         try verifyParse("x==\"_\\uabcd_\\n_\"", FilterFactory.eq("x", "_\u{abcd}_\n_"))
     }
 
-    func testUri() throws {
+    @Test func uri() throws {
         try verifyParse("ref==`http://foo/?bar`", FilterFactory.eq("ref", Uri("http://foo/?bar")))
         try verifyParse("ref->x==`file name`", FilterFactory.eq("ref->x", Uri("file name")))
         try verifyParse("ref == `foo bar`", FilterFactory.eq("ref", Uri("foo bar")))
     }
 
-    func testInt() throws {
+    @Test func int() throws {
         try verifyParse("num < 4", FilterFactory.lt("num", Number(4)))
         try verifyParse("num <= -99", FilterFactory.le("num", Number(-99)))
     }
 
-    func testFloat() throws {
+    @Test func float() throws {
         try verifyParse("num < 4.0", FilterFactory.lt("num", Number(4.0)))
         try verifyParse("num <= -9.6", FilterFactory.le("num", Number(-9.6)))
         try verifyParse("num > 400000", FilterFactory.gt("num", Number(4e5)))
@@ -53,42 +53,42 @@ final class FilterTests: XCTestCase {
         try verifyParse("num >= 2.16", FilterFactory.ge("num", Number(2.16)))
     }
 
-    func testUnit() throws {
+    @Test func unit() throws {
         try verifyParse("dur < 5ns", FilterFactory.lt("dur", Number(5, unit: "ns")))
         try verifyParse("dur < 10kg", FilterFactory.lt("dur", Number(10, unit: "kg")))
         try verifyParse("dur < -9sec", FilterFactory.lt("dur", Number(-9, unit: "sec")))
         try verifyParse("dur < 2.5hr", FilterFactory.lt("dur", Number(2.5, unit: "hr")))
     }
 
-    func testDateTime() throws {
+    @Test func dateTime() throws {
         try verifyParse("foo < 2009-10-30", FilterFactory.lt("foo", Date("2009-10-30")))
         try verifyParse("foo < 08:30:00", FilterFactory.lt("foo", Time("08:30:00")))
         try verifyParse("foo < 13:00:00", FilterFactory.lt("foo", Time("13:00:00")))
     }
 
-    func testRef() throws {
+    @Test func ref() throws {
         try verifyParse("author == @xyz", FilterFactory.eq("author", Ref("xyz")))
         try verifyParse("author==@xyz:foo.bar", FilterFactory.eq("author", Ref("xyz:foo.bar")))
     }
 
-    func testAnd() throws {
+    @Test func and() throws {
         try verifyParse("a and b", FilterFactory.has("a").and(FilterFactory.has("b")))
         try verifyParse("a and b and c == 3", FilterFactory.has("a").and(FilterFactory.has("b").and(FilterFactory.eq("c", Number(3)))))
     }
 
-    func testOr() throws {
+    @Test func or() throws {
         try verifyParse("a or b", FilterFactory.has("a").or(FilterFactory.has("b")))
         try verifyParse("a or b or c == 3", FilterFactory.has("a").or(FilterFactory.has("b").or(FilterFactory.eq("c", Number(3)))))
     }
 
-    func testParens() throws {
+    @Test func parens() throws {
         try verifyParse("(a)", FilterFactory.has("a"))
         try verifyParse("(a) and (b)", FilterFactory.has("a").and(FilterFactory.has("b")))
         try verifyParse("( a )  and  ( b ) ", FilterFactory.has("a").and(FilterFactory.has("b")))
         try verifyParse("(a or b) or (c == 3)", FilterFactory.has("a").or(FilterFactory.has("b")).or(FilterFactory.eq("c", Number(3))))
     }
 
-    func testCombo() throws {
+    @Test func combo() throws {
         let isA = try FilterFactory.has("a")
         let isB = try FilterFactory.has("b")
         let isC = try FilterFactory.has("c")
@@ -102,10 +102,10 @@ final class FilterTests: XCTestCase {
 
     func verifyParse(_ s: String, _ expected: any Filter) throws {
         let actual = try FilterFactory.make(s)
-        XCTAssertTrue(actual.equals(expected))
+        #expect(actual.equals(expected))
     }
 
-    func testInclude() throws {
+    @Test func include() throws {
         let a: Dict = try [
             "dis": "a",
             "num": Number(10),
@@ -234,32 +234,32 @@ final class FilterTests: XCTestCase {
                 actual += id
             }
         }
-        XCTAssertEqual(actual, expected)
+        #expect(actual == expected)
     }
 
-    func testPath() throws {
+    @Test func path() throws {
         // single name
         var path = try Path.make(path: "foo")
-        XCTAssertEqual(path.count, 1)
-        XCTAssertEqual(path[0], "foo")
-        XCTAssertEqual(path.description, "foo")
-        try XCTAssertEqual(path, Path.make(path: "foo"))
+        #expect(path.count == 1)
+        #expect(path[0] == "foo")
+        #expect(path.description == "foo")
+        #expect(try path == Path.make(path: "foo"))
 
         // two names
         path = try Path.make(path: "foo->bar")
-        XCTAssertEqual(path.count, 2)
-        XCTAssertEqual(path[0], "foo")
-        XCTAssertEqual(path[1], "bar")
-        XCTAssertEqual(path.description, "foo->bar")
-        try XCTAssertEqual(path, Path.make(path: "foo->bar"))
+        #expect(path.count == 2)
+        #expect(path[0] == "foo")
+        #expect(path[1] == "bar")
+        #expect(path.description == "foo->bar")
+        #expect(try path == Path.make(path: "foo->bar"))
 
         // three names
         path = try Path.make(path: "x->y->z")
-        XCTAssertEqual(path.count, 3)
-        XCTAssertEqual(path[0], "x")
-        XCTAssertEqual(path[1], "y")
-        XCTAssertEqual(path[2], "z")
-        XCTAssertEqual(path.description, "x->y->z")
-        try XCTAssertEqual(path, Path.make(path: "x->y->z"))
+        #expect(path.count == 3)
+        #expect(path[0] == "x")
+        #expect(path[1] == "y")
+        #expect(path[2] == "z")
+        #expect(path.description == "x->y->z")
+        #expect(try path == Path.make(path: "x->y->z"))
     }
 }

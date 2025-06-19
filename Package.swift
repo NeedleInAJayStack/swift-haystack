@@ -73,7 +73,7 @@ let package = Package(
             name: "HaystackServerTests",
             dependencies: [
                 "HaystackServer",
-                .product(name: "XCTVapor", package: "vapor", condition: .when(traits: ["ServerVapor"])),
+                .product(name: "VaporTesting", package: "vapor", condition: .when(traits: ["ServerVapor"])),
             ]
         ),
     ]

@@ -1,162 +1,151 @@
 #if ServerVapor
 import Haystack
 import HaystackServer
-import XCTest
-import XCTVapor
+import Testing
+import VaporTesting
 
-final class HaystackServerVaporTests: XCTestCase {
-    func testGet() throws {
-        let app = Application(.testing)
-        app.haystack = HaystackAPIMock()
-        try app.register(collection: HaystackRouteCollection())
-        defer { app.shutdown() }
-
-        let responseGrid = try GridBuilder()
-            .addCols(names: ["id", "foo"])
-            .addRow([Haystack.Ref("a"), Marker.val])
-            .addRow([Haystack.Ref("b"), Marker.val])
-            .toGrid()
-
-        // Test zinc encoding
-        try app.test(
-            .GET,
-            "/read?id=[@a,@b]",
-            headers: [
-                HTTPHeaders.Name.accept.description: HTTPMediaType.zinc.description,
-            ]
-        ) { res in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.headers.contentType, .zinc)
-            XCTAssertEqual(
-                res.body.string,
-                responseGrid.toZinc()
-            )
+struct HaystackServerVaporTests {
+    private func withApp(_ test: (Application) async throws -> Void) async throws {
+        let app = try await Application.make(.testing)
+        do {
+            app.haystack = HaystackAPIMock()
+            try app.register(collection: HaystackRouteCollection())
+            try await test(app)
+        } catch {
+            try await app.asyncShutdown()
+            throw error
         }
+        try await app.asyncShutdown()
+    }
 
-        // Test JSON encoding
-        try app.test(
-            .GET,
-            "/read?id=[@a,@b]",
-            headers: [
-                HTTPHeaders.Name.accept.description: HTTPMediaType.json.description,
-            ]
-        ) { res in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.headers.contentType, .json)
-            try XCTAssertEqual(
-                res.content.decode(Grid.self),
-                responseGrid
-            )
+    @Test func get() async throws {
+        try await withApp { app in
+            let responseGrid = try GridBuilder()
+                .addCols(names: ["id", "foo"])
+                .addRow([Haystack.Ref("a"), Marker.val])
+                .addRow([Haystack.Ref("b"), Marker.val])
+                .toGrid()
+
+            // Test zinc encoding
+            try await app.test(
+                .GET,
+                "/read?id=[@a,@b]",
+                headers: [
+                    HTTPHeaders.Name.accept.description: HTTPMediaType.zinc.description,
+                ]
+            ) { res in
+                #expect(res.status == .ok)
+                #expect(res.headers.contentType == .zinc)
+                #expect(res.body.string == responseGrid.toZinc())
+            }
+
+            // Test JSON encoding
+            try await app.test(
+                .GET,
+                "/read?id=[@a,@b]",
+                headers: [
+                    HTTPHeaders.Name.accept.description: HTTPMediaType.json.description,
+                ]
+            ) { res in
+                #expect(res.status == .ok)
+                #expect(res.headers.contentType == .json)
+                try #expect(res.content.decode(Grid.self) == responseGrid)
+            }
         }
     }
 
-    func testGetBadQuery() throws {
-        let app = Application(.testing)
-        app.haystack = HaystackAPIMock()
-        try app.register(collection: HaystackRouteCollection())
-        defer { app.shutdown() }
-
-        try app.test(
-            .GET,
-            "/read?id=[a,b]" // Invalid because expecting Ref, not String
-        ) { res in
-            XCTAssertEqual(res.status, .badRequest)
+    @Test func getBadQuery() async throws {
+        try await withApp { app in
+            try await app.test(
+                .GET,
+                "/read?id=[a,b]" // Invalid because expecting Ref, not String
+            ) { res in
+                #expect(res.status == .badRequest)
+            }
         }
     }
 
-    func testPost() throws {
-        let app = Application(.testing)
-        app.haystack = HaystackAPIMock()
-        try app.register(collection: HaystackRouteCollection())
-        defer { app.shutdown() }
+    @Test func post() async throws {
+        try await withApp { app in
+            let requestGrid = try GridBuilder()
+                .addCol(name: "id")
+                .addRow([Haystack.Ref("a")])
+                .addRow([Haystack.Ref("b")])
+                .toGrid()
 
-        let requestGrid = try GridBuilder()
-            .addCol(name: "id")
-            .addRow([Haystack.Ref("a")])
-            .addRow([Haystack.Ref("b")])
-            .toGrid()
+            let responseGrid = try GridBuilder()
+                .addCols(names: ["id", "foo"])
+                .addRow([Haystack.Ref("a"), Marker.val])
+                .addRow([Haystack.Ref("b"), Marker.val])
+                .toGrid()
 
-        let responseGrid = try GridBuilder()
-            .addCols(names: ["id", "foo"])
-            .addRow([Haystack.Ref("a"), Marker.val])
-            .addRow([Haystack.Ref("b"), Marker.val])
-            .toGrid()
-
-        // Test zinc encoding
-        try app.test(
-            .POST,
-            "/read",
-            headers: [
-                HTTPHeaders.Name.accept.description: HTTPMediaType.zinc.description,
-            ],
-            body: .init(string: requestGrid.toZinc()),
-            beforeRequest: { req in
-                req.headers.contentType = .zinc
+            // Test zinc encoding
+            try await app.test(
+                .POST,
+                "/read",
+                headers: [
+                    HTTPHeaders.Name.accept.description: HTTPMediaType.zinc.description,
+                ],
+                body: .init(string: requestGrid.toZinc()),
+                beforeRequest: { req in
+                    req.headers.contentType = .zinc
+                }
+            ) { res in
+                #expect(res.status == .ok)
+                #expect(res.headers.contentType == .zinc)
+                #expect(res.body.string == responseGrid.toZinc())
             }
-        ) { res in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.headers.contentType, .zinc)
-            XCTAssertEqual(
-                res.body.string,
-                responseGrid.toZinc()
-            )
-        }
 
-        // Test JSON encoding
-        try app.test(
-            .POST,
-            "/read",
-            headers: [
-                HTTPHeaders.Name.accept.description: HTTPMediaType.json.description,
-            ],
-            beforeRequest: { req in
-                req.headers.contentType = .json
-                try req.content.encode(requestGrid)
+            // Test JSON encoding
+            try await app.test(
+                .POST,
+                "/read",
+                headers: [
+                    HTTPHeaders.Name.accept.description: HTTPMediaType.json.description,
+                ],
+                beforeRequest: { req in
+                    req.headers.contentType = .json
+                    try req.content.encode(requestGrid)
+                }
+            ) { res in
+                #expect(res.status == .ok)
+                #expect(res.headers.contentType == .json)
+                try #expect(res.content.decode(Grid.self) == responseGrid)
             }
-        ) { res in
-            XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.headers.contentType, .json)
-            try XCTAssertEqual(
-                res.content.decode(Grid.self),
-                responseGrid
-            )
         }
     }
 
-    func testPostBadQuery() throws {
-        let app = Application(.testing)
-        app.haystack = HaystackAPIMock()
-        try app.register(collection: HaystackRouteCollection())
-        defer { app.shutdown() }
+    @Test func postBadQuery() async throws {
+        try await withApp { app in
+            let requestGrid = try GridBuilder()
+                .addCol(name: "id")
+                .addRow(["a"]) // Invalid because expecting Ref, not String
+                .addRow(["b"])
+                .toGrid()
 
-        let requestGrid = try GridBuilder()
-            .addCol(name: "id")
-            .addRow(["a"]) // Invalid because expecting Ref, not String
-            .addRow(["b"])
-            .toGrid()
-
-        // Test zinc encoding
-        try app.test(
-            .POST,
-            "/read",
-            body: .init(string: requestGrid.toZinc()),
-            beforeRequest: { req in
-                req.headers.contentType = .zinc
+            // Test zinc encoding
+            try await app.test(
+                .POST,
+                "/read",
+                body: .init(string: requestGrid.toZinc()),
+                beforeRequest: { req in
+                    req.headers.contentType = .zinc
+                }
+            ) { res in
+                #expect(res.status == .badRequest)
             }
-        ) { res in
-            XCTAssertEqual(res.status, .badRequest)
-        }
 
-        // Test JSON encoding
-        try app.test(
-            .POST,
-            "/read",
-            beforeRequest: { req in
-                req.headers.contentType = .json
-                try req.content.encode(requestGrid)
+            // Test JSON encoding
+            try await app.test(
+                .POST,
+                "/read",
+                beforeRequest: { req in
+                    req.headers.contentType = .json
+                    try req.content.encode(requestGrid)
+                }
+            ) { res in
+                #expect(res.status == .badRequest)
             }
-        ) { res in
-            XCTAssertEqual(res.status, .badRequest)
         }
     }
 }
