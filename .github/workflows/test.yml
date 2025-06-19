@@ -4,15 +4,16 @@ on:
   push: { branches: [ main ] }
 
 jobs:
-  macos-test:
-    runs-on: macos-latest
-    steps:
-      - uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: latest
-      - uses: actions/checkout@v4
-      - name: Darwin build & test
-        run: swift test --enable-all-traits --skip IntegrationTests
+  # Disabled because `latest` is only XCode 16.2 which has Swift 6.0.3
+  # macos-test:
+  #   runs-on: macos-latest
+  #   steps:
+  #     - uses: maxim-lobanov/setup-xcode@v1
+  #       with:
+  #         xcode-version: latest
+  #     - uses: actions/checkout@v4
+  #     - name: Darwin build & test
+  #       run: swift test --enable-all-traits --skip IntegrationTests
   linux-test:
     runs-on: ubuntu-latest
     container:
