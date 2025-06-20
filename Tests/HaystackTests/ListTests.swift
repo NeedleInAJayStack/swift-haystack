@@ -1,8 +1,9 @@
+import Foundation
 import Haystack
-import XCTest
+import Testing
 
-final class ListTests: XCTestCase {
-    func testJsonCoding() throws {
+struct ListTests {
+    @Test func jsonCoding() throws {
         let value: List = [
             true,
             "abc",
@@ -16,20 +17,14 @@ final class ListTests: XCTestCase {
 
         // Must encode/decode b/c JSON ordering is not deterministic
         let encodedData = try JSONEncoder().encode(value)
-        XCTAssertEqual(
-            try JSONDecoder().decode(List.self, from: encodedData),
-            value
-        )
+        #expect(try JSONDecoder().decode(List.self, from: encodedData) == value)
 
-        let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))
-        XCTAssertEqual(
-            try JSONDecoder().decode(List.self, from: decodedData),
-            value
-        )
+        let decodedData = try #require(jsonString.data(using: .utf8))
+        #expect(try JSONDecoder().decode(List.self, from: decodedData) == value)
     }
 
-    func testToZinc() throws {
-        XCTAssertEqual(
+    @Test func toZinc() throws {
+        #expect(
             List([
                 true,
                 "abc",
@@ -38,56 +33,26 @@ final class ListTests: XCTestCase {
                     false,
                     "xyz",
                 ]),
-            ]).toZinc(),
-            #"[T, "abc", 42furloghs, [F, "xyz"]]"#
+            ]).toZinc()
+                ==
+                #"[T, "abc", 42furloghs, [F, "xyz"]]"#
         )
     }
 
-    func testEquatable() {
+    @Test func equatable() {
         // Test basic
-        XCTAssertEqual(
-            List(["a"]),
-            List(["a"])
-        )
-        XCTAssertNotEqual(
-            List(["a"]),
-            List(["b"])
-        )
+        #expect(List(["a"]) == List(["a"]))
+        #expect(List(["a"]) != List(["b"]))
 
         // Test element count matters
-        XCTAssertNotEqual(
-            List([
-                "a",
-                "a",
-            ]),
-            List([
-                "a",
-            ])
-        )
-        XCTAssertNotEqual(
-            List([
-                "a",
-            ]),
-            List([
-                "a",
-                "a",
-            ])
-        )
+        #expect(List(["a", "a"]) != List(["a"]))
+        #expect(List(["a"]) != List(["a", "a"]))
 
         // Test order matters
-        XCTAssertNotEqual(
-            List([
-                "a",
-                "b",
-            ]),
-            List([
-                "b",
-                "a",
-            ])
-        )
+        #expect(List(["a", "b"]) != List(["b", "a"]))
 
         // Test nested
-        XCTAssertEqual(
+        #expect(
             List([
                 true,
                 "abc",
@@ -96,40 +61,40 @@ final class ListTests: XCTestCase {
                     false,
                     "xyz",
                 ]),
-            ]),
-            List([
-                true,
-                "abc",
-                Number(42, unit: "furloghs"),
-                List([
-                    false,
-                    "xyz",
-                ]),
-            ])
-        )
-        XCTAssertNotEqual(
-            List([
-                true,
-                "abc",
-                Number(42, unit: "furloghs"),
-                List([
-                    false,
-                    "xyz",
-                ]),
-            ]),
-            List([
-                true,
-                "abc",
-                Number(42, unit: "furloghs"),
+            ]) ==
                 List([
                     true,
+                    "abc",
+                    Number(42, unit: "furloghs"),
+                    List([
+                        false,
+                        "xyz",
+                    ]),
+                ])
+        )
+        #expect(
+            List([
+                true,
+                "abc",
+                Number(42, unit: "furloghs"),
+                List([
+                    false,
                     "xyz",
                 ]),
-            ])
+            ]) !=
+                List([
+                    true,
+                    "abc",
+                    Number(42, unit: "furloghs"),
+                    List([
+                        true,
+                        "xyz",
+                    ]),
+                ])
         )
     }
 
-    func testCollection() {
+    @Test func collection() {
         let list: List = [
             true,
             "abc",
@@ -138,18 +103,18 @@ final class ListTests: XCTestCase {
         ]
 
         // Test index access
-        XCTAssertEqual(list[0] as? Bool, true)
-        XCTAssertEqual(list[1] as? String, "abc")
-        XCTAssertEqual((list[2] as? Number), Number(42, unit: "furloghs"))
-        XCTAssertEqual((list[3] as? List), [true, "xyz"])
+        #expect(list[0] as? Bool == true)
+        #expect(list[1] as? String == "abc")
+        #expect((list[2] as? Number) == Number(42, unit: "furloghs"))
+        #expect((list[3] as? List) == [true, "xyz"])
 
         // Test loop
         for (i, element) in list.enumerated() {
             switch i {
-            case 0: XCTAssertEqual(element as? Bool, true)
-            case 1: XCTAssertEqual(element as? String, "abc")
-            case 2: XCTAssertEqual((element as? Number), Number(42, unit: "furloghs"))
-            case 3: XCTAssertEqual((element as? List), [true, "xyz"])
+            case 0: #expect(element as? Bool == true)
+            case 1: #expect(element as? String == "abc")
+            case 2: #expect((element as? Number) == Number(42, unit: "furloghs"))
+            case 3: #expect((element as? List) == [true, "xyz"])
             default: break
             }
         }

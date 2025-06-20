@@ -1,3 +1,4 @@
+#if ServerVapor
 import Haystack
 import Vapor
 
@@ -44,3 +45,4 @@ extension Request {
         return Dict(dictMap)
     }
 }
+#endif

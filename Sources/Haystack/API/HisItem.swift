@@ -1,5 +1,5 @@
 /// A timestamp/value pair.
-public struct HisItem {
+public struct HisItem: Sendable {
     public let ts: DateTime
     public let val: any Val
 
