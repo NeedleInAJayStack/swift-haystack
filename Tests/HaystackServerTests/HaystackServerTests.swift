@@ -579,7 +579,7 @@ actor InMemoryWatchStore: WatchStore {
         watches[watchId] = nil
     }
 
-    public struct Watch: Hashable {
+    struct Watch: Hashable {
         let id: String
         var ids: [Haystack.Ref]
         let lease: Haystack.Number
