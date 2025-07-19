@@ -1,6 +1,6 @@
+#if ClientNIO
 import AsyncHTTPClient
 import Foundation
-import HaystackClient
 import NIO
 import NIOFoundationCompat
 
@@ -51,3 +51,4 @@ struct HTTPClientFetcher: Fetcher {
         )
     }
 }
+#endif

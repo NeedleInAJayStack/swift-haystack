@@ -18,7 +18,7 @@ class ZincTokenizer {
         try consume()
     }
 
-    public convenience init(_ string: String) throws {
+    convenience init(_ string: String) throws {
         guard let data = string.data(using: .utf8) else {
             throw ZincTokenizerError.inputIsNotUtf8
         }

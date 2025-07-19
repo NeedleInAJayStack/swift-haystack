@@ -1,28 +1,20 @@
+import Foundation
 import Haystack
-import XCTest
+import Testing
 
-final class RemoveTests: XCTestCase {
-    func testJsonCoding() throws {
+struct RemoveTests {
+    @Test func jsonCoding() throws {
         let value = remove
         let jsonString = #"{"_kind":"remove"}"#
 
         let encodedData = try JSONEncoder().encode(value)
-        XCTAssertEqual(
-            String(data: encodedData, encoding: .utf8),
-            jsonString
-        )
+        #expect(String(data: encodedData, encoding: .utf8) == jsonString)
 
-        let decodedData = try XCTUnwrap(jsonString.data(using: .utf8))
-        XCTAssertEqual(
-            try JSONDecoder().decode(Remove.self, from: decodedData),
-            value
-        )
+        let decodedData = try #require(jsonString.data(using: .utf8))
+        #expect(try JSONDecoder().decode(Remove.self, from: decodedData) == value)
     }
 
-    func testToZinc() throws {
-        XCTAssertEqual(
-            remove.toZinc(),
-            "R"
-        )
+    @Test func toZinc() throws {
+        #expect(remove.toZinc() == "R")
     }
 }

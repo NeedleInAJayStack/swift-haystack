@@ -1,7 +1,7 @@
 import Haystack
 
 /// Defines a storage system that allows reading and writing of Haystack records.
-public protocol RecordStore {
+public protocol RecordStore: Sendable {
     /// Reads records from the store based on a list of IDs.
     func read(ids: [Haystack.Ref]) async throws -> [Haystack.Dict]
 
@@ -12,7 +12,7 @@ public protocol RecordStore {
     func commitAll(diffs: [RecordDiff]) async throws -> [RecordDiff]
 }
 
-public struct RecordDiff {
+public struct RecordDiff: Sendable {
     public init(
         id: Haystack.Ref,
         old: Haystack.Dict?,

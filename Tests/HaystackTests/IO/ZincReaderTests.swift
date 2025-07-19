@@ -1,9 +1,9 @@
 import Haystack
-import XCTest
+import Testing
 
-final class ZincReaderTests: XCTestCase {
-    func testNullGridMetaAndColMeta() throws {
-        try XCTAssertEqualZincGrid(
+struct ZincReaderTests {
+    @Test func nullGridMetaAndColMeta() throws {
+        try expectEqualZincGrid(
             zinc: """
             ver:"3.0" tag:N
             a nullmetatag:N, b markermetatag
@@ -15,8 +15,8 @@ final class ZincReaderTests: XCTestCase {
         )
     }
 
-    func testGridWithSymbols() throws {
-        try XCTAssertEqualZincGrid(
+    @Test func gridWithSymbols() throws {
+        try expectEqualZincGrid(
             zinc: """
             ver:"3.0"
             a,b
@@ -30,8 +30,8 @@ final class ZincReaderTests: XCTestCase {
         )
     }
 
-    func test() throws {
-        try XCTAssertEqualZincGrid(
+    @Test func test() throws {
+        try expectEqualZincGrid(
             zinc: """
             ver:"3.0"
             fooBar33
@@ -42,7 +42,7 @@ final class ZincReaderTests: XCTestCase {
             rows: []
         )
 
-        try XCTAssertEqualZincGrid(
+        try expectEqualZincGrid(
             zinc: """
             ver:"3.0" tag foo:"bar"
             xyz
@@ -55,7 +55,7 @@ final class ZincReaderTests: XCTestCase {
             ]
         )
 
-        try XCTAssertEqualZincGrid(
+        try expectEqualZincGrid(
             zinc: """
             ver:"3.0"
             val
@@ -70,7 +70,7 @@ final class ZincReaderTests: XCTestCase {
             ]
         )
 
-        try XCTAssertEqualZincGrid(
+        try expectEqualZincGrid(
             zinc: """
             ver:"3.0"
             a,b
@@ -85,7 +85,7 @@ final class ZincReaderTests: XCTestCase {
             ]
         )
 
-        try XCTAssertEqualZincGrid(
+        try expectEqualZincGrid(
             zinc: """
             ver:"3.0"
             a,    b,      c,      d
@@ -112,7 +112,7 @@ final class ZincReaderTests: XCTestCase {
             ]
         )
 
-        try XCTAssertEqualZincGrid(
+        try expectEqualZincGrid(
             zinc: """
             ver:"3.0"
             foo
@@ -131,7 +131,7 @@ final class ZincReaderTests: XCTestCase {
             ]
         )
 
-        try XCTAssertEqualZincGrid(
+        try expectEqualZincGrid(
             zinc: """
             ver:"3.0"
             a,b
@@ -150,7 +150,7 @@ final class ZincReaderTests: XCTestCase {
             ]
         )
 
-        try XCTAssertEqualZincGrid(
+        try expectEqualZincGrid(
             zinc: """
             ver:"3.0"
             a, b, c
@@ -173,7 +173,7 @@ final class ZincReaderTests: XCTestCase {
             ]
         )
 
-        try XCTAssertEqualZincGrid(
+        try expectEqualZincGrid(
             zinc: """
             ver:"3.0"
             a,b
@@ -189,7 +189,7 @@ final class ZincReaderTests: XCTestCase {
             ]
         )
 
-        try XCTAssertEqualZincGrid(
+        try expectEqualZincGrid(
             zinc: """
             ver:"3.0" a: 2009-02-03T04:05:06Z foo b: 2010-02-03T04:05:06Z UTC bar c: 2009-12-03T04:05:06Z London baz
             a
@@ -228,7 +228,7 @@ final class ZincReaderTests: XCTestCase {
         )
     }
 
-    private func XCTAssertEqualZincGrid(
+    private func expectEqualZincGrid(
         zinc: String,
         meta: [String: any Val],
         cols: [(String, [String: any Val]?)],
@@ -248,9 +248,8 @@ final class ZincReaderTests: XCTestCase {
         }
         let expected = builder.toGrid()
 
-        XCTAssertEqual(
-            actual,
-            expected,
+        #expect(
+            actual == expected,
             """
             \(actual.toZinc())
             is not equal to

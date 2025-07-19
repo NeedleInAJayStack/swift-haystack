@@ -3,22 +3,22 @@ import Haystack
 
 /// A HaystackServer is a server that implements the Haystack API.
 /// It translates API calls into operations on the underlying data stores.
-public class HaystackServer: API {
+public final class HaystackServer: API, Sendable {
     let recordStore: RecordStore
     let historyStore: HistoryStore
     let watchStore: WatchStore
 
-    let onInvokeAction: (Haystack.Ref, String, [String: any Haystack.Val]) async throws -> Haystack.Grid
-    let onEval: (String) async throws -> Haystack.Grid
+    let onInvokeAction: @Sendable (Haystack.Ref, String, [String: any Haystack.Val]) async throws -> Haystack.Grid
+    let onEval: @Sendable (String) async throws -> Haystack.Grid
 
     public init(
         recordStore: RecordStore,
         historyStore: HistoryStore,
         watchStore: WatchStore,
-        onInvokeAction: @escaping (Haystack.Ref, String, [String: any Haystack.Val]) async throws -> Haystack.Grid = { _, _, _ in
+        onInvokeAction: @escaping @Sendable (Haystack.Ref, String, [String: any Haystack.Val]) async throws -> Haystack.Grid = { _, _, _ in
             GridBuilder().toGrid()
         },
-        onEval: @escaping (String) async throws -> Haystack.Grid = { _ in
+        onEval: @escaping @Sendable (String) async throws -> Haystack.Grid = { _ in
             GridBuilder().toGrid()
         }
     ) {

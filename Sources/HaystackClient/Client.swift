@@ -22,7 +22,7 @@ public class Client: API {
     let fetcher: Fetcher
 
     /// Set when `open` is called.
-    private var authToken: String? = nil
+    private var authToken: String?
 
     private let jsonEncoder = JSONEncoder()
     private let jsonDecoder = JSONDecoder()
