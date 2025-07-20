@@ -24,7 +24,7 @@ extension Val {
     }
 }
 
-public enum ValType: String, CaseIterable {
+public enum ValType: String, CaseIterable, Sendable {
     case Bool
     case Coord
     case Date

@@ -504,7 +504,7 @@ final class HaystackServerTests: XCTestCase {
 /// This is a super inefficient record store based on an in-memory list of Diffs
 ///
 /// Any change automatically updates the `mod` DateTime tag on the record
-class InMemoryRecordStore: RecordStore {
+actor InMemoryRecordStore: RecordStore {
     var recs: [Haystack.Ref: Haystack.Dict] = [:]
 
     init() {}
@@ -564,7 +564,7 @@ class InMemoryRecordStore: RecordStore {
 }
 
 /// This is a super inefficient history store based on an in-memory list of histories
-class InMemoryHistoryStore: HistoryStore {
+actor InMemoryHistoryStore: HistoryStore {
     /// Maps Refs to histories. These histories are not assumed to be ordered in time (for simplicity).
     var histories: [Ref: [HisItem]]
 
@@ -604,7 +604,7 @@ class InMemoryHistoryStore: HistoryStore {
 }
 
 /// This is a super inefficient history store based on an in-memory list of histories
-class InMemoryWatchStore: WatchStore {
+actor InMemoryWatchStore: WatchStore {
     /// Maps watch IDs to a list of Refs. This is used to track which records are being watched.
     var watches: [String: Watch] = [:]
 
@@ -659,7 +659,7 @@ class InMemoryWatchStore: WatchStore {
         watches[watchId] = nil
     }
 
-    public struct Watch: Hashable {
+    struct Watch: Hashable {
         let id: String
         var ids: [Haystack.Ref]
         let lease: Haystack.Number

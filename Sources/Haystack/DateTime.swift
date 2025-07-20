@@ -191,7 +191,7 @@ public struct DateTime: Val {
     }
 }
 
-var calendar = Calendar(identifier: .gregorian)
+let calendar = Calendar(identifier: .gregorian)
 
 // DateTime + Codable
 extension DateTime {
