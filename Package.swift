@@ -113,7 +113,10 @@ import PackageDescription
             ),
             .testTarget(
                 name: "HaystackServerVaporTests",
-                dependencies: ["HaystackServerVapor", .product(name: "XCTVapor", package: "vapor")]
+                dependencies: [
+                    "HaystackServerVapor",
+                    .product(name: "VaporTesting", package: "vapor"),
+                ]
             ),
         ]
     )
@@ -204,7 +207,10 @@ import PackageDescription
             ),
             .testTarget(
                 name: "HaystackServerVaporTests",
-                dependencies: ["HaystackServerVapor", .product(name: "XCTVapor", package: "vapor")]
+                dependencies: [
+                    "HaystackServerVapor",
+                    .product(name: "VaporTesting", package: "vapor"),
+                ]
             ),
         ]
     )

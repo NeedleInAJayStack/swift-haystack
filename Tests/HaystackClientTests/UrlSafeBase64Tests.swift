@@ -1,32 +1,20 @@
 @testable import HaystackClient
-import XCTest
+import Testing
 
-final class UrlSafeBase64Tests: XCTestCase {
-    func testEncodeStandard() throws {
-        XCTAssertEqual(
-            "user".encodeBase64Standard(),
-            "dXNlcg=="
-        )
+struct UrlSafeBase64Tests {
+    @Test func encodeStandard() throws {
+        #expect("user".encodeBase64Standard() == "dXNlcg==")
     }
 
-    func testEncodeUrlSafe() throws {
-        XCTAssertEqual(
-            "user".encodeBase64UrlSafe(),
-            "dXNlcg"
-        )
+    @Test func encodeUrlSafe() throws {
+        #expect("user".encodeBase64UrlSafe() == "dXNlcg")
     }
 
-    func testDecodeStandard() throws {
-        XCTAssertEqual(
-            "dXNlcg==".decodeBase64Standard(),
-            "user"
-        )
+    @Test func decodeStandard() throws {
+        #expect("dXNlcg==".decodeBase64Standard() == "user")
     }
 
-    func testDecodeUrlSafe() throws {
-        XCTAssertEqual(
-            "dXNlcg".decodeBase64UrlSafe(),
-            "user"
-        )
+    @Test func decodeUrlSafe() throws {
+        #expect("dXNlcg".decodeBase64UrlSafe() == "user")
     }
 }
