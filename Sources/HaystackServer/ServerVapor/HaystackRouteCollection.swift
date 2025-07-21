@@ -1,3 +1,4 @@
+#if ServerVapor
 import Haystack
 import Vapor
 
@@ -546,3 +547,4 @@ public struct HaystackRouteCollection: RouteCollection {
         }
     }
 }
+#endif

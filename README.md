@@ -50,50 +50,6 @@ This contains the
 [Haystack type-system primitives](https://project-haystack.org/doc/docHaystack/Kinds)
 and utilities to interact with them.
 
-### HaystackClientDarwin
-
-A Darwin-only client driver for the
-[Haystack HTTP API](https://project-haystack.org/doc/docHaystack/HttpApi) that
-requires minimal dependencies. Use this if you are only deploying to MacOS, iOS, etc and want
-to reduce dependencies.
-
-Here's an example of how to use it:
-
-```swift
-import HaystackClientDarwin
-
-func client() throws -> Client {
-    return try Client(
-        baseUrl: "http://mydomain.com/api/",
-        username: "username",
-        password: "password"
-    )
-}
-```
-
-### HaystackClientNIO
-
-A cross-platform client driver for the
-[Haystack HTTP API](https://project-haystack.org/doc/docHaystack/HttpApi) that
-has larger dependency requirements. Use this if you are only deploying to Linux or if you
-are deploying to Darwin platforms and are willing to accept more dependencies.
-
-Here's an example of how to use it:
-
-```swift
-import HaystackClientNIO
-
-func client() throws -> Client {
-    let httpClient = HTTPClient(eventLoopGroupProvider: .createNew)
-    return try Client(
-        baseUrl: "http://mydomain.com/api/",
-        username: "username",
-        password: "password",
-        httpClient: httpClient
-    )
-}
-```
-
 ### HaystackClient
 
 This defines the main functionality of Haystack API clients. It should not be imported directly;
@@ -118,23 +74,6 @@ func yesterdaysValues() async throws -> Grid {
 }
 ```
 
-### HaystackServerVapor
-
-A server for the [Haystack HTTP API](https://project-haystack.org/doc/docHaystack/HttpApi) that uses
-[Vapor](https://github.com/vapor/vapor). It's separated from the `HaystackServer` package so that clients may use
-alternative server technologies if they choose, including Hummingbird or NIO directly.
-
-It exposes a `HaystackRouteCollection` that can be registered on a Vapor
-application:
-
-```swift
-let app = Application()
-try app.register(collection: HaystackRouteCollection(delegate: ...))
-```
-
-The delegate is a protocol that can be implemented however the user sees fit, although the standard Haystack
-implementation is defined in `HaystackServer`.
-
 ### HaystackServer
 
 This defines the standard functionality and data processing of Haystack API servers, based on generic backing data
@@ -151,6 +90,79 @@ let server = HaystackServer(
     historyStore: InfluxHistoryStore(),
     ...
 )
+```
+
+## Available Traits
+
+### ClientDarwin
+
+A Darwin-only client driver for the
+[Haystack HTTP API](https://project-haystack.org/doc/docHaystack/HttpApi) that
+requires minimal dependencies. Use this if you are only deploying to MacOS, iOS, etc and want
+to reduce dependencies.
+
+Here's an example of how to use it:
+
+```swift
+import HaystackClient
+
+func client() throws -> Client {
+    return try Client(
+        baseUrl: "http://mydomain.com/api/",
+        username: "username",
+        password: "password"
+    )
+}
+```
+
+### ClientNIO
+
+A cross-platform client driver for the
+[Haystack HTTP API](https://project-haystack.org/doc/docHaystack/HttpApi) that
+has larger dependency requirements. Use this if you are only deploying to Linux or if you
+are deploying to Darwin platforms and are willing to accept more dependencies.
+
+Here's an example of how to use it:
+
+```swift
+import HaystackClient
+
+func client() throws -> Client {
+    let httpClient = HTTPClient(eventLoopGroupProvider: .createNew)
+    return try Client(
+        baseUrl: "http://mydomain.com/api/",
+        username: "username",
+        password: "password",
+        httpClient: httpClient
+    )
+}
+```
+
+### ServerVapor
+
+A server for the [Haystack HTTP API](https://project-haystack.org/doc/docHaystack/HttpApi) that uses
+[Vapor](https://github.com/vapor/vapor). It's separated from the `HaystackServer` package so that clients may use
+alternative server technologies if they choose, including Hummingbird or NIO directly.
+
+It exposes a `HaystackRouteCollection` that can be registered on a Vapor
+application:
+
+```swift
+let app = Application()
+try app.register(collection: HaystackRouteCollection(delegate: ...))
+```
+
+The delegate is a protocol that can be implemented however the user sees fit, although the standard Haystack
+implementation is defined in `HaystackServer`.
+
+## Contributing
+
+### Integration tests
+
+To run the integration tests, run a local Haxall server:
+
+```sh
+docker run -e 'SU_PASS=su' -p '8080:8080' needleinajaystack/haxall:latest
 ```
 
 ## License

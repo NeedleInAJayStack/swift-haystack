@@ -1,7 +1,8 @@
+#if ClientNIO
 import AsyncHTTPClient
 import Foundation
 import Haystack
-import HaystackClientNIO
+import HaystackClient
 import NIO
 import Testing
 
@@ -120,3 +121,4 @@ struct HaystackClientNIOIntegrationTests {
         }
     }
 }
+#endif
