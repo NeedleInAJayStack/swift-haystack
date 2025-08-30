@@ -1,5 +1,5 @@
+#if ClientDarwin
 import Foundation
-import HaystackClient
 
 /// A Haystack API Client fetcher based on `URLSession`. This is only available on Darwin platforms.
 struct URLSessionFetcher: Fetcher {
@@ -50,3 +50,4 @@ struct URLSessionFetcher: Fetcher {
 public enum URLSessionFetcherError: Error {
     case invalidUrl(String)
 }
+#endif

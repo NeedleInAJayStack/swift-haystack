@@ -4,7 +4,4 @@ builder:
     - documentation_targets:
         - "Haystack"
         - "HaystackClient"
-        - "HaystackClientDarwin"
-        - "HaystackClientNIO"
         - "HaystackServer"
-        - "HaystackServerVapor"
