@@ -7,6 +7,7 @@ public final class HaystackServer: API, Sendable {
     let recordStore: RecordStore
     let historyStore: HistoryStore
     let watchStore: WatchStore
+    let navPath: [String]
 
     let onInvokeAction: @Sendable (Haystack.Ref, String, [String: any Haystack.Val]) async throws -> Haystack.Grid
     let onEval: @Sendable (String) async throws -> Haystack.Grid
@@ -15,6 +16,7 @@ public final class HaystackServer: API, Sendable {
         recordStore: RecordStore,
         historyStore: HistoryStore,
         watchStore: WatchStore,
+        navPath: [String] = ["site", "equip", "point"],
         onInvokeAction: @escaping @Sendable (Haystack.Ref, String, [String: any Haystack.Val]) async throws -> Haystack.Grid = { _, _, _ in
             GridBuilder().toGrid()
         },
@@ -25,6 +27,7 @@ public final class HaystackServer: API, Sendable {
         self.recordStore = recordStore
         self.historyStore = historyStore
         self.watchStore = watchStore
+        self.navPath = navPath
         self.onInvokeAction = onInvokeAction
         self.onEval = onEval
     }
@@ -106,9 +109,52 @@ public final class HaystackServer: API, Sendable {
         return gb.toGrid()
     }
 
-    public func nav(navId _: Haystack.Ref?) async throws -> Haystack.Grid {
-        // TODO: Implement
-        return GridBuilder().toGrid()
+    public func nav(navId parentId: Haystack.Ref?) async throws -> Haystack.Grid {
+        let gb = Haystack.GridBuilder()
+        try gb.addCol(name: "navId")
+        guard navPath.count > 0 else {
+            return gb.toGrid()
+        }
+        guard let parentId = parentId else {
+            // If no input, just return the first level of navigation
+            for result in try await recordStore.read(filter: "\(navPath[0])", limit: nil) {
+                var navResult = result
+                navResult["navId"] = result["id"]
+                try gb.addRow(navResult)
+            }
+            return gb.toGrid()
+        }
+        guard let parentDict = try await recordStore.read(ids: [parentId]).first else {
+            throw ServerError.idNotFound(parentId)
+        }
+        // Find the first component of the navPath that matches a tag on the input dict
+        var parentNavPathIndex: Int? = nil
+        for index in 0 ..< navPath.count {
+            let component = navPath[index]
+            if parentDict.has(component) {
+                parentNavPathIndex = index
+            }
+        }
+        guard let parentNavPathIndex = parentNavPathIndex else {
+            throw ServerError.navPathComponentNotFound(navPath)
+        }
+        guard parentNavPathIndex < navPath.count - 1 else {
+            // Parent is a navPath leaf. No further navigation is possible, so return nothing.
+            return gb.toGrid()
+        }
+        let parentNavComponent = navPath[parentNavPathIndex]
+        let childNavComponent = navPath[parentNavPathIndex + 1]
+        // Read children using child component and inferring parent ref tag
+        let children = try await recordStore.read(
+            filter: "\(childNavComponent) and \(parentNavComponent)Ref == \(parentId.toZinc())",
+            limit: nil
+        )
+        for child in children {
+            var navChild = child
+            navChild["navId"] = child["id"]
+            try gb.addRow(navChild)
+        }
+        return gb.toGrid()
     }
 
     public func hisRead(id: Haystack.Ref, range: Haystack.HisReadRange) async throws -> Haystack.Grid {
@@ -199,5 +245,6 @@ public final class HaystackServer: API, Sendable {
 
 public enum ServerError: Error {
     case idNotFound(Haystack.Ref)
+    case navPathComponentNotFound([String])
     case watchNotFound(String)
 }

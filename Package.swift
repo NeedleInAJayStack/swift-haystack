@@ -76,5 +76,6 @@ let package = Package(
                 .product(name: "VaporTesting", package: "vapor", condition: .when(traits: ["ServerVapor"])),
             ]
         ),
-    ]
+    ],
+    swiftLanguageModes: [.v5, .version("6")]
 )

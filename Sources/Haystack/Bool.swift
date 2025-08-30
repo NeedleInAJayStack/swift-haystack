@@ -13,7 +13,7 @@ extension Bool: Val {
     }
 }
 
-extension Bool: Comparable {
+extension Bool: @retroactive Comparable {
     public static func < (lhs: Bool, rhs: Bool) -> Bool {
         return !lhs && rhs // false is less than true
     }

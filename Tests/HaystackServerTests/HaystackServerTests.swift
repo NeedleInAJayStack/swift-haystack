@@ -198,13 +198,14 @@ struct HaystackServerTests {
             watchStore: InMemoryWatchStore()
         )
 
-        var grid = try await server.nav(navId: Ref("site"))
-        // TODO: Implement nav
-//        #expect(grid.compactMap { ($0["id"] as? Ref)?.val }.sorted() == ["equip"])
+        var grid = try await server.nav(navId: nil)
+        #expect(grid.compactMap { ($0["navId"] as? Ref)?.val }.sorted() == ["site"])
+
+        grid = try await server.nav(navId: Ref("site"))
+        #expect(grid.compactMap { ($0["navId"] as? Ref)?.val }.sorted() == ["equip"])
 
         grid = try await server.nav(navId: Ref("equip"))
-        // TODO: Implement nav
-//        #expect(grid.compactMap { ($0["id"] as? Ref)?.val }.sorted() == ["point"])
+        #expect(grid.compactMap { ($0["navId"] as? Ref)?.val }.sorted() == ["point"])
     }
 
     @Test func hisRead() async throws {
